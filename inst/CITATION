@@ -1,0 +1,20 @@
+citHeader("To cite CEGO in publications please use:")
+
+bibentry(bibtype="InProceedings",
+		title = "Efficient Global Optimization for Combinatorial Problems",
+		author = c(
+			person("Martin","Zaefferer"),
+			person("Joerg","Stork"),
+			person("Martina","Friese"),
+			person("Andreas","Fischbach"),
+			person("Boris","Naujoks"),
+			person("Thomas","Bartz-Beielstein")
+	  ),
+		booktitle = "Proceedings of the 2014 Conference on Genetic and Evolutionary Computation (GECCO'14)",
+		year         = "2014",
+		address = "New York, NY, USA",
+		publisher= "ACM",
+		pages = "871--878",
+		url = "http://doi.acm.org/10.1145/2576768.2598282"
+)
+
