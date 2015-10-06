@@ -5,8 +5,8 @@
 #'
 #' Creates a benchmark function for the Quadratic Assignment Problem.
 #'
-#' @param a flow matrix
-#' @param b distance matrix
+#' @param a distance matrix
+#' @param b flow matrix
 #'
 #' @return the function of type cost=f(permutation)
 #'
@@ -38,12 +38,18 @@
 benchmarkGeneratorQAP <- function(a, b) { # Generator function. 
 	a 
 	b #lazy evaluation fix, faster than force()
-	f <- function(x){
-		bx<-b[x,x]
-		sum(a*bx)
+	function(x){
+		bx<-b[x,x] 
+		sum(a*bx) # divide by 2 if exact cost required
 	}
-	f
 }
+#other example: http://www.neos-guide.org/content/qap4
+#A <- matrix(c(0,22,53,53,22,0,40,62,53,40,0,55,53,62,55,0),4,4)
+#B <- matrix(c(0,3,0,2,3,0,0,1,0,0,0,4,2,1,4,0),4,4)
+#test <- benchmarkGeneratorQAP(A,B)
+#test(c(2,4,1,3))/2
+#test(c(3,4,1,2))/2
+
 
 ###################################################################################
 #' Create Flow shop Scheduling Problem (FSP) Benchmark
@@ -74,7 +80,7 @@ benchmarkGeneratorFSP <- function(a, n, m) { # Generator function. see Reeves199
 	a 
 	n #lazy evaluation fix, faster than force()
 	m
-	f <- function(x){
+	function(x){
 		C=matrix(NA,n,m)
 		ax <- a[x,]
 		C[,1]<-as.numeric(cumsum(ax[,1]))
@@ -86,7 +92,6 @@ benchmarkGeneratorFSP <- function(a, n, m) { # Generator function. see Reeves199
 		}		
 		C[n,m]
 	}
-	f
 }
 
 ###################################################################################
@@ -175,13 +180,12 @@ benchmarkGeneratorWT <- function(p, w, d) { # Generator function
 	w #lazy evaluation fix, faster than force()
 	d
 	n= length(p)
-	f <- function(x){
+	function(x){
 		px <- p[x]
 		dx <- d[x]
 		wx <- w[x]
 		s=c(0,cumsum(px[-n]))
-		Ti=pmax(s+px-dx,0)*w
+		Ti=pmax(s+px-dx,0)*wx
 		return(sum(Ti))
 	}
-	return(f)
 }

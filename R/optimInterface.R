@@ -8,15 +8,15 @@
 #' with local as well as global approaches. It is used in the CEGO package
 #' to solve the optimization problem that occurs during parameter estimation
 #' in the Kriging model (based on Maximum Likelihood Estimation).
-#' Note that this function is NOT for combinatorial optimization problems. 
+#' Note that this function is NOT applicable to combinatorial optimization problems. 
 #'
 #' The control list contains:\cr
-#' \code{fevals} stopping criterion, number of evaluations allowed for \code{fn}  (defaults to 100) \cr
+#' \code{funEvals} stopping criterion, number of evaluations allowed for \code{fun}  (defaults to 100) \cr
 #' \code{reltol} stopping criterion, relative tolerance  (default: 1e-6) \cr
 #' \code{popsize} population size or number of particles  (default: \code{10*dimension}, where \code{dimension} is derived from the length of the vector \code{lower}). \cr
 #' \code{restarts} the number of restarts to perform (Default: 0). Function evaluation budget will be split accordingly. Early convergence of optimization runs may lead to additional restarts. 
-#' Violations of the provided budget may decrease the number of restarts.\cr\cr
-#' Also note that the parameter \code{method} will be used to choose the optimization method from the following list:\cr
+#' Violations of the provided budget may decrease the number of restarts.\cr
+#' \code{method} will be used to choose the optimization method from the following list:\cr
 #' "L-BFGS-B" - BFGS quasi-Newton: \code{stats} Package \code{optim} function\cr
 #' "nlminb" - box-constrained optimization using PORT routines: \code{stats} Package \code{nlminb} function\cr
 #' "DEoptim" - Differential Evolution implementation: \code{DEoptim} Package\cr
@@ -33,32 +33,29 @@
 #' The used function should have the same parameters and arguments as documented for this very function, i.e. \code{optimInterface}.
 #' The \code{method} parameters for the call to the supplied function will be extracted from \code{control$method}.
 #'
-#' @param par is a point (vector) in the decision space of \code{fn}
-#' @param fn is the target function of type \code{y = f(x, ...)}
+#' @param x is a point (vector) in the decision space of \code{fun}
+#' @param fun is the target function of type \code{y = f(x, ...)}
 #' @param lower is a vector that defines the lower boundary of search space
 #' @param upper is a vector that defines the upper boundary of search space
-#' @param method is a string that describes which method is to be used, as implemented in this function. Else it can be a function, which is a custom
-#' optimization function created by the user. See details.
 #' @param control is a list of additional settings. See details.
-#' @param ... additional parameters to be passed on to \code{fn}
+#' @param ... additional parameters to be passed on to \code{fun}
 #'
 #' @return This function returns a list with:\cr
-#'	\code{par} parameters of the found solution\cr
-#'	\code{value} target function value of the found solution\cr
-#'	\code{counts} number of evaluations of \code{fn}
+#'	\code{xbest} parameters of the found solution\cr
+#'	\code{ybest} target function value of the found solution\cr
+#'	\code{count} number of evaluations of \code{fun}
 #'
 #' @export
 ###################################################################################################
-# TODO: par is a vector. should also be matrix in case of start population, or for restarts?
-optimInterface<-function(par,fn,lower=-Inf,upper=Inf,method="optim-L-BFGS-B",control=list(),...){
-
-	con<-list(fevals=100 #CON: Internal List with defaults for control
+optimInterface<-function(x,fun,lower=-Inf,upper=Inf,control=list(),...){
+	con<-list(funEvals=100 #CON: Internal List with defaults for control
+			,method="L-BFGS-B"
       ,reltol=1e-6
 			,popsize=NULL			
 			,ineq_constr=NULL
 			,verbosity=0
 			,restarts=0)
-	con[(namc <- names(control))] <- control;
+	con[names(control)] <- control;
 	control<-con;
 	
 	
@@ -66,35 +63,31 @@ optimInterface<-function(par,fn,lower=-Inf,upper=Inf,method="optim-L-BFGS-B",con
 	dim <- length(lower)
 	if(is.null(control$popsize))
 		control$popsize <- dim * 10
-	budget <- control$fevals / (control$restarts+1)
+	budget <- control$funEvals / (control$restarts+1)
 	sumevals <- 0	
 	ymin <- Inf
 	run <- TRUE
+	method <- control$method
 	
 	if(!is.null(control$ineq_constr) &  !(method=="NLOPT_GN_ORIG_DIRECT" | method=="NLOPT_LN_COBYLA" ))
 		warning("Constraint function passed to optimInterface. This is not supported with the chosen method.")
 	
-	if(length(par)==0) par <- runif(length(lower))*(upper-lower)+lower
+	if(length(x)==0) x <- runif(length(lower))*(upper-lower)+lower
 	
 	#LOOP OVER RESTARTS
 	while(run){
-		if(is.function(method)){ 
-			res <- method(par=par, fn=fn, lower=lower,upper=upper,method=control$method,control=control,...)
-			resval <- res$value
-			respar <- res$par
-			resevals <- res$counts
-		}else if (method=="L-BFGS-B"){
-			res <- optim(par=par, fn=fn, method=method,lower=lower,upper=upper,control=list(maxit=budget,trace=control$verbosity),...)
+		if (method=="L-BFGS-B"){
+			res <- optim(par=x, fn=fun, method=method,lower=lower,upper=upper,control=list(maxit=budget,trace=control$verbosity),...)
 			resval <- res$value
 			respar <- res$par
 			resevals <- res$counts[[1]] +res$counts[[1]] * 2 * dim
 		}else if (method=="nlminb"){
-			res <- nlminb(start=par, objective=fn, gradient=NULL, hessian=NULL, control=list(eval.max=budget,iter.max=budget,rel.tol=control$reltol,trace=control$verbosity),lower=lower,upper=upper,...)
+			res <- nlminb(start=x, objective=fun, gradient=NULL, hessian=NULL, control=list(eval.max=budget,iter.max=budget,rel.tol=control$reltol,trace=control$verbosity),lower=lower,upper=upper,...)
 			resval <- res$objective
 			respar <- res$par
 			resevals <- sum(res$evaluations)
 		}else if (method=="DEoptim"){
-			res <- DEoptim::DEoptim(fn=fn ,lower=lower,upper=upper,control=DEoptim.control(NP=control$popsize,itermax=floor((budget-control$popsize)/control$popsize),reltol=control$reltol,trace=FALSE),...)
+			res <- DEoptim::DEoptim(fn=fun ,lower=lower,upper=upper,control=DEoptim.control(NP=control$popsize,itermax=floor((budget-control$popsize)/control$popsize),reltol=control$reltol,trace=FALSE),...)
 			resval <- res$optim$bestval
 			respar <- res$optim$bestmem
 			resevals <- budget
@@ -104,7 +97,7 @@ optimInterface<-function(par,fn,lower=-Inf,upper=Inf,method="optim-L-BFGS-B",con
 								"NLOPT_GN_CRS2_LM","NLOPT_LN_COBYLA",
 								"NLOPT_LN_NELDERMEAD","NLOPT_LN_SBPLX","NLOPT_LN_BOBYQA","NLOPT_GN_ISRES"))){ 
 			opts=list(algorithm=method,maxeval=budget, ftol_rel=control$reltol, xtol_rel=-Inf, print_level=control$verbosity)	
-			res <- nloptr::nloptr(par,fn,lb = lower,ub = upper, eval_g_ineq=control$ineq_constr,opts = opts,...)
+			res <- nloptr::nloptr(x,fun,lb = lower,ub = upper, eval_g_ineq=control$ineq_constr,opts = opts,...)
 			resval <- res$objective
 			respar <- res$solution	
 			resevals <- res$iterations
@@ -118,17 +111,17 @@ optimInterface<-function(par,fn,lower=-Inf,upper=Inf,method="optim-L-BFGS-B",con
 			resultpar <- respar
 			ymin <- resval
 		}
-		par <- lower+(upper-lower)*runif(dim)
+		x <- lower+(upper-lower)*runif(dim)
 		#Stop while loop when limit reached
-		if(sumevals>=control$fevals){
+		if(sumevals>=control$funEvals){
 			run=FALSE
 		}
 		
 	}
 	result <- list()
-	result$par <- resultpar
-	result$value <- ymin
-	result$counts <- sumevals
+	result$xbest <- resultpar
+	result$ybest <- ymin
+	result$count <- sumevals
 	result
 
 }

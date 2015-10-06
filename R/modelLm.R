@@ -3,9 +3,8 @@
 ###################################################################################
 #' Distance based Linear Model
 #' 
-#' A simple linear model based on arbitrary distances. Comparable to a nearest neighbor, but potentially able to extrapolate
-#' into regions of improvement. Used as a simple baseline by Zaefferer et al.(2014). Basically just generates a proper \code{CLM}
-#' object for the prediction function.
+#' A simple linear model based on arbitrary distances. Comparable to a k nearest neighbor model, but potentially able to extrapolate
+#' into regions of improvement. Used as a simple baseline by Zaefferer et al.(2014).
 #'
 #' @param x list of samples in input space
 #' @param y  matrix, vector of observations for each sample
@@ -15,12 +14,12 @@
 #' @param control currently unused, defaults to \code{list()}
 #'
 #'
-#' @return a fit (list, CLM), with the options and found parameters for the model which has to be passed to the predictor function:\cr
+#' @return a fit (list, modelLinear), with the options and found parameters for the model which has to be passed to the predictor function:\cr
 #' \code{x} samples in input space (see parameters)\cr
 #' \code{y} observations for each sample (see parameters)\cr
 #' \code{distanceFunction} distance function (see parameters)
 #' 
-#' @seealso \code{\link{predict.CLM}} 
+#' @seealso \code{\link{predict.modelLinear}} 
 #' 
 #' @references Zaefferer, Martin; Stork, Joerg; Friese, Martina; Fischbach, Andreas; Naujoks, Boris; Bartz-Beielstein, Thomas. (2014). Efficient global optimization for combinatorial problems. In Proceedings of the 2014 conference on Genetic and evolutionary computation (GECCO '14). ACM, New York, NY, USA, 871-878. DOI=10.1145/2576768.2598282 http://doi.acm.org/10.1145/2576768.2598282 
 #'
@@ -34,42 +33,60 @@
 #' xtest <- x[-(1:15)]
 #' x <- x[1:15]
 #' #determin true objective function values
-#' y <- sapply(x,fn)
-#' ytest <- sapply(xtest,fn)
+#' y <- fn(x)
+#' ytest <- fn(xtest)
 #' #build model
-#' fit <- combinatorialLM(x,y,distancePermutationHamming)
+#' fit <- modelLinear(x,y,distancePermutationHamming)
 #' #predicted obj. function values
-#' ypred <- predict(fit,xtest)
+#' ypred <- predict(fit,xtest)$y
 #' #plot
 #' plot(ytest,ypred,xlab="true value",ylab="predicted value",
 #'     pch=20,xlim=c(0.3,1),ylim=c(min(ypred)-0.1,max(ypred)+0.1))
 #' abline(0,1,lty=2)
 #' @export
 ###################################################################################
-combinatorialLM <- function(x, y, distanceFunction, control=list()){ #linear distance model
+modelLinear <- function(x, y, distanceFunction, control=list()){ #linear distance model
 	fit<-list()
 	fit$distanceFunction <- distanceFunction
 	fit$x <- x
 	fit$y <- y
-	class(fit) <- "CLM"
+	class(fit) <- "modelLinear"
 	fit
+}
+
+###################################################################################
+#' Linear Distance-Based Model
+#'
+#' DEPRECATED version of the linear, distance-based model, please use \code{\link{modelLinear}}
+#' 
+#' @param x list of samples in input space
+#' @param y column vector of observations for each sample
+#' @param distanceFunction a suitable distance function of type f(x1,x2), returning a scalar distance value
+#' @param control options for the model building procedure
+#'
+#' @keywords internal
+#' @export
+###################################################################################
+combinatorialLM <- function(x, y, distanceFunction, control = list()){
+	.Deprecated("modelLinear")
+	modelKriging(x,y,distanceFunction,control)
 }
 
 ###################################################################################
 #' Predict: Combinatorial Kriging
 #' 
-#' Predict with acombinatorialLM fit.
+#' Predict with amodelLinear fit.
 #'
-#' @param object fit of the Kriging model (settings and parameters), of class \code{CLM}.
+#' @param object fit of the Kriging model (settings and parameters), of class \code{modelLinear}.
 #' @param x list of samples to be predicted
 #' @param ... further arguments, not used
 #'
 #' @return numeric vector of predictions
 #'
-#' @seealso \code{\link{combinatorialLM}}
+#' @seealso \code{\link{modelLinear}}
 #' @export
 ###################################################################################
-predict.CLM <- function(object,x,...){ #approach: sort by distance, build linear model, predict at zero.
+predict.modelLinear <- function(object,x,...){ #approach: sort by distance, build linear model, predict at zero.
 	if(!is.list(x))x<-list(x)
 	pred=NULL
 	for(i in 1:length(x)){
@@ -92,5 +109,5 @@ predict.CLM <- function(object,x,...){ #approach: sort by distance, build linear
 		pred <- c(pred, fy1-min(dx)*m)
 
 	}
-	pred
+	list(y=pred,s=rep(0,length(pred)))
 }

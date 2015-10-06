@@ -24,42 +24,6 @@ infillExpectedImprovement <- function(mean,sd,min){
 	ei
 }
 
-###################################################################################
-#' Initialize Random Design
-#' 
-#' Create a random initial population or experimental design, given a specifed creation function,
-#' as well as a optional set of user-specified design members and a maximum design size.
-#' Also removes duplicates from the design/population.
-#'
-#' @param par Optional list of user specified solutions to be added to the design/population, defaults to NULL
-#' @param cf Creation function, creates random new individuals
-#' @param size size of the design/population
-#'
-#' @return Returns list with experimental design (or population) without duplicates
-#'
-#' @keywords internal
-#' @export
-###################################################################################
-initializeDesign <- function(par=NULL,cF,size){
-	## initialization
-	if(is.null(par)){
-    x <- list()
-    k=0
-  }else{ #given start population
-		x <- par
-    k=length(x)
-  }
-		
-	if(k>size){
-		x <- x[1:size]
-	}else if(k<size){
-		## CREATE initial population
-		x <- c(x, replicate(size-k , cF(),simplify=FALSE))
-	}#else if k==size do nothing.
-		
-	## REPLACE duplicates from initial population with unique individuals
-	x <- removeDuplicates(x, cF)
-}
 
 ###################################################################################
 #' Remove Duplicates
@@ -91,16 +55,17 @@ removeDuplicates <- function(x,cf){
 #' @param xhist List of previous individuals
 #' @param off List of offspring individuals
 #' @param cf Creation function, creates random new individuals
+#' @param df Dupliate Function. This function determines which elements in a list/population are duplicates. By default, this is the duplicated function from R-base.
 #'
 #' @return Returns \code{off} without duplicates
 #'
 #' @keywords internal
 #' @export
 ###################################################################################
-removeDuplicatesOffspring <- function(xhist,off,cf){
+removeDuplicatesOffspring <- function(xhist,off,cf,df=duplicated){
 	x <- c(xhist,off)
-	while(any(duplicated(x))){ 
-		duplicates <- which(duplicated(x))
+	while(any(df(x))){ 
+		duplicates <- which(df(x))
 		for(i in 1:length(duplicates))
 			x[[duplicates[i]]]=cf()
 	}
@@ -119,13 +84,12 @@ removeDuplicatesOffspring <- function(xhist,off,cf){
 #'
 #' @return index of tournament winners
 #'
-#' @seealso \code{\link{combinatorialKriging}}
+#' @seealso \code{\link{modelKriging}}
 #'
 #' @keywords internal
 #' @export
 ###################################################################################
 tournamentSelection <- function(fitness, tournamentSize, tournamentProbability, selectFromN){ 
-	index <- rep(0,selectFromN)
 	N <- length(fitness)
 	tournamentSize <- min(tournamentSize, N) #can not select more than in population for each tournament.
 	tmp <- seq(0,tournamentSize-1)

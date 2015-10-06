@@ -8,9 +8,9 @@
 #' is the optimum of the landscape. 
 #'
 #' @param ref Reference individual
-#' @param distFun Distance function, used to evaluate d(x,ref), where x is an arbitrary new individual
+#' @param distanceFunction Distance function, used to evaluate d(x,ref), where x is an arbitrary new individual
 #'
-#' @return returns a function. The function can take any type of individual as its input, depending on whether it is suitable for the distance function.
+#' @return returns a function. The function requires a list of candidate solutions as its input, where each solution is suitable for use with the distance function. The function returns a numeric vector.
 #'
 #' @references Moraglio, Alberto, Yong-Hyuk Kim, and Yourim Yoon. "Geometric surrogate-based optimisation for permutation-based problems." Proceedings of the 13th annual conference companion on Genetic and evolutionary computation. ACM, 2011.
 #'
@@ -18,20 +18,24 @@
 #'
 #' @examples
 #' fun <- landscapeGeneratorUNI(ref=1:7,distancePermutationCos)
+#' ## for single solutions, note that the function still requires list input:
 #' x <- 1:7
-#' fun(x)
+#' fun(list(x))
 #' x <- 7:1
-#' fun(x)
+#' fun(list(x))
 #' x <- sample(7)
+#' fun(list(x))
+#' ## multiple solutions at once:
+#' x <- replicate(5,sample(7),FALSE)
 #' fun(x)
 #'
 #' @export
 ###################################################################################
-landscapeGeneratorUNI <- function(ref=1:10,distFun){  #N= number of elements of a string, K= number of neighbours, PI = relative position of each neighbour in string, g= set of fitness functions for each combination of string components
-	distFun #lazy evaluation fix, faster than force()
+landscapeGeneratorUNI <- function(ref=1:10,distanceFunction){  #N= number of elements of a string, K= number of neighbours, PI = relative position of each neighbour in string, g= set of fitness functions for each combination of string components
+	distanceFunction #lazy evaluation fix, faster than force()
 	ref #lazy evaluation fix, faster than force()
-	landscape <- function(x){
-		distFun(x,ref)
+	function(x){
+		distanceVector(ref,x,distanceFunction)
 	}
 }
 
@@ -44,33 +48,37 @@ landscapeGeneratorUNI <- function(ref=1:10,distFun){  #N= number of elements of 
 #' is an optimum of the landscape. 
 #'
 #' @param ref list of reference individuals
-#' @param distFun Distance function, used to evaluate d(x,ref[[n]]), where x is an arbitrary new individual
+#' @param distanceFunction Distance function, used to evaluate d(x,ref[[n]]), where x is an arbitrary new individual
 #'
-#' @return returns a function. The function can take any type of individual as its input, depending on whether it is suitable for the distance function.
+#' @return returns a function. The function requires a list of candidate solutions as its input, where each solution is suitable for use with the distance function. The function returns a numeric vector.
 #'
 #' @seealso \code{\link{landscapeGeneratorUNI}}, \code{\link{landscapeGeneratorGaussian}}
 #'
+#' @examples
 #' fun <- landscapeGeneratorMUL(ref=list(1:7,c(2,4,1,5,3,7,6)),distancePermutationCos)
 #' x <- 1:7
-#' fun(x)
+#' fun(list(x))
 #' x <- c(2,4,1,5,3,7,6)
-#' fun(x)
+#' fun(list(x))
 #' x <- 7:1
-#' fun(x)
+#' fun(list(x))
 #' x <- sample(7)
+#' fun(list(x))
+#' ## multiple solutions at once:
+#' x <- append(list(1:7,c(2,4,1,5,3,7,6)),replicate(5,sample(7),FALSE))
 #' fun(x)
 #'
 #' @export
 ###################################################################################
-landscapeGeneratorMUL <- function(ref=list(1:10),distFun){
-	distFun #lazy evaluation fix, faster than force()
+landscapeGeneratorMUL <- function(ref=list(1:10),distanceFunction){
+	distanceFunction #lazy evaluation fix, faster than force()
 	ref #lazy evaluation fix, faster than force()
-	landscape <- function(x){
+	function(x){
 		k = length(ref)
-		d <- rep(NA,k)
+		d <- matrix(NA,k,length(x))#rep(NA,k)
 		for(i in 1:k)
-			d[i] <- distFun(x,ref[[i]])
-		min(d)	
+			d[i,] <- distanceVector(ref[[i]],x,distanceFunction)
+		do.call(pmin.int, lapply(1:nrow(d), function(i)d[i,])) #fast row minimum for matrix d, the return value for each candidate solution
 	}	
 }
 
@@ -92,8 +100,7 @@ landscapeGeneratorMUL <- function(ref=list(1:10),distFun){
 #' @param distanceFunction A function of type \code{f(x,y)}, to evaluate distance between to samples in their given representation.
 #' @param creationFunction function to randomly generate the centers of the Gaussians, in form of their given representation.
 #'
-#' @return returns a function. The function takes a solution sample (e.g., a permutation, a tree) as input.
-#' The function returns a single scalar value, which is the objective value for the given sample. 
+#' @return returns a function.The function requires a list of candidate solutions as its input, where each solution is suitable for use with the distance function.
 #'
 #' @references B. Yuan and M. Gallagher (2003) "On Building a Principled Framework for Evaluating and Testing Evolutionary Algorithms: A Continuous Landscape Generator". 
 #' In Proceedings of the 2003 Congress on Evolutionary Computation, IEEE, pp. 451-458, Canberra, Australia.
@@ -112,14 +119,14 @@ landscapeGeneratorMUL <- function(ref=list(1:10),distFun){
 #' # set seed
 #' set.seed(seed)
 #' #landscape
-#' lF <- Vectorize(landscapeGeneratorUNI(cF(),dF))
+#' lF <- landscapeGeneratorUNI(cF(),dF)
 #' x <- seq(from=-0,by=0.001,to=1)
 #' plot(x,lF(x),type="l")
 #' ## multi-modal distance landscape
 #' # set seed
 #' set.seed(seed)
 #' #landscape
-#' lF <- Vectorize(landscapeGeneratorMUL(replicate(5,cF(),FALSE),dF))
+#' lF <- landscapeGeneratorMUL(replicate(5,cF(),FALSE),dF)
 #' x <- seq(from=-0,by=0.001,to=1)
 #' plot(x,lF(x),type="l")
 #' ## glg landscape

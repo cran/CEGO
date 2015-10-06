@@ -1,4 +1,35 @@
 CEGO Patch Notes 
 
-Version 1.0.1108 - 06.01.2015
+Version 2.0.0 @ 2015-10-06
+	- General remark: This update includes some changes that are not backwards compatible.
+		E.g., Several of the main function interfaces changed,
+		to make functions more usable/flexible/understandable. See details below.  
+		- Deprecated distancePermutationLCSeq. Replaced by distancePermutationInsert to stress edit-distance character of the function,
+			for better readability and to avoid confusion of LCSeq and LCStr. The deprecated distancePermutationLCSeq will be removed in the next patch.
+		- Variable names in optimInterface changed
+		- Unified the interfaces of all optim* functions in the package. Now all take x, fun and control as input. creationFunction is part of control now.
+		- Unfied interface for distance based landscape generators, landscapes now expect list of solutions as input. (i.e., even a single solution has to be wrapped into a list)
+		- Renamed all modeling functions and the corresponding objects, e.g., combinatorialKriging is now modelKriging (old functions are deprecated and will be removed in next update).
+  - Moved from .C to .Call interface for several permutation distance measures. 
+    This may speed up distance calculation quite significantly in some cases:
+    E.g., distancePermutationInterchange and distancePermutationInsert (formerly LCSeq) are now 
+    ~3 times faster for typical test cases. Some distance measures that do not rely on 
+    C code (e.g., Hamming, Euclidean) are not affected by this change.  
+	- Added pivoting to Cholesky decomposition in likelihood estimation
+		function for modelKriging. Allows for PSD correlation matrices.
+	- New "control" parameter in modelKriging: control$scaling. 
+    When this is set to TRUE, the distance matrix is divided by the 
+    maximum distance to yield values between 0 and 1. This allows to 
+    avoid scaling bias when distance functions may yield values larger 
+		than one.
+  - Improved documentation for several functions
+	- Bugfix for the weighted tardiness benchmark, weight vector now handled correctly
+  - New mutation operator for permutations (reversal mutation): mutationPermutationReversal 
+  - Keeping an archive of candidate solutions in the EA is now optional. See the control parameter "archive" in optimEA.
+ 	- Custom choices for duplicate removal are now in optimEA. See control parameters "duplicateFunction" and "duplicateRemoval".
+  - In case model building fails during a run of optimCEGO, the run stops (with a warning), giving the result so far as well as a termination message.
+	
+	- TODO: default Brent optim for one-dim kriging case?
+	
+Version 1.0.1108 @ 2015-01-06
 	- Initial Release

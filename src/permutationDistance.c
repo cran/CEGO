@@ -1,25 +1,27 @@
 #include <R.h>
+#include <Rinternals.h>
+#include <Rmath.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-void permutationDistanceLongestCommonSubsequence(int *s, int *t, int *n, int *ret){
-	int *v0;
-	int *v1;
-	int *vtmp;
-	int i,j;
-	int *x;
-	int *y;
-    
-	v0 = (int *) R_alloc(sizeof(int), *n +1);
-	v1 = (int *) R_alloc(sizeof(int), *n +1);
+SEXP permutationDistanceLongestCommonSubsequence(SEXP Rs, SEXP Rt){
+	int i,n,*s,*t,*v0,*v1,*vtmp,j,*x,*y;
+	SEXP Rval;
+	PROTECT(Rval=allocVector(INTSXP,1));
+	s = INTEGER(Rs);
+	t = INTEGER(Rt);
+	n = length(Rs)+1;
 	
-	for(i=0;i<(*n+1);i++){
+	v0 = (int *) R_alloc(sizeof(int), n);
+	v1 = (int *) R_alloc(sizeof(int), n);
+	
+	for(i=0;i<n;i++){
 		v0[i]=0;
 		v1[i]=0;
 	}
 
-	for (y = t, i = 1; i < (*n+1); y++, i++){
-		for (x = s, j = 1; j < (*n+1); x++, j++){
+	for (y = t, i = 1; i < n; y++, i++){
+		for (x = s, j = 1; j < n; x++, j++){
 			if(*x == *y){
 				v1[j]= v0[j-1]+1;
 			}else{				
@@ -30,26 +32,37 @@ void permutationDistanceLongestCommonSubsequence(int *s, int *t, int *n, int *re
 		v1 = v0;
 		v0 = vtmp;
 	}
-	ret[0]= v0[*n];
+	
+	INTEGER(Rval)[0] = v0[n-1];
+	UNPROTECT(1);
+	return Rval;
 }
 
-void permutationDistanceLevenshtein(int *s, int *t, int *n, int *ret){
+
+SEXP permutationDistanceLevenshtein(SEXP Rs, SEXP Rt){
 	int *v0;
 	int *v1;
 	int *vtmp;
 	int i,j,ins,del,sub;
 	int *x;
 	int *y;
-    
-	v0 = (int *) R_alloc(sizeof(int), *n);
-	v1 = (int *) R_alloc(sizeof(int), *n);
+	
+	int *s,*t,n;	
+ 	SEXP Rval;
+	PROTECT(Rval=allocVector(INTSXP,1));
+	s = INTEGER(Rs);
+	t = INTEGER(Rt);
+	n = length(Rs)+1;
+	
+	v0 = (int *) R_alloc(sizeof(int), n);
+	v1 = (int *) R_alloc(sizeof(int), n);
 
-	for (i = 0; i < *n; i++)
+	for (i = 0; i < n; i++)
 		v0[i] = i;
 
-	for (y = t, i = 1; i < *n; y++, i++){
+	for (y = t, i = 1; i < n; y++, i++){
 		v1[0] = i;
-		for (x = s, j = 1; j < *n; x++, j++){
+		for (x = s, j = 1; j < n; x++, j++){
 			ins = v0[j] + 1; 
 			del = v1[j - 1] + 1;
 			sub = v0[j - 1] + ((*x == *y) ? 0 : 1);
@@ -61,28 +74,38 @@ void permutationDistanceLevenshtein(int *s, int *t, int *n, int *ret){
 		v1 = v0;
 		v0 = vtmp;
 	}
-	ret[0]= v0[*n - 1];
+	
+	INTEGER(Rval)[0] = v0[n - 1];
+	UNPROTECT(1);
+	return Rval;
 }
 
-void permutationDistanceLongestCommonSubstring(int *s, int *t, int *n, int *ret){
+SEXP permutationDistanceLongestCommonSubstring(SEXP Rs, SEXP Rt){
 	int *v0;
 	int *v1;
 	int *vtmp;
 	int i,j;
 	int *x;
 	int *y;
-    int max=0;
+	int max=0;
 	
-	v0 = (int *) R_alloc(sizeof(int), *n);
-	v1 = (int *) R_alloc(sizeof(int), *n);
+	int *s,*t,n;	
+ 	SEXP Rval;
+	PROTECT(Rval=allocVector(INTSXP,1));
+	s = INTEGER(Rs);
+	t = INTEGER(Rt);
+	n = length(Rs);
+	
+	v0 = (int *) R_alloc(sizeof(int), n);
+	v1 = (int *) R_alloc(sizeof(int), n);
 
-	for(i=0;i<*n;i++){
+	for(i=0;i<n;i++){
 		v0[i]=0;
 		v1[i]=0;
 	}	
 	
-	for (y = t, i = 0; i < *n; y++, i++){
-		for (x = s, j = 0; j < *n; x++, j++){
+	for (y = t, i = 0; i < n; y++, i++){
+		for (x = s, j = 0; j < n; x++, j++){
 			if(*x == *y){
 				if((j==0) || (i==0)){
 					v1[j]=1;
@@ -100,81 +123,130 @@ void permutationDistanceLongestCommonSubstring(int *s, int *t, int *n, int *ret)
 		v1 = v0;
 		v0 = vtmp;
 	}
-	ret[0]= max;
+	
+	INTEGER(Rval)[0] = max;
+	UNPROTECT(1);
+	return Rval;
 }
 
-void permutationDistanceSwap(int *s, int *t, int *n, int *ret){
+SEXP permutationDistanceSwap(SEXP Rs, SEXP Rt){
 	int i,j;
-    int tau=0;
+  int tau=0;
 	
-	for (i = 0; i < *n; i++){
-		for (j = 0; j < *n; j++){
+	int *s,*t,n;	
+ 	SEXP Rval;
+	PROTECT(Rval=allocVector(INTSXP,1));
+	s = INTEGER(Rs);
+	t = INTEGER(Rt);
+	n = length(Rs);
+	
+	for (i = 0; i < n; i++){
+		for (j = 0; j < n; j++){
 			if((s[i]<s[j]) && (t[i]>t[j]))
 				tau++;			
 		}
 	}
-	ret[0]= tau;
+
+	INTEGER(Rval)[0] = tau;
+	UNPROTECT(1);
+	return Rval;
 }
 
 
-
-
-void permutationDistanceInterchange(int *s, int *n, int *ret){
+SEXP permutationDistanceInterchange(SEXP Rs, SEXP Rt){
 	int i,j;
-    int cc=0;
+	int res=0;
 	int *piunchecked;
-	piunchecked = (int *) R_alloc(sizeof(int), *n);
-	for(i=0;i<*n;i++){
+	
+	int *s,*s2,*t,n;
+ 	SEXP Rval;
+	PROTECT(Rval=allocVector(INTSXP,1));
+	s = INTEGER(Rs);
+	t = INTEGER(Rt);
+	n = length(Rs);
+
+	// copy s
+	s2= (int *) R_alloc(sizeof(int), n);
+	for(i=0;i<n;i++){
+		s2[i]= s[i];
+	}
+	
+	//x<-y[order(x)]
+	int *idx;
+	idx= (int *) R_alloc(sizeof(int), n);
+	R_orderVector(idx,n,Rf_lang1(Rs),TRUE,FALSE);
+	for(i=0;i<n;i++){
+		s2[i]= t[idx[i]];
+	}
+	
+	piunchecked = (int *) R_alloc(sizeof(int), n);
+	for(i=0;i<n;i++){
 		piunchecked[i]=1;
 	}	
 
-	for (i = 0; i < *n; i++){
+	for (i = 0; i < n; i++){
 		if(piunchecked[i]==1){
-			cc++;
+			res++;
 			piunchecked[i]=0;
-			j = s[i]-1;
+			j = s2[i]-1;
 			while(j!=i){
 				piunchecked[j] = 0;
-				j = s[j]-1;
+				j = s2[j]-1;
 			}	
 		}		
 	}
-	ret[0]= cc;
+	
+	INTEGER(Rval)[0] = res;
+	UNPROTECT(1);
+	return Rval;
 }
 
-
-
-
-void permutationDistanceR(int *s, int *t, int *n, int *ret){
+SEXP permutationDistanceR(SEXP Rs, SEXP Rt){
 	int i,j;
 	int dis=0;
-	
-	for (i = 0; i < (*n-1); i++){
-		for (j = 0; j < *n; j++){
+
+	int *s,*t,n;
+ 	SEXP Rval;
+	PROTECT(Rval=allocVector(INTSXP,1));
+	s = INTEGER(Rs);
+	t = INTEGER(Rt);
+	n = length(Rs);
+
+	for (i = 0; i < (n-1); i++){
+		for (j = 0; j < n; j++){
 			if(s[i]==t[j])
 				break;			
 		}
-		if(j<(*n-1)){
+		if(j<(n-1)){
 			dis = dis + ((s[i+1]==t[j+1])? 0 : 1);
 		}else{
 			dis++;
 		}
 	}
-	ret[0]= dis;
+	INTEGER(Rval)[0] = dis;
+	UNPROTECT(1);
+	return Rval;
 }
 
-void permutationDistanceAdjacency(int *s, int *t, int *n, int *ret){
+SEXP permutationDistanceAdjacency(SEXP Rs, SEXP Rt){
 	int i,j;
 	int dis=0;
 	
-	for (i = 0; i < (*n-1); i++){
-		for (j = 0; j < *n; j++){
+	int *s,*t,n;
+ 	SEXP Rval;
+	PROTECT(Rval=allocVector(INTSXP,1));
+	s = INTEGER(Rs);
+	t = INTEGER(Rt);
+	n = length(Rs);
+	
+	for (i = 0; i < (n-1); i++){
+		for (j = 0; j < n; j++){
 			if(j==0){
 				if(s[i]==t[j]){
 					if(s[i+1]==t[j+1])
 						dis++;
 				}		
-			}else if(j==(*n-1)){
+			}else if(j==(n-1)){
 				if(s[i]==t[j]){
 					if(s[i+1]==t[j-1])
 						dis++;
@@ -187,86 +259,158 @@ void permutationDistanceAdjacency(int *s, int *t, int *n, int *ret){
 			}	
 		}
 	}
-	ret[0]= dis;
+	INTEGER(Rval)[0] = dis;
+	UNPROTECT(1);
+	return Rval;
 }
 
-void permutationDistancePosition(int *s, int *t, int *n, int *ret){
+
+SEXP permutationDistancePosition(SEXP Rs, SEXP Rt){
 	int i,j;
 	int dis=0;
 	
-	for (i = 0; i < *n; i++){
-		for (j = 0; j < *n; j++){
+	int *s,*t,n;
+ 	SEXP Rval;
+	PROTECT(Rval=allocVector(INTSXP,1));
+	s = INTEGER(Rs);
+	t = INTEGER(Rt);
+	n = length(Rs);
+	
+	for (i = 0; i < n; i++){
+		for (j = 0; j < n; j++){
 			if(s[i]==t[j]){
 				dis=dis+abs(j-i);
 			}
 		}
 	}
-	ret[0]= dis;
+	INTEGER(Rval)[0] = dis;
+	UNPROTECT(1);
+	return Rval;
 }
 
-void permutationDistancePosition2(int *s, int *t, int *n, int *ret){
+SEXP permutationDistancePosition2(SEXP Rs, SEXP Rt){
 	int i,j;
 	int dis=0;
 	
-	for (i = 0; i < *n; i++){
-		for (j = 0; j < *n; j++){
+	int *s,*t,n;
+ 	SEXP Rval;
+	PROTECT(Rval=allocVector(INTSXP,1));
+	s = INTEGER(Rs);
+	t = INTEGER(Rt);
+	n = length(Rs);
+	
+	for (i = 0; i < n; i++){
+		for (j = 0; j < n; j++){
 			if(s[i]==t[j]){
 				dis=dis+((j-i)*(j-i));
 			}
 		}
 	}
-	ret[0]= dis;
+	INTEGER(Rval)[0] = dis;
+	UNPROTECT(1);
+	return Rval;
 }
 
-void permutationDistanceHamming(int *s, int *t, int *n, int *ret){
+SEXP permutationDistanceHamming(SEXP Rs, SEXP Rt){
 	int i;
 	int dis=0;
 	
-	for (i = 0; i < *n; i++){
+	int *s,*t,n;
+ 	SEXP Rval;
+	PROTECT(Rval=allocVector(INTSXP,1));
+	s = INTEGER(Rs);
+	t = INTEGER(Rt);
+	n = length(Rs);
+	
+	for (i = 0; i < n; i++){
 		if(s[i]!=t[i]){
 			dis++;
 		}
 	}
-	ret[0]= dis;
+	
+	INTEGER(Rval)[0] = dis;
+	UNPROTECT(1);
+	return Rval;
 }
 
-void permutationDistanceEuclidean(int *s, int *t, int *n, int *ret){
+SEXP permutationDistanceEuclidean(SEXP Rs, SEXP Rt){
 	int i;
 	int dis=0;
 	
-	for (i = 0; i < *n; i++){
+	int *s,*t,n;
+ 	SEXP Rval;
+	PROTECT(Rval=allocVector(INTSXP,1));
+	s = INTEGER(Rs);
+	t = INTEGER(Rt);
+	n = length(Rs);
+	
+	for (i = 0; i < n; i++){
 		dis= dis+(s[i]-t[i]) *(s[i]-t[i]);
 	}
-	ret[0]= dis;
+	
+	INTEGER(Rval)[0] = dis;
+	UNPROTECT(1);
+	return Rval;
 }
 
-void permutationDistanceLee(int *s, int *t, int *n, int *ret){
+SEXP permutationDistanceLee(SEXP Rs, SEXP Rt){
 	int i,tmp,ntmp;
 	int dis=0;
 	
-	for (i = 0; i < *n; i++){
+	int *s,*t,n;
+ 	SEXP Rval;
+	PROTECT(Rval=allocVector(INTSXP,1));
+	s = INTEGER(Rs);
+	t = INTEGER(Rt);
+	n = length(Rs);
+	
+	for (i = 0; i < n; i++){
 		tmp=abs(s[i]-t[i]);
-		ntmp=*n-tmp;
+		ntmp=n-tmp;
 		dis=dis+ ((tmp < ntmp)? tmp : ntmp);
 	}
-	ret[0]= dis;
+	
+	INTEGER(Rval)[0] = dis;
+	UNPROTECT(1);
+	return Rval;
 }
 
-//not a distance, but used for ULAM metric
-//based on:
+// ULAM metric
 // Longest increasing subsequence. (2014, December 20). In Wikipedia, The Free Encyclopedia. Retrieved 18:21, December 26, 2014, from http://en.wikipedia.org/w/index.php?title=Longest_increasing_subsequence&oldid=638943901
-void longestIncreasingSubsequence(int *s, int *n, int *ret) {
+SEXP permutationDistanceInsert(SEXP Rs, SEXP Rt){
 	int i, L, newL, lo, hi, mid;
-	int *p = (int *) R_alloc(sizeof(int), *n);
-	int *m = (int *) R_alloc(sizeof(int), *n+1);
+	
+	int *s,*s2,n;
+ 	SEXP Rval;
+	PROTECT(Rval=allocVector(INTSXP,1));
+	s = INTEGER(Rs);
+	n = length(Rs);
+
+	// copy s
+	s2= (int *) R_alloc(sizeof(int), n);
+	for(i=0;i<n;i++){
+		s2[i]= s[i];
+	}
+	
+	//x<-order(y)[x]
+	int *idx;
+	idx= (int *) R_alloc(sizeof(int), n);
+	R_orderVector(idx,n,Rf_lang1(Rt),TRUE,FALSE);
+	for(i=0;i<n;i++){
+		s2[i]= idx[s[i]-1]+1;
+	}
+
+	// further memory allocation
+	int *p = (int *) R_alloc(sizeof(int), n);
+	int *m = (int *) R_alloc(sizeof(int), n+1);
 	
 	L = 0;
-	for(i=0; i<*n; i++){ 
+	for(i=0; i<n; i++){ 
 		lo = 1;
 		hi = L;
 		while(lo <= hi){
 			mid = (lo+hi)/2;
-			if(s[m[mid]] < s[i]){
+			if(s2[m[mid]] < s2[i]){
 				lo = mid+1;
 			}else{
 				hi = mid-1;
@@ -280,23 +424,36 @@ void longestIncreasingSubsequence(int *s, int *n, int *ret) {
 		if(newL > L){
 			L = newL;
 		}
-	}
-	ret[0]=L;
+	}		
+	
+	INTEGER(Rval)[0] = L;
+	UNPROTECT(1);
+	return Rval;
 }
 
-void lexPermOrder(int *s, int *n, int *ret){
+SEXP lexPermOrder(SEXP Rs){
 	int i,j,sum;
-
-	for(i=0; i<*n; i++){ 
-		ret[i] = s[i]-1;
+	
+	int *s,n,*val;
+	s = INTEGER(Rs);
+	n = length(Rs);
+ 	SEXP Rval;
+	PROTECT(Rval=allocVector(INTSXP,n));
+  val = INTEGER(Rval);
+	
+	
+	for(i=0; i<n; i++){ 
+		val[i] = s[i]-1;
 		if(i>0){
 			sum=0;
 			for(j=0; j<i; j++){ 
 				if(s[j]<s[i])
 					sum++;
 			}
-			ret[i] = ret[i] -sum;
+			val[i] = val[i] -sum;
 		}
 	}
 	
+	UNPROTECT(1);
+	return Rval;
 }

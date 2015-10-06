@@ -25,8 +25,8 @@
 #' \tabular{ll}{
 #' Package: \tab CEGO\cr
 #' Type: \tab Package\cr
-#' Version: \tab 1.0.1108\cr
-#' Date: \tab 06.01.2015\cr
+#' Version: \tab 2.0.0\cr
+#' Date: \tab 2015-10-06\cr
 #' License: \tab GPL (>= 3)\cr
 #' LazyLoad: \tab yes\cr
 #' }
@@ -41,7 +41,14 @@
 #' @keywords package
 #' @seealso Interface of main function: \code{\link{optimCEGO}} 
 #' @import MASS
+#' @import graphics
 #' @import stats
 #' @import DEoptim
+#' 
+#' @section Acknowledgments:
+#' This work has been partially supported by the Federal Ministry of Education
+#' and Research (BMBF) under the grants CIMO (FKZ 17002X11) and
+#' MCIOP (FKZ 17N0311).
+#'
 NA #ends description
 ################################################################################

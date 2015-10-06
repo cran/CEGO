@@ -1,9 +1,9 @@
 #   Copyright (c) 2014-2015 by Martin Zaefferer, Cologne University of Applied Sciences
 
 ###################################################################################
-#' Combinatorial Kriging
+#' Kriging Model
 #' 
-#' Implementation of a Kriging model for mixed or combinatorial input spaces.
+#' Implementation of a distance-based Kriging model, e.g., for mixed or combinatorial input spaces.
 #' It is based on employing suitable distance measures for the samples in input space.
 #'
 #' The basic Kriging implementation is based on the work of Forrester et al. (2008). 
@@ -20,21 +20,21 @@
 #' \code{lower} lower boundary for theta, default is \code{1e-6}\cr
 #' \code{upper} upper boundary for theta, default is \code{100}\cr
 #' \code{corr} function to be used for correlation modelling, default is \code{fcorrGauss}\cr
-#' \code{algTheta}  algorithm used to find theta (as well as p and lambda), default is \code{"L-BFGS-B"}. Else, any from the list of possible \code{method} values in \code{\link{optimInterface}} can be chosen.\cr
-#' \code{budgetAlgTheta} budget for the above mentioned algorithm, default is \code{100}. The value will be multiplied with the length of the model parameter vector to be optimized.
+#' \code{algTheta}  algorithm used to find theta (as well as p and lambda), default is \code{\link{optimInterface}}.\cr
+#' \code{algThetaControl}  list of controls passed to \code{algTheta}.\cr
 #' \code{optimizeP} boolean that specifies whether the exponents (\code{p}) should be optimized. Else they will be set to two. \cr
-#' \code{useLambda} whether or not to use the regularization constant lambda (nugget effect). Default is \code{FALSE}.
+#' \code{useLambda} whether or not to use the regularization constant lambda (nugget effect). Default is \code{FALSE}.\cr
 #' \code{lambdaLower} lower boundary for lambda, default is \code{-6}\cr 
 #' \code{lambdaUpper} upper boundary for lambda, default is \code{0}\cr
 #' \code{distances} a distance matrix. If available, this matrix is used for model building, instead of calculating the distance matrix using the parameters \code{distanceFunction}. Default is \code{NULL}.
 #'
-#' @return an object of class \code{CKriging} containing the options and determined parameters for the model:\cr
+#' @return an object of class \code{modelKriging} containing the options and determined parameters for the model:\cr
 #' \code{x} (see parameters)\cr
 #' \code{y} (see parameters)\cr
 #' \code{lower} (see parameters)\cr
 #' \code{upper} (see parameters)\cr
 #' \code{algTheta} (see parameters)\cr
-#' \code{budgetAlgTheta} (see parameters)\cr
+#' \code{algThetaControl} (see parameters)\cr
 #' \code{optimizeP} (see parameters)\cr
 #' \code{theta} activity or width parameter theta, a parameter of the correlation function determined with MLE\cr
 #' \code{log10Theta} log10 \code{theta} (i.e. \code{log10(theta)})\cr
@@ -47,34 +47,36 @@
 #' \code{Psi} correlation matrix Psi\cr
 #' \code{Psinv} inverse of Psi\cr
 #' \code{nevals} number of Likelihood evaluations during MLE of theta/lambda/p\cr
+#' \code{scaling} Default is FALSE. If TRUE: Distances values are divided by maximum distance to independent of the scale of the distance function.\cr
 #' \code{distanceFunctionIndexMLE} If a list of several distance measures (\code{distanceFunction}) was given, this parameter contains the index value of the measure chosen with MLE.
 #' 
-#' @seealso \code{\link{predict.CKriging}} 
+#' @seealso \code{\link{predict.modelKriging}} 
 #' 
 #' @references Forrester, Alexander I.J.; Sobester, Andras; Keane, Andy J. (2008). Engineering Design via Surrogate Modelling - A Practical Guide. John Wiley & Sons.
 #' @references Zaefferer, Martin; Stork, Joerg; Friese, Martina; Fischbach, Andreas; Naujoks, Boris; Bartz-Beielstein, Thomas. (2014). Efficient global optimization for combinatorial problems. In Proceedings of the 2014 conference on Genetic and evolutionary computation (GECCO '14). ACM, New York, NY, USA, 871-878. DOI=10.1145/2576768.2598282 http://doi.acm.org/10.1145/2576768.2598282 
 #' @references Zaefferer, Martin; Stork, Joerg; Bartz-Beielstein, Thomas. (2014). Distance Measures for Permutations in Combinatorial Efficient Global Optimization. In Parallel Problem Solving from Nature - PPSN XIII (p. 373-383). Springer International Publishing.
 #'
 #' @examples
-#' #set random number generator seed
+#' #Set random number generator seed
 #' set.seed(1)
-#' #simple test landscape
+#' #Simple test landscape
 #' fn <- landscapeGeneratorUNI(1:5,distancePermutationHamming)
-#' #generate data for training and test
+#' #Generate data for training and test
 #' x <- unique(replicate(40,sample(5),FALSE))
 #' xtest <- x[-(1:15)]
 #' x <- x[1:15]
-#' #determin true objective function values
-#' y <- sapply(x,fn)
-#' ytest <- sapply(xtest,fn)
-#' #build model
-#' fit <- combinatorialKriging(x,y,distancePermutationHamming,
-#'     control=list(algTheta="L-BFGS-B",useLambda=FALSE))
-#' #predicted obj. function values
-#' ypred <- predict(fit,xtest)$f
-#' #uncertainty estimate
-#' spred <- predict(fit,xtest,TRUE)$s
-#' #plot
+#' #Determin true objective function values
+#' y <- fn(x)
+#' ytest <- fn(xtest)
+#' #Build model
+#' fit <- modelKriging(x,y,distancePermutationHamming,
+#'     control=list(algThetaControl=list(method="L-BFGS-B"),useLambda=FALSE))
+#' #Predicted obj. function values
+#' ypred <- predict(fit,xtest)$y
+#' #Uncertainty estimate
+#' fit$predAll <- TRUE
+#' spred <- predict(fit,xtest)$s
+#' #Plot
 #' plot(ytest,ypred,xlab="true value",ylab="predicted value",
 #'     pch=20,xlim=c(0.3,1),ylim=c(min(ypred)-0.1,max(ypred)+0.1))
 #' segments(ytest, ypred-spred,ytest, ypred+spred)
@@ -82,68 +84,110 @@
 #' segments(ytest-epsilon,ypred-spred,ytest+epsilon,ypred-spred)
 #' segments(ytest-epsilon,ypred+spred,ytest+epsilon,ypred+spred)
 #' abline(0,1,lty=2)
+#' #Use a different/custom optimizer (here: SANN) for maximum likelihood estimation: 
+#' #(Note: Bound constraints are recommended, to avoid Inf values.
+#' #This is really just a demonstration. SANN does not respect bound constraints.)
+#' optimizer1 <- function(x,fun,lower=NULL,upper=NULL,control=NULL,...){
+#'   res <- optim(x,fun,method="SANN",control=list(maxit=100),...)
+#'   list(xbest=res$par,ybest=res$value,count=res$counts)
+#' }
+#' fit <- modelKriging(x,y,distancePermutationHamming,
+#'                    control=list(algTheta=optimizer1,useLambda=FALSE))
+#' #One-dimensional optimizer (Brent). Note, that Brent will not work when 
+#' #several parameters have to be set, e.g., when using nugget effect (lambda).
+#' #However, Brent may be quite efficient otherwise.
+#' optimizer2 <- function(x,fun,lower,upper,control=NULL,...){
+#'  res <- optim(x,fun,method="Brent",lower=lower,upper=upper,...)
+#'  list(xbest=res$par,ybest=res$value,count=res$counts)
+#' }
+#' fit <- modelKriging(x,y,distancePermutationHamming,
+#'                     control=list(algTheta=optimizer2,useLambda=FALSE))
 #' @export
 ###################################################################################
-combinatorialKriging <- function(x, y, distanceFunction,control=list()){ #TODO: scaling for distance values not in [0;1]
+modelKriging <- function(x, y, distanceFunction,control=list()){ #TODO: scaling for distance values not in [0;1]
 	if(!is.matrix(y))
 		y <- as.matrix(y)
-	if(any(duplicated(x))){ #duplicates HAVE to be removed, but TODO: duplicates for noisy problems are okay. needs additional if(){} in relation to useLambda parameter
+	if(any(duplicated(x))){ #duplicates HAVE to be removed, but TODO: duplicates for noisy problems are okay. needs additional if(){} in relation to useLambda parameter?
 		duplicates <- which(duplicated(x))
-		x<-x[-duplicates]
-		y<-as.matrix(y[-duplicates])
+		x <- x[-duplicates]
+		y <- as.matrix(y[-duplicates])
 	}
 		
-	con<-list(lower=1e-6, upper=1e5, corr=fcorrGauss, algTheta= "L-BFGS-B", budgetAlgTheta=100, optimizeP= FALSE, useLambda=FALSE, lambdaLower = -6, lambdaUpper = 0);
-	con[(namc <- names(control))] <- control;
+	con<-list(lower=1e-6, upper=1e5, 
+						corr=fcorrGauss, 
+						algTheta= optimInterface, 
+						algThetaControl= list(funEvals=200,reltol=1e-6,restarts=TRUE,method="L-BFGS-B"),#TODO: set by default to Brent, if one-dimensional?
+						optimizeP= FALSE, 
+						useLambda=FALSE, lambdaLower = -6, lambdaUpper = 0, 
+						scaling=FALSE);
+	con$algThetaControl[names(control$algThetaControl)] <- control$algThetaControl
+	control$algThetaControl <- con$algThetaControl
+	con[names(control)] <- control;
 	control<-con;
 	
-	useLambda=control$useLambda
-	lambdaLower=control$lambdaLower
-	lambdaUpper=control$lambdaUpper
-	
-	fit = control
-	fit$x = x
-	fit$y = y
+	algThetaControl <- control$algThetaControl
+	useLambda <- control$useLambda
+	lambdaLower <- control$lambdaLower
+	lambdaUpper <- control$lambdaUpper
+	fcorr <- control$corr
+  
+	fit <- control
+	fit$x <- x
+	fit$y <- y
 
-	lowerTheta = log10(fit$lower)
+	lowerTheta <- log10(fit$lower)
 
-	upperTheta = log10(fit$upper)
+	upperTheta <- log10(fit$upper)
 
 	#Wrapper for optimizing theta  based on forrRegLikelihood:
-	fitFun <- function (x, fX, fy,optimizeP,useLambda){ 
-		as.numeric(combinatorialKrigingLikelihood(x,fX,fy,optimizeP,useLambda)$NegLnLike)
+	fitFun <- function (x, fX, fy,optimizeP,useLambda,fcorr){ 
+		as.numeric(modelKrigingLikelihood(x,fX,fy,optimizeP,useLambda,fcorr)$NegLnLike)
 		#print(c(as.numeric(result$NegLnLike),x))
 		#return(as.numeric(result$NegLnLike)) #without return should be faster
 	}
 
-	n=length(fit$x) #number of observations
+	n <- length(fit$x) #number of observations
 	
-	x0 = fit$startTheta	
-	# start point for theta:
-	#x1 =  a+(b-a)*runif(k)
-	
+	x0 <- fit$startTheta	
+
 	#calculate distance matrix? or multiple matrices?
 	if(length(distanceFunction)==1){
 		if(is.null(control$distances))
 			A <-distanceMatrix(x,distanceFunction) 
 		else
 			A <- control$distances
+    maxD <- max(A) #maximum distance
+    if(control$scaling){
+      A <- A/maxD
+    }    
 	}else{
 		if(is.null(control$distances)){
 			A <- list()
+      maxD <- list()
 			for(i in 1:length(distanceFunction)){
-				A[[i]] <-distanceMatrix(x,distanceFunction[[i]]) 
+        A[[i]] <-distanceMatrix(x,distanceFunction[[i]]) 
+        maxD[[i]] <- max(A[[i]]) #maximum distance
+        if(control$scaling){
+          A[[i]] <- A[[i]]/maxD[[i]]
+        } 
 			}
 		}else{
 			A <- control$distances
+      maxD <- list()
+			for(i in 1:length(distanceFunction)){
+        maxD[[i]] <- max(A[[i]]) #maximum distance
+        if(control$scaling){
+          A[[i]] <- A[[i]]/maxD[[i]]
+        } 
+			}    
 		}
 	}
-		
-	
+
+	# start point for theta:	
 	if(is.null(fit$startTheta))
-		x1 =  n/100 #todo? works, but not sure whether good in general.
+		x1 <- n/100 #todo: works, but not sure whether good in general.
 	else
-		x1 = fit$startTheta
+		x1 <- fit$startTheta
 
 	#todo: it has to be noted, that in original kriging the design space is scaled, thus also the distance matrix.
 	# this yields always distances in the same range, and theta values in the same range (if they have a similar importance).
@@ -153,86 +197,106 @@ combinatorialKriging <- function(x, y, distanceFunction,control=list()){ #TODO: 
 	#A <- A/max(A) #scaling with maximum difference? need to rescale in predictor
 	
 	if(fit$optimizeP){ # optimize p
-		lowerTheta = c(lowerTheta, 0.01)
-		upperTheta = c(upperTheta, 2)		
-		x3 = 1 #start values for p
-		x0 = c(x1,x3)
+		lowerTheta <- c(lowerTheta, 0.01)
+		upperTheta <- c(upperTheta, 2)		
+		x3 <- 1 #start values for p
+		x0 <- c(x1,x3)
 	}else{ # p  is fixed to 1 
-		x0 = c(x1)
+		x0 <- c(x1)
 	}
 	if(useLambda){
 		# start value for lambda:
-		x2 = lambdaLower + (lambdaUpper - lambdaLower)*runif(1)
-		x0 = c(x0,x2)
+		x2 <- lambdaLower + (lambdaUpper - lambdaLower)*runif(1)
+		x0 <- c(x0,x2)
 		#append regression constant lambda (nugget)
-		lowerTheta = c(lowerTheta,lambdaLower)
-		upperTheta = c(upperTheta, lambdaUpper)
+		lowerTheta <- c(lowerTheta,lambdaLower)
+		upperTheta <- c(upperTheta, lambdaUpper)
 	}	
 
 	#force x0 into bounds
-	x0= pmin(x0,upperTheta)
-	x0= pmax(x0,lowerTheta)
-	opts=list(fevals=fit$budgetAlgTheta*length(x0), reltol=1e-6, restarts=TRUE)	
-	#browser()
-	#plot(sapply(seq(from=-6,by=0.01,to=10),fitFun,fX=A,fy=fit$y,optimizeP=fit$optimizeP,useLambda=useLambda))
+	x0 <- pmin(x0,upperTheta)
+	x0 <- pmax(x0,lowerTheta)
+	algThetaControl$funEvals <- algThetaControl$funEvals*length(x0)
+	
 	if(length(distanceFunction)==1){
-		res <- optimInterface(par=x0,fn=fitFun,lower=lowerTheta,upper=upperTheta,method=fit$algTheta,
-						control=opts,fX=A,fy=fit$y,optimizeP=fit$optimizeP,useLambda=useLambda)	
+		res <- control$algTheta(x=x0,fun=fitFun,lower=lowerTheta,upper=upperTheta,
+						control=algThetaControl,fX=A,fy=fit$y,optimizeP=fit$optimizeP,useLambda=useLambda,fcorr=fcorr)	
 		fit$distanceFunction <- distanceFunction
 	}else{
 		res <- list()
 		minlik=Inf
 		minlikindex=1
 		for(i in 1:length(distanceFunction)){
-			res[[i]] <- optimInterface(par=x0,fn=fitFun,lower=lowerTheta,upper=upperTheta,method=fit$algTheta,
-						control=opts,fX=A[[i]],fy=fit$y,optimizeP=fit$optimizeP,useLambda=useLambda)	
-			if(res[[i]]$value < minlik){
-				minlik <- res[[i]]$value
+			res[[i]] <- control$algTheta(x=x0,fun=fitFun,lower=lowerTheta,upper=upperTheta,
+						control=algThetaControl,fX=A[[i]],fy=fit$y,optimizeP=fit$optimizeP,useLambda=useLambda,fcorr=fcorr)	
+			if(res[[i]]$ybest < minlik){
+				minlik <- res[[i]]$ybest
 				minlikindex <- i
 			}
 		}	
 		res <- res[[minlikindex]]
 		fit$distanceFunction <- distanceFunction[[minlikindex]]
 		A<-A[[minlikindex]]
+    maxD <- maxD[[minlikindex]]
 		fit$distanceFunctionIndexMLE <- minlikindex
 	}	
-	if(is.null(res$par))res$par=x0;
-	Params = res$par
-	nevals = as.numeric(res$counts[[1]])
+	if(is.null(res$xbest))res$xbest <- x0;
+	Params <- res$xbest
+	nevals <- as.numeric(res$count[[1]])
 	# extract model parameters:
-	fit$theta=10^Params[1]
+	fit$theta <- 10^Params[1]
 	if(fit$optimizeP){	
-		fit$p=Params[2]
+		fit$p <- Params[2]
 	}	
-	fit$log10Theta = Params[1]
+	fit$log10Theta <- Params[1]
 	if(useLambda){
-		fit$log10Lambda = Params[length(Params)];
-		fit$lambda=10^Params[length(Params)]
+		fit$log10Lambda <- Params[length(Params)];
+		fit$lambda <- 10^Params[length(Params)]
 	}else{
-		fit$log10Lambda = -Inf;
-		fit$lambda=0
+		fit$log10Lambda <- -Inf;
+		fit$lambda <- 0
 	}
-	res=combinatorialKrigingLikelihood(c(fit$log10Theta,fit$p, fit$log10Lambda),A,fit$y,fit$optimizeP,useLambda)
+	res <- modelKrigingLikelihood(c(fit$log10Theta,fit$p, fit$log10Lambda),A,fit$y,fit$optimizeP,useLambda,fcorr)
 	
-	fit$yMu=res$yMu
-	fit$SSQ=as.numeric(res$SSQ)
-	fit$mu=res$mu
-	fit$Psi=res$Psi
-	fit$Psinv=res$Psinv
-	fit$nevals=nevals
-	fit$like=res$NegLnLike
-	class(fit)<- "CKriging"
+	fit$yMu <- res$yMu
+	fit$SSQ <- as.numeric(res$SSQ)
+	fit$mu <- res$mu
+	fit$Psi <- res$Psi
+	fit$Psinv <- res$Psinv
+	fit$nevals <- nevals
+	fit$like <- res$NegLnLike
+  fit$maximumDistance <- maxD
+  fit$predAll <- FALSE
+	class(fit)<- "modelKriging"
 	if(is.na(fit$Psinv[1])){ #model building failed. no invertible correlation matrix was found. return NA fit
-		return(NA)
+		stop("Building the Kriging model failed, no invertible correlation matrix was found. This may be due to the specific data-set or distance function used.")
 	}else{
 		return(fit)
 	}	
 }
 
 ###################################################################################
+#' Kriging Model
+#'
+#' DEPRECATED version of the Kriging model, please use \code{\link{modelKriging}}
+#' 
+#' @param x list of samples in input space
+#' @param y column vector of observations for each sample
+#' @param distanceFunction a suitable distance function of type f(x1,x2), returning a scalar distance value
+#' @param control options for the model building procedure
+#'
+#' @keywords internal
+#' @export
+###################################################################################
+combinatorialKriging <- function(x, y, distanceFunction, control = list()){
+	.Deprecated("modelKriging")
+	modelKriging(x,y,distanceFunction,control)
+}
+
+###################################################################################
 #' Calculate negative log-likelihood
 #' 
-#' Used to determine theta/lambda/p values for the Kriging model in \code{\link{combinatorialKriging}}
+#' Used to determine theta/lambda/p values for the Kriging model in \code{\link{modelKriging}}
 #' with Maximum Likelihood Estimation (MLE).
 #'
 #' @param xt vector, containing log10(theta), p and lambda
@@ -250,53 +314,65 @@ combinatorialKriging <- function(x, y, distanceFunction,control=list()){ #TODO: 
 #' \code{yMu} vector of observations y minus mu\cr
 #' \code{SSQ} MLE of model parameter sigma^2
 #'
-#' @seealso \code{\link{combinatorialKriging}}
+#' @seealso \code{\link{modelKriging}}
 #' @keywords internal
 ###################################################################################
-combinatorialKrigingLikelihood <- function(xt,dX,y,optimizeP=FALSE,useLambda=FALSE,corr=fcorrGauss){
+modelKrigingLikelihood <- function(xt,dX,y,optimizeP=FALSE,useLambda=FALSE,corr=fcorrGauss){
 	#browser()
 	if(optimizeP){
-		dX=abs(dX)^(xt[2])
+		dX <- abs(dX)^(xt[2])
 	}
-	theta=10^xt[1];
-	n=dim(y)[1] #number of observations	
+	theta <- 10^xt[1];
+	n <- dim(y)[1] #number of observations	
 	Psi <- corr(theta,dX)
 	if(useLambda){
-		lambda=10^xt[length(xt)];
-		Psi = Psi + diag(lambda,n) 
+		lambda <- 10^xt[length(xt)];
+		Psi <- Psi + diag(lambda,n) 
 	}		
 	
-	#cholesky decomposition
+	## cholesky decomposition
 	cholPsi <- try(chol(Psi), TRUE) 
+	
+	## use pivoting if standard fails
 	if(class(cholPsi) == "try-error"){
-		warning("Correlation matrix is not positive definite (in combinatorialKrigingLikelihood). Returning penalty.")
+		cholPsi <- try(chol(Psi,pivot=TRUE), TRUE) 
+	}	
+	
+	## give penalty if both fail
+	if(class(cholPsi) == "try-error"){
+		warning("Correlation matrix is not positive semi-definite (in modelKrigingLikelihood). Returning penalty.")
 		return(list(NegLnLike=1e4,Psi=NA,Psinv=NA,mu=NA,SSQ=NA))
 	}	
 		
 	#calculate natural log of the determinant of Psi (numerically more reliable and also faster than using det or determinant)
-	LnDetPsi=2*sum(log(abs(diag(cholPsi))))
+	LnDetPsi <- 2*sum(log(abs(diag(cholPsi))))
 	
 	#inverse with cholesky decomposed Psi
-	Psinv= chol2inv(cholPsi)
-
-	psisum=sum(Psinv) #this sum of all matrix elements may sometimes become zero, which may be caused by inaccuracies. then, the following may help
+	Psinv <- try(chol2inv(cholPsi),TRUE)
+	if(class(Psinv) == "try-error"){
+		warning("Correlation matrix is not positive semi-definite (in modelKrigingLikelihood). Returning penalty.")
+		return(list(NegLnLike=1e4,Psi=NA,Psinv=NA,mu=NA,SSQ=NA))
+	}	
+	
+	
+	psisum <- sum(Psinv) #this sum of all matrix elements may sometimes become zero, which may be caused by inaccuracies. then, the following may help
 	if(psisum==0){
-		psisum = as.numeric(rep(1,n) %*% Psinv %*% rep(1,n))
+		psisum <- as.numeric(rep(1,n) %*% Psinv %*% rep(1,n))
 		if(psisum==0){ #if it is still zero, return penalty
-			warning("Sum of elements in inverse correlation matrix is zero (in combinatorialKrigingLikelihood). Returning penalty.")
+			warning("Sum of elements in inverse correlation matrix is zero (in modelKrigingLikelihood). Returning penalty.")
 			return(list(NegLnLike=1e4,Psi=NA,Psinv=NA,mu=NA,SSQ=NA))
 		}
 	}		
-	mu=sum(Psinv%*%y)/psisum
-	yMu=y-mu 
-	SigmaSqr=(t(yMu)%*%Psinv%*%yMu)/n
+	mu <- sum(Psinv%*%y)/psisum
+	yMu <- y-mu 
+	SigmaSqr <- (t(yMu)%*%Psinv%*%yMu)/n
 	if(SigmaSqr < 0){ #TODO: or better return absolute?
-		warning("Maximum Likelihood Estimate of model parameter sigma^2 is negative (in combinatorialKrigingLikelihood). Returning penalty. ")
+		warning("Maximum Likelihood Estimate of model parameter sigma^2 is negative (in modelKrigingLikelihood). Returning penalty. ")
 		return(list(NegLnLike=1e4-SigmaSqr,Psi=NA,Psinv=NA,mu=NA,SSQ=NA)) 
 	}
-	NegLnLike=n*log(SigmaSqr) + LnDetPsi;	
-	if(is.infinite(NegLnLike))
-		browser()
+	NegLnLike <- n*log(SigmaSqr) + LnDetPsi
+	if(is.infinite(NegLnLike))#this may happen if all y are 0
+		return(list(NegLnLike=1e4,Psi=NA,Psinv=NA,mu=NA,SSQ=NA)) 
 	list(NegLnLike=NegLnLike,Psi=Psi,Psinv=Psinv,mu=mu,yMu=yMu,SSQ=SigmaSqr)
 }
 
@@ -304,54 +380,57 @@ combinatorialKrigingLikelihood <- function(xt,dX,y,optimizeP=FALSE,useLambda=FAL
 ###################################################################################
 #' Predict: Combinatorial Kriging
 #' 
-#' Predict with a model fit resulting from \code{\link{combinatorialKriging}}.
+#' Predict with a model fit resulting from \code{\link{modelKriging}}.
 #'
-#' @param object fit of the Kriging model (settings and parameters), of class \code{CKriging}.
+#' @param object fit of the Kriging model (settings and parameters), of class \code{modelKriging}.
 #' @param x list of samples to be predicted
-#' @param predAll if TRUE return all (RMSE and prediction, in a dataframe), else return only prediction
 #' @param ... further arguments, not used
 #'
-#' @return Returned value depends on the setting of \code{predAll}\cr
-#' TRUE: data.frame with 2 columns for function value \code{f} and uncertianty estimate \code{s} (RMSE)\cr
-#' FALSE: data.frame with column \code{f} only
+#' @return Returned value depends on the setting of \code{object$predAll}\cr
+#' TRUE: list with function value (mean) \code{$y} and uncertainty estimate \code{$s} (standard deviation)\cr
+#' FALSE:\code{$y}only
 #'
-#' @seealso \code{\link{combinatorialKriging}}
+#' @seealso \code{\link{modelKriging}}
 #' @export
 ###################################################################################
-predict.CKriging <- function(object,x,predAll=FALSE,...){
+predict.modelKriging <- function(object,x,...){ #TODO: re-interpolation
 	if(!is.list(x))x<-list(x)
-	xo=object$x
-	theta=object$theta 
-	Psinv=object$Psinv 
-	n=length(xo)
-	one=rep(1,n)
-	mu=object$mu
-	yMu=object$yMu	
-	SigmaSqr=object$SSQ
-	psi=matrix(1,length(x),n)
+	xo <- object$x
+	theta <- object$theta 
+	Psinv <- object$Psinv 
+	n <- length(xo)
+	#one <- rep(1,n)
+	mu <- object$mu
+	yMu <- object$yMu	
+	SigmaSqr <- object$SSQ
+	psi <- matrix(1,length(x),n)
 	fundist <-object$distanceFunction
 	if(object$optimizeP){
-		p=object$p
+		p <- object$p
 		for (i in 1:n)
-			psi[,i]=distanceVector(xo[[i]],x,fundist)^p
+			psi[,i] <- distanceVector(xo[[i]],x,fundist)^p
 	}else{	
 		for (i in 1:n)
-			psi[,i]=distanceVector(xo[[i]],x,fundist)#unlist(lapply(x,fndist))#^2
+			psi[,i] <- distanceVector(xo[[i]],x,fundist)#unlist(lapply(x,fndist))#^2
 		###or in one line, but this is slower.
 		#psi <- t(outer(xo,x,function(a,b)mapply(fundist,a,b))^2)
 	}	
-	#browser()	
+  if(object$scaling){
+    psi <- psi/object$maximumDistance
+  }
 	psi <- object$corr(theta,psi)
-	#
-	f=as.numeric(psi%*%(Psinv%*%yMu))+mu 
+	##
+	f <- as.numeric(psi%*%(Psinv%*%yMu))+mu 
+	## return value:
+	res <- list(y=f)
 	##########################################################################
-	if (predAll){
-		lambda=object$lambda
-		SSqr= SigmaSqr*(1+lambda-diag(psi%*%(Psinv%*%t(psi)))) 
-		#TODO "diag(psi%*%...)" is excessive, since diag wastes alot of values computed by %*% ...?
-		s=sqrt(abs(SSqr))
+	if (object$predAll){
+		lambda <- object$lambda
+		SSqr <- SigmaSqr*(1+lambda-diag(psi%*%(Psinv%*%t(psi)))) 
+		s <- sqrt(abs(SSqr))
+		res$s <- as.numeric(s)
 	}
-	result=if(!predAll){list(f=f)}else{data.frame(f=f,s=as.numeric(s))}
+	res
 }
 
 ###################################################################################
@@ -362,7 +441,7 @@ predict.CKriging <- function(object,x,predAll=FALSE,...){
 #'
 #' @return matrix (Psi)
 #'
-#' @seealso \code{\link{combinatorialKriging}}
+#' @seealso \code{\link{modelKriging}}
 #' 
 #' @export
 #' @keywords internal
@@ -379,7 +458,7 @@ fcorrGauss <- function(theta,D){
 #'
 #' @return matrix (Psi)
 #'
-#' @seealso \code{\link{combinatorialKriging}}
+#' @seealso \code{\link{modelKriging}}
 #' 
 #' @export
 #' @keywords internal
@@ -397,7 +476,7 @@ fcorrCubic <- function(theta,D){
 #'
 #' @return matrix (Psi)
 #'
-#' @seealso \code{\link{combinatorialKriging}}
+#' @seealso \code{\link{modelKriging}}
 #' 
 #' @export
 #' @keywords internal
@@ -414,7 +493,7 @@ fcorrLinear <- function(theta,D){
 #'
 #' @return matrix (Psi)
 #'
-#' @seealso \code{\link{combinatorialKriging}}
+#' @seealso \code{\link{modelKriging}}
 #' 
 #' @export
 #' @keywords internal

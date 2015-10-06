@@ -37,7 +37,7 @@ benchmarkGeneratorNKL <- function(N=10,K=1,PI=1:K,g=NULL){
 	N
 	K
 	PI
-	landscape <- function(x){
+	function(x){
 		usum=0
 		for(i in 1:N){
 			xx <- x[c(i,((i+PI-1)%%N)+1)] #select current and impacting (neighbouring) bits (circular)
