@@ -45,7 +45,6 @@
 #' 
 #' @examples
 #' seed=0
-#' glgseed=1
 #' #distance
 #' dF <- distancePermutationHamming
 #' #mutation
@@ -63,7 +62,7 @@
 #'		vectorized=TRUE)) ##target function is "vectorized", expects list as input
 #' res$xbest 
 #'
-#' @seealso \code{\link{optimCEGO}}, \code{\link{optimRS}}, \code{\link{optim2Opt}} 
+#' @seealso \code{\link{optimCEGO}}, \code{\link{optimRS}}, \code{\link{optim2Opt}}, \code{\link{optimMaxMinDist}} 
 #' 
 #' @export
 ###################################################################################
@@ -85,7 +84,7 @@ optimEA <- function(x=NULL,fun,control=list()){
 			 , localSearchFunction = NULL
 			 , localSearchRate = 0
 			 , localSearchSettings = list()
-       , duplicateRemoval = "all"
+       , duplicateRemoval = "all" #note: if budget is larger than potential number of unique individuals, eg. for relatively short permutations. similar problem if "population" is chosen, and popsize is too large. 
 			 , duplicateFunction = duplicated
        , archive = TRUE
 			 , stoppingCriterionFunction = NULL
@@ -142,7 +141,7 @@ optimEA <- function(x=NULL,fun,control=list()){
     fithist <- fitness
     xhist <- population
   }
-	besthist <- fitbest
+	besthist <- fitbest # initialization for plotting
 	run <- TRUE
 	while((count < budget) & (gen < generations) & (fitbest > targetY) & (run)){
 		gen <- gen+1
@@ -158,53 +157,80 @@ optimEA <- function(x=NULL,fun,control=list()){
 		#optional local search
 		if(!is.null(localSearchFunction) & localSearchRate>0){
 			if(localSearchRate<1){
-				subsetsize = ceiling(length(offspring)*localSearchRate)
+				subsetsize <- ceiling(length(offspring)*localSearchRate)
 				offspringsubset <- sample(length(offspring),subsetsize)
 			}else{
-				offspringsubset = 1:length(offspring)
+				offspringsubset <- 1:length(offspring)
 			}	
+			evaluated <- rep(FALSE,length(offspring))
+			tempfitness <- NULL 
 			for(i in offspringsubset){
+				if(localSearchSettings$budget > (budget-count)) #local search budget exceeds remaining budget
+					localSearchSettings$budget <- budget-count #set to remaining budget
+				if(localSearchSettings$budget < 2) #local search budget too small
+					break
 				res <- localSearchFunction(x=offspring[i],fun=fun,control=localSearchSettings) 
-				offspring[[i]] <- res$xbest #todo: local search already evaluations xbest, is reevaluated in population.
+				if(archive){ #archive local search results
+					xhist <- append(xhist,res$x)  
+					fithist <-  c(fithist, res$y)
+				} 
+				offspring[[i]] <- res$xbest 
+				evaluated[i] <- TRUE
+				tempfitness <- c(tempfitness,res$ybest)
 				count <- count + res$count #add local search counted evaluations to evaluation counter of main loop.
 			}
+			if(any(evaluated)){
+				offspring <- offspring[-evaluated]
+				offspringLocal <- offspring[evaluated]
+				population <- c(population,  offspringLocal)
+				# remember best
+				newbest <- min(tempfitness,na.rm=TRUE)
+				if(newbest < fitbest){
+					fitbest <- newbest
+					xbest <- offspringLocal[[which.min(tempfitness)]]
+				}  			
+				fitness <- c(fitness, tempfitness)
+			}				
 		}
-		## remove offspring which violate the budget
-		offspring <- offspring[1:min(budget-count,length(offspring))]
-		## append offspring to population, but remove duplicates first. duplicates are replaced by random, unique solutions.		
-    if(duplicateRemoval=="all" & archive) #do not ever evaluate duplicates (compare with archive of solutions)
-      offspring <- removeDuplicatesOffspring(xhist,offspring, creationFunction,duplicateFunction)
-    else if(duplicateRemoval=="population") #only care for duplicates in current population
-      offspring <- removeDuplicatesOffspring(population,offspring, creationFunction,duplicateFunction)
-		population <- c(population,  offspring)
-		#if any new were created:	
-		if(length(population)>length(fitness)){
+		if(length(offspring)>0 & budget > count){
+			## remove offspring which violate the budget 
+			offspring <- offspring[1:min(budget-count,length(offspring))]
+			## append offspring to population, but remove duplicates first. duplicates are replaced by random, unique solutions.		
+			if(duplicateRemoval=="all" & archive) #do not ever evaluate duplicates (compare with archive of solutions)
+				offspring <- removeDuplicatesOffspring(xhist,offspring, creationFunction,duplicateFunction)
+			else if(duplicateRemoval=="population") #only care for duplicates in current population
+				offspring <- removeDuplicatesOffspring(population,offspring, creationFunction,duplicateFunction)
+			population <- c(population,  offspring)
 			#evaluate
 			if(vectorized)
 				newfit <- fun(offspring)
 			else
 				newfit <- unlist(lapply(offspring,fun))
-      if(archive){
+      # keep archive
+			if(archive){
         xhist <- append(xhist,offspring)  
         fithist <-  c(fithist, newfit)
-      }  
+      } 
+			# remember best
+			newbest <- min(newfit,na.rm=TRUE)
+			if(newbest < fitbest){
+				fitbest <- newbest
+				xbest <- offspring[[which.min(newfit)]]
+			}  			
 			fitness <- c(fitness, newfit) #evaluate the new individuals after recombination and mutation
 			#update count
-			count=count+ length(fitness)-popsize			
+			count=count+ length(newfit)
+		}
+		if(length(population)>popsize){		
 			#tournament selection 
 			if(selection == "tournament"){ #tournament selection
-				popindex <- tournamentSelection(fitness,tournamentSize,tournamentProbability,popsize) #todo should it really be possible to select the same individual several times for the next generation?
+				popindex <- tournamentSelection(fitness,tournamentSize,tournamentProbability,popsize)
 			}else{ # truncation selection
 				popindex <- order(fitness)[1:popsize]
 			}
 			population <- population[popindex]
 			fitness <- fitness[popindex]			
 		}	
-    popbest <- min(fitness,na.rm=TRUE)
-    if(popbest < fitbest){
-      fitbest <- popbest
-      xbest <- population[[which.min(fitness)]]
-    }   
 		if(!is.null(stoppingCriterionFunction)) # calculation of additional stopping criteria
 			run <- stoppingCriterionFunction(population,fitness)
 		if(plotting){

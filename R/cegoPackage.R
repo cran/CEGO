@@ -1,5 +1,5 @@
 ################################################################################
-#   Copyright (c) 2014-2015 by Martin Zaefferer, Cologne University of Applied Sciences
+#   Copyright (c) 2014-2016 by Martin Zaefferer, Cologne University of Applied Sciences (TH Koeln)
 ################################################################################
 ##	This program is free software: you can redistribute it and/or modify
 ##  it under the terms of the GNU General Public License as published by
@@ -20,13 +20,14 @@
 #'
 #' Model building, surrogate model
 #' based optimization and Efficient Global Optimization in combinatorial
-#' or mixed search spaces.
+#' or mixed search spaces. This includes methods for distance calculation,
+#' modeling and handling of indefinite kernels/distances.
 #'
 #' \tabular{ll}{
 #' Package: \tab CEGO\cr
 #' Type: \tab Package\cr
-#' Version: \tab 2.0.0\cr
-#' Date: \tab 2015-10-06\cr
+#' Version: \tab 2.1.0\cr
+#' Date: \tab 2016-08-17\cr
 #' License: \tab GPL (>= 3)\cr
 #' LazyLoad: \tab yes\cr
 #' }
@@ -38,12 +39,16 @@
 #' @author Martin Zaefferer \email{mzaefferer@@gmail.com} 
 #' @references Zaefferer, Martin; Stork, Joerg; Friese, Martina; Fischbach, Andreas; Naujoks, Boris; Bartz-Beielstein, Thomas. (2014). Efficient global optimization for combinatorial problems. In Proceedings of the 2014 conference on Genetic and evolutionary computation (GECCO '14). ACM, New York, NY, USA, 871-878. DOI=10.1145/2576768.2598282 http://doi.acm.org/10.1145/2576768.2598282 
 #' @references Zaefferer, Martin; Stork, Joerg; Bartz-Beielstein, Thomas. (2014). Distance Measures for Permutations in Combinatorial Efficient Global Optimization. In Parallel Problem Solving from Nature - PPSN XIII (p. 373-383). Springer International Publishing.
+#' @references Zaefferer, Martin and Bartz-Beielstein, Thomas (2016). Efficient Global Optimization with Indefinite Kernels. Parallel Problem Solving from Nature-PPSN XIV. Accepted, in press. Springer. 
 #' @keywords package
 #' @seealso Interface of main function: \code{\link{optimCEGO}} 
 #' @import MASS
 #' @import graphics
 #' @import stats
 #' @import DEoptim
+#' @importFrom quadprog solve.QP
+#' @importFrom Matrix nearPD
+#' @importFrom expm expm
 #' 
 #' @section Acknowledgments:
 #' This work has been partially supported by the Federal Ministry of Education

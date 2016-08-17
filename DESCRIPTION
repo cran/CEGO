@@ -1,5 +1,5 @@
 Package: CEGO
-Version: 2.0.0
+Version: 2.1.0
 Title: Combinatorial Efficient Global Optimization
 Author: Martin Zaefferer <mzaefferer@gmail.com>
 Maintainer: Martin Zaefferer <mzaefferer@gmail.com>
@@ -10,11 +10,12 @@ License: GPL (>= 3)
 Type: Package
 LazyLoad: yes
 Depends: R (>= 3.0.0)
-Imports: MASS, stats, DEoptim, graphics
+Imports: MASS, stats, DEoptim, graphics, quadprog, Matrix, expm
 Suggests: nloptr
 ByteCompile: TRUE
-Date: 2015-10-06
-Date/Publication: 2015-10-06 15:56:36
+Date: 2016-08-17
+RoxygenNote: 5.0.1
 NeedsCompilation: yes
-Packaged: 2015-10-06 12:53:49 UTC; Martin
+Packaged: 2016-08-17 17:41:44 UTC; Martin
 Repository: CRAN
+Date/Publication: 2016-08-17 21:44:34

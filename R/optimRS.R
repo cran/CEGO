@@ -20,13 +20,8 @@
 #' 
 #' @examples
 #' seed=0
-#' glgseed=1
 #' #distance
 #' dF <- distancePermutationHamming
-#' #mutation
-#' mF <- mutationPermutationSwap
-#' #recombination
-#' rF <-  recombinationPermutationCycleCrossover 
 #' #creation
 #' cF <- function()sample(5)
 #' #objective function
@@ -37,7 +32,7 @@
 #'		vectorized=TRUE)) ##target function is "vectorized", expects list as input
 #' res$xbest 
 #'
-#' @seealso \code{\link{optimCEGO}}, \code{\link{optimEA}} 
+#' @seealso \code{\link{optimCEGO}}, \code{\link{optimEA}}, \code{\link{optim2Opt}}, \code{\link{optimMaxMinDist}} 
 #' 
 #' @export
 ###################################################################################
@@ -49,15 +44,11 @@ optimRS <- function(x=NULL,fun,control=list()){
 	con[names(control)] <- control
 	control<-con
 	
-  budget <- control$budget
-	vectorized <- control$vectorized
- 	creationFunction <- control$creationFunction	
-	
 	## Create random solutions without duplicates, filled up with x
-	x <- designRandom(x,creationFunction,budget)
+	x <- designRandom(x,control$creationFunction,control$budget)
   
   #evaluate
-  if(vectorized) 
+  if(control$vectorized) 
 		y <- fun(x)
 	else
 		y <- unlist(lapply(x,fun))
@@ -66,6 +57,6 @@ optimRS <- function(x=NULL,fun,control=list()){
 	j <- which.min(y)
   
   #return
-	list(xbest=x[[j]],ybest=y[j],x=x,y=y, count=budget)
+	list(xbest=x[[j]],ybest=y[j],x=x,y=y, count=control$budget)
 }
 

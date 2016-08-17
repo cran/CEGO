@@ -20,11 +20,13 @@
 #' 		The random solution with maximal minimum distance is chosen doe be evaluated in the next iteration.\cr
 #' \code{model} Model to be used as a surrogate of the target function. Default is "K" (Kriging). Also
 #'		available are: "LM" (linear, distance-based model), "RBFN" Radial Basis Function Network.\cr
-#' \code{modelSettings} List of settings for model building, passed on as the control argument to the model training functions \code{\link{modelKriging}}, \code{\link{modelLinear}}, \code{\link{modelRBFN}}.\cr
+#' \code{modelSettings} List of settings for \code{model} building, passed on as the \code{control} argument to the model training functions \code{\link{modelKriging}}, \code{\link{modelLinear}}, \code{\link{modelRBFN}}.\cr
 #' \code{infill} This parameter specifies a function to be used for the infill criterion (e.g., the default is expected improvement \code{infillExpectedImprovement}).
 #' To use no specific infill criterion this has to be set to \code{NA}. Infill criteria are only used with models that may provide some error estimate with predictions.\cr
-#' \code{optimizer} Optimizer that finds the minimum of the surrogate model. Default is \code{"EA"} an Evolutionary Algorithm. No alternatives implemented yet.\cr
-#' \code{optimizerSettings} List of settings for the method to optimize the model. \cr
+#' \code{optimizer} Optimizer that finds the minimum of the surrogate model. Default is \code{\link{optimEA}}, an Evolutionary Algorithm.\cr
+#' \code{optimizerSettings} List of settings (\code{control}) for the \code{optimizer} function.\cr
+#' \code{initialDesign} Design function that generates the initial design. Default is \code{designMaxMinDist}, which creates a design that maximizes the minimum distance between points.\cr
+#' \code{initialDesignSettings} List of settings (\code{control}) for the \code{initialDesign} function.\cr
 #' \code{creationFunction} Function to create individuals/solutions in search space. Default is a function that creates random permutations of length 6\cr
 #' \code{distanceFunction} distanceFunction a suitable distance function of type f(x1,x2), returning a scalar distance value, preferably between 0 and 1.
 #'      Maximum distances larger 1 are not a problem, but may yield scaling bias when different measures are compared.
@@ -46,7 +48,6 @@
 #' 
 #' @examples
 #' seed <- 0
-#' glgseed=1
 #' #distance
 #' dF <- distancePermutationHamming
 #' #mutation
@@ -77,7 +78,7 @@
 #' res1$xbest 
 #' res2$xbest 
 #'
-#' @seealso \code{\link{modelKriging}}, \code{\link{modelLinear}}, \code{\link{modelRBFN}}, \code{\link{buildModel}}, \code{\link{optimEA}} 
+#' @seealso \code{\link{modelKriging}}, \code{\link{modelLinear}}, \code{\link{modelRBFN}}, \code{\link{buildModel}}, \code{\link{optimEA}}
 #' 
 #' @references Zaefferer, Martin; Stork, Joerg; Friese, Martina; Fischbach, Andreas; Naujoks, Boris; Bartz-Beielstein, Thomas. (2014). Efficient global optimization for combinatorial problems. In Proceedings of the 2014 conference on Genetic and evolutionary computation (GECCO '14). ACM, New York, NY, USA, 871-878. DOI=10.1145/2576768.2598282 http://doi.acm.org/10.1145/2576768.2598282 
 #' @references Zaefferer, Martin; Stork, Joerg; Bartz-Beielstein, Thomas. (2014). Distance Measures for Permutations in Combinatorial Efficient Global Optimization. In Parallel Problem Solving from Nature - PPSN XIII (p. 373-383). Springer International Publishing.
@@ -100,7 +101,7 @@ optimCEGO <- function(x=NULL,fun,control=list()){
 			, modelSettings= list()
       , optimizer = optimEA
 			, optimizerSettings = list()
-			, initialDesign = designRandom #no others available yet.
+			, initialDesign = designMaxMinDist
 			, initialDesignSettings = list())
 	con[names(control)] <- control
 	control<-con
@@ -111,6 +112,9 @@ optimCEGO <- function(x=NULL,fun,control=list()){
   plotting <- control$plotting
 	creationFunction <- control$creationFunction
 	distanceFunction <- control$distanceFunction
+	
+	if(is.null(control$initialDesignSettings$distanceFunction))
+		control$initialDesignSettings$distanceFunction <- distanceFunction
 	
 	## if target function not vectorized: vectorize with lapply
 	fun #lazy load
@@ -168,21 +172,9 @@ optimCEGO <- function(x=NULL,fun,control=list()){
 		if(!duplicate && ((improved || useEI))){ #exploitation step		#for a new individual to be accepted, it has to have a better predicted value than the prediction for the best known individual. One could also use the actual value of the best known individual, but this would deteriorate results in case of an offset.
 			res$x[[res$count]] <- optimres$xbest		#NOTE; exploitation step and exploration is both the same when EI is used., thus the "||"
 		}else{ #exploration step: no promising individual found, or promising individual is a duplicate -> create a new one randomly
-			xc <- list() #candidates
-			distlist <- NULL
-			for (i in 1:control$creationRetries){ #create candidates, to get one new individual that is maximally different from the existing.
-				xc[[i]] <- creationFunction()
-				distx <- NULL
-				if(length(distanceFunction)>1)
-					dfn <- distanceFunction[[1]]
-				else 
-					dfn <- distanceFunction
-				for(j in 1:length(res$x)){#calculate distance to each sampled location				
-					distx <- c(distx,dfn(xc[[i]],res$x[[j]]))	#todo apply?
-				}
-				distlist <- c(distlist,min(distx)) #maximize the minimum distance
-			}
-			res$x[[res$count]] <- xc[[which.max(distlist)]] #this maximizes distance, but may still create a duplicate if max(min(dist))==0, e.g. if all randomly created individuals are duplicates of known solutions
+			designSize <- length(res$x)+1
+			xc <- designMaxMinDist(res$x,creationFunction,designSize,control=list(budget=control$creationRetries,distanceFunction=distanceFunction))			
+			res$x[[res$count]] <- xc[[designSize]] #this maximizes distance, but may still create a duplicate if max(min(dist))==0, e.g. if all randomly created individuals are duplicates of known solutions
 		}
 		res$x <- removeDuplicates(res$x, creationFunction)
 		
@@ -289,16 +281,16 @@ buildModel <- function(res,distanceFunction,control){
 #'
 #' Interface to the optimization of the surrogate model
 #' 
-#' @param res TODO
-#' @param creationFunction TODO
-#' @param model TODO
+#' @param res result state of the optimization process
+#' @param creationFunction Function to create individuals/solutions in search space.
+#' @param model result of the buildModel function
+#' @param control list of settings, from optimCEGO
 #'
-#' @return TODO
+#' @return result list of the optimizer
 #' 
 #' @seealso \code{\link{optimCEGO}} 
 #'
 #' @keywords internal
-#' @export
 ###################################################################################
 optimizeModel <- function(res,creationFunction,model,control){ 
 	if(identical(control$optimizer,"EA")){

@@ -46,15 +46,35 @@ mutationPermutationInterchange <- function(population, parameters=list()){
 	if(mutations==0)
 		return(population)
 	samples <- mutations * popsize
-	newpop <- list()
 	index1 <- sample.int(N,samples,TRUE,NULL) 
 	index2 <- sample.int(N,samples,TRUE,NULL)
-	for(i in 1:popsize){				
+	mutationPermutationInterchangeCore(population,popsize,mutations,index1,index2)
+}
+#mutationPermutationInterchange(list(1:5),list(mutationRate=1))
+
+###################################################################################
+#' Interchange of permutation elements
+#' 
+#' Support function for \code{\link{mutationPermutationInterchange}} and \code{\link{mutationPermutationSwap}}.
+#'
+#' @param population List of permutations
+#' @param popsize population size
+#' @param mutations number of mutated elements for each individual
+#' @param index1 vector of first indices, one element for each interchange
+#' @param index2 vector of second indices, one element for each interchange
+#'
+#' @return mutated population
+#'
+#' @keywords internal
+###################################################################################
+mutationPermutationInterchangeCore <- function(population,popsize,mutations,index1,index2){
+	newpop <- list()
+	for(i in 1:popsize){
 		individual <- population[[i]]
 		if(mutations == 1){
-			val1= individual[index1[i]]
-			individual[index1[i]]= individual[index2[i]]
-			individual[index2[i]]= val1
+			val1 <- individual[index1[i]]
+			individual[index1[i]] <- individual[index2[i]]
+			individual[index2[i]] <- val1
 		}else{
 			j <- ((i-1)*mutations+1) : (i*mutations)
 			for(jj in j){
@@ -63,13 +83,12 @@ mutationPermutationInterchange <- function(population, parameters=list()){
 				val1= individual[i1]
 				individual[i1]= individual[i2]
 				individual[i2]= val1
-			}			
-		}
+			}	
+		}		
 		newpop <- c(newpop, list(individual))
-	}	
+	}
 	newpop
 }
-#mutationPermutationInterchange(list(1:5),list(mutationRate=1))
 
 ###################################################################################
 #' Swap Mutation for Permutations
@@ -96,28 +115,9 @@ mutationPermutationSwap <- function(population,parameters=list()){
 	if(mutations==0)
 		return(population)
 	samples <- mutations * popsize
-	newpop <- list()
 	index1 <- sample.int(N-1,samples,TRUE,NULL) 
 	index2 <- index1 +1
-	for(i in 1:popsize){				 # TODO: after index2, the same code as in interchange mutation is used. code should be merged.
-		individual <- population[[i]]
-		if(mutations == 1){
-			val1 <- individual[index1[i]]
-			individual[index1[i]] <- individual[index2[i]]
-			individual[index2[i]] <- val1
-		}else{
-			j <- ((i-1)*mutations+1) : (i*mutations)
-			for(jj in j){
-				i1 <- index1[jj]
-				i2 <- index2[jj]
-				val1= individual[i1]
-				individual[i1]= individual[i2]
-				individual[i2]= val1
-			}	
-		}		
-		newpop <- c(newpop, list(individual))
-	}
-	newpop
+	mutationPermutationInterchangeCore(population,popsize,mutations,index1,index2)
 }
 #mutationPermutationSwap(list(1:5),list(mutationRate=1))
 

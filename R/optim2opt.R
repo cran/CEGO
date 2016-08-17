@@ -7,10 +7,11 @@
 #' @param x start solution of the local search
 #' @param fun function that determines cost or length of a route/permutation
 #' @param control (list), with the options\cr
+#' \code{archive} Whether to keep all candidate solutions and their fitness in an archive (TRUE) or not (FALSE). Default is TRUE.\cr
 #' \code{budget} The limit on number of target function evaluations (stopping criterion) (default: 100)\cr
+#' \code{creationFunction} Function to create individuals/solutions in search space. Default is a function that creates random permutations of length 6\cr
 #' \code{vectorized} Boolean. Defines whether target function is vectorized (takes a list of solutions 
-#' as argument) or not (takes single solution as argument). Default: FALSE\cr
-#' \code{creationFunction} Function to create individuals/solutions in search space. Default is a function that creates random permutations of length 6
+#' as argument) or not (takes single solution as argument). Default: FALSE
 #'
 #' @return a list:\cr 	
 #' \code{xbest} best solution found\cr
@@ -19,13 +20,8 @@
 #' 
 #' @examples
 #' seed=0
-#' glgseed=1
 #' #distance
 #' dF <- distancePermutationHamming
-#' #mutation
-#' mF <- mutationPermutationSwap
-#' #recombination
-#' rF <-  recombinationPermutationCycleCrossover 
 #' #creation
 #' cF <- function()sample(5)
 #' #objective function
@@ -38,16 +34,20 @@
 #'
 #' @references Wikipedia contributors. "2-opt." Wikipedia, The Free Encyclopedia. Wikipedia, The Free Encyclopedia, 13 Jun. 2014. Web. 21 Oct. 2014. (http://en.wikipedia.org/wiki/2-opt)
 #'
+#' @seealso \code{\link{optimCEGO}}, \code{\link{optimEA}}, \code{\link{optimRS}}, \code{\link{optimMaxMinDist}} 
+#' 
 #' @export
 ###################################################################################
 optim2Opt <- function(x=NULL,fun,control=list()){ 
 	con<-list(budget=100
 					, vectorized=FALSE
 					, creationFunction = solutionFunctionGeneratorPermutation(6)
+          , archive =TRUE
 			 )
 	con[names(control)] <- control
 	control <- con
 
+  archive <- control$archive
   budget <- control$budget
   vectorized <- control$vectorized
 	creationFunction <- control$creationFunction	
@@ -64,6 +64,10 @@ optim2Opt <- function(x=NULL,fun,control=list()){
     bestDist = fun(list(route))
   else
     bestDist = fun(route)
+  if(archive){
+    fithist <- bestDist
+    xhist <- route
+  } 
 	N=length(route)
 	count=1
 	while(improvement){
@@ -76,6 +80,10 @@ optim2Opt <- function(x=NULL,fun,control=list()){
           newDist = fun(list(newRoute))
         else
           newDist = fun(newRoute)
+        if(archive){
+          xhist <- append(xhist,newRoute)  
+          fithist <-  c(fithist, newDist)
+        }     
 				count=count+1
 				if (newDist < bestDist) {
 					bestRoute = newRoute
@@ -93,8 +101,10 @@ optim2Opt <- function(x=NULL,fun,control=list()){
 			i=i+1	
 		}
 	}
-	#print(count)
-	list(xbest=	bestRoute, ybest= bestDist, count=count)
+  if(archive)
+    return(list(xbest=bestRoute,ybest=bestDist,x=xhist,y=fithist, count=count))
+  else
+    return(list(xbest=bestRoute,ybest=bestDist,count=count))
 }
 
 ###################################################################################

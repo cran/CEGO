@@ -1,11 +1,11 @@
 #   Copyright (c) 2014-2015 by Martin Zaefferer, Cologne University of Applied Sciences
 
 ###################################################################################################
-#' optimInterface
+#' Optimization Interface (continuous, bounded)
 #'
 #' This function is an interface fashioned like the \code{\link{optim}} function.
 #' Unlike optim, it collects a set of bound-constrained optimization algorithms
-#' with local as well as global approaches. It is used in the CEGO package
+#' with local as well as global approaches. It is, e.g., used in the CEGO package
 #' to solve the optimization problem that occurs during parameter estimation
 #' in the Kriging model (based on Maximum Likelihood Estimation).
 #' Note that this function is NOT applicable to combinatorial optimization problems. 
@@ -13,8 +13,9 @@
 #' The control list contains:\cr
 #' \code{funEvals} stopping criterion, number of evaluations allowed for \code{fun}  (defaults to 100) \cr
 #' \code{reltol} stopping criterion, relative tolerance  (default: 1e-6) \cr
+#' \code{factr} stopping criterion, specifying relative tolerance parameter factr for the L-BFGS-B method in the optim function (default: 1e10) \cr
 #' \code{popsize} population size or number of particles  (default: \code{10*dimension}, where \code{dimension} is derived from the length of the vector \code{lower}). \cr
-#' \code{restarts} the number of restarts to perform (Default: 0). Function evaluation budget will be split accordingly. Early convergence of optimization runs may lead to additional restarts. 
+#' \code{restarts} whether to perform restarts (Default: FALSE). Restarts will only be performed if some of the evaluation budget is left once the algorithm stopped due to some stopping criterion (e.g., reltol).\cr
 #' Violations of the provided budget may decrease the number of restarts.\cr
 #' \code{method} will be used to choose the optimization method from the following list:\cr
 #' "L-BFGS-B" - BFGS quasi-Newton: \code{stats} Package \code{optim} function\cr
@@ -51,10 +52,11 @@ optimInterface<-function(x,fun,lower=-Inf,upper=Inf,control=list(),...){
 	con<-list(funEvals=100 #CON: Internal List with defaults for control
 			,method="L-BFGS-B"
       ,reltol=1e-6
+			,factr=1e10
 			,popsize=NULL			
 			,ineq_constr=NULL
 			,verbosity=0
-			,restarts=0)
+			,restarts=FALSE)
 	con[names(control)] <- control;
 	control<-con;
 	
@@ -63,7 +65,7 @@ optimInterface<-function(x,fun,lower=-Inf,upper=Inf,control=list(),...){
 	dim <- length(lower)
 	if(is.null(control$popsize))
 		control$popsize <- dim * 10
-	budget <- control$funEvals / (control$restarts+1)
+	budget <- control$funEvals 
 	sumevals <- 0	
 	ymin <- Inf
 	run <- TRUE
@@ -77,10 +79,10 @@ optimInterface<-function(x,fun,lower=-Inf,upper=Inf,control=list(),...){
 	#LOOP OVER RESTARTS
 	while(run){
 		if (method=="L-BFGS-B"){
-			res <- optim(par=x, fn=fun, method=method,lower=lower,upper=upper,control=list(maxit=budget,trace=control$verbosity),...)
+			res <- optim(par=x, fn=fun, method=method,lower=lower,upper=upper,control=list(maxit=budget,trace=control$verbosity,factr=control$factr),...)
 			resval <- res$value
 			respar <- res$par
-			resevals <- res$counts[[1]] +res$counts[[1]] * 2 * dim
+			resevals <- res$counts[[1]] +res$counts[[2]] * 2 * dim
 		}else if (method=="nlminb"){
 			res <- nlminb(start=x, objective=fun, gradient=NULL, hessian=NULL, control=list(eval.max=budget,iter.max=budget,rel.tol=control$reltol,trace=control$verbosity),lower=lower,upper=upper,...)
 			resval <- res$objective

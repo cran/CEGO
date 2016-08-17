@@ -64,10 +64,9 @@ removeDuplicates <- function(x,cf){
 ###################################################################################
 removeDuplicatesOffspring <- function(xhist,off,cf,df=duplicated){
 	x <- c(xhist,off)
-	while(any(df(x))){ 
-		duplicates <- which(df(x))
-		for(i in 1:length(duplicates))
-			x[[duplicates[i]]]=cf()
+	while(any(dup <- df(x))){ 
+		duplicates <- which(dup)
+		x[duplicates] <- replicate(length(duplicates),cf(),simplify=F)
 	}
 	x[(length(xhist)+1):length(x)]
 }	

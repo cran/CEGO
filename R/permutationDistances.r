@@ -32,20 +32,20 @@ distancePermutationInterchange <- function(x, y){
 }
 
 ###################################################################################
-#' Longest Common Subsequence Distance for Permutations
-#' 
-#' DEPRECATED, see \code{\link{distancePermutationInsert}}. 
-#'
-#' @param x first permutation (integer vector)
-#' @param y second permutation (integer vector)
-#'
-#' @return numeric distance value \deqn{d(x,y)}, scaled to values between 0 and 1 (based on the maximum possible distance between two permutations)
-#'
-#' @export
-#' @keywords internal
+# Longest Common Subsequence Distance for Permutations
+# 
+# DEPRECATED, see \code{\link{distancePermutationInsert}}. 
+#
+# @param x first permutation (integer vector)
+# @param y second permutation (integer vector)
+#
+# @return numeric distance value \deqn{d(x,y)}, scaled to values between 0 and 1 (based on the maximum possible distance between two permutations)
+#
+# @export
+# @keywords internal
 ###################################################################################
-distancePermutationLCSeq<- function(x, y){
-	.Deprecated("distancePermutationInsert")
+#distancePermutationLCSeq<- function(x, y){
+#	.Deprecated("distancePermutationInsert")
 	#N <- length(x)
 	#if(N!=length(y)|!is.numeric(x)|!is.numeric(y)) stop("Incorrect input to distance function, only permutations of same length are allowed.")
 	#result <- .Call("permutationDistanceLongestCommonSubsequence", as.integer(x),as.integer(y), PACKAGE="CEGO")
@@ -55,8 +55,8 @@ distancePermutationLCSeq<- function(x, y){
 	### 
 	## insert is identical but faster
 	###
-	distancePermutationInsert(x,y)									
-}
+#	distancePermutationInsert(x,y)									
+#}
 
 ###################################################################################
 #' Longest Common Substring Distance for Permutations
@@ -369,7 +369,7 @@ distancePermutationManhattan <- function(x, y){
 		dis <- mdis / ((N^2-1)/ 2)
 	else #scale to [0;1] in case of even N
 		dis <- mdis / (N^2 / 2)
-	dis # TODO is the scaling equivalent to "dis/round(N^2/2)" ? if yes, what is faster?
+	dis
 }
 
 ###################################################################################
