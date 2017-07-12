@@ -7,6 +7,7 @@
 #'
 #' @param X list of samples, where each list element is a suitable input for \code{distFun}
 #' @param distFun Distance function of type f(x,y)=r, where r is a scalar and x and y are elements whose distance is evaluated.
+#' @param ... further arguments passed to distFun
 #'
 #' @return The distance matrix
 #'
@@ -16,11 +17,11 @@
 #'
 #' @export
 ###################################################################################
-distanceMatrix <-function(X,distFun){
+distanceMatrix <-function(X,distFun,...){
 	n <- length(X)
 	m <- matrix(0,nrow=n, ncol=n)
 	for(i in seq_len(n - 1))
-		m[seq(i+1, n),i] <- m[i,seq(i+1, n)] <- distanceVector(X[[i]],X[seq(i+1, n)],distFun)
+		m[seq(i+1, n),i] <- m[i,seq(i+1, n)] <- distanceVector(X[[i]],X[seq(i+1, n)],distFun,...)
 	m
 }
 
@@ -32,6 +33,7 @@ distanceMatrix <-function(X,distFun){
 #' @param a A single sample which is a suitable input for \code{distFun}
 #' @param X list of samples, where each list element is a suitable input for \code{distFun}
 #' @param distFun Distance function of type f(x,y)=r, where r is a scalar and x and y are elements whose distance is evaluated.
+#' @param ... further arguments passed to distFun
 #'
 #' @return A numerical vector of distances
 #'
@@ -42,8 +44,8 @@ distanceMatrix <-function(X,distFun){
 #'
 #' @export
 ###################################################################################
-distanceVector <-function(a,X,distFun){
-	unlist(lapply(X,distFun,a))
+distanceVector <-function(a,X,distFun,...){
+	unlist(lapply(X,distFun,a,...))
 }
 
 ###################################################################################
@@ -55,6 +57,7 @@ distanceVector <-function(a,X,distFun){
 #' @param distanceMat original distance matrix \code{D_mat}
 #' @param x list of candidate solutions, last in list is the new solution
 #' @param distanceFunction Distance function of type f(x,y)=r, where r is a scalar and x and y are candidate solutions whose distance is evaluated.
+#' @param ... further arguments passed to distanceFunction
 #'
 #' @return matrix of distances between all solutions x
 #'
@@ -67,17 +70,18 @@ distanceVector <-function(a,X,distFun){
 #' @export
 #' @keywords internal
 ###################################################################################
-distanceMatrixUpdate <- function(distanceMat,x,distanceFunction){
+distanceMatrixUpdate <- function(distanceMat,x,distanceFunction,...){
 	count <- length(x)
 	if(length(distanceFunction)==1){ # in case of a single distance function (all models)
-		newdist = distanceVector(x[[count]],x[-count],distanceFunction)
+		newdist = distanceVector(x[[count]],x[-count],distanceFunction,...)
 		distanceMat = cbind(rbind(distanceMat,c(newdist)),c(newdist,0))
 	}else{	# in case of multiple distance functions (kriging only atm.)
 		for(i in 1:length(distanceFunction)){
-			newdist = distanceVector(x[[count]],x[-count],distanceFunction[[i]])
+			newdist = distanceVector(x[[count]],x[-count],distanceFunction[[i]],...)
 			distanceMat[[i]] <- cbind(rbind(distanceMat[[i]],c(newdist)),c(newdist,0))
 		}
 	}
+	distanceMat
 }
 
 ###################################################################################
@@ -87,6 +91,7 @@ distanceMatrixUpdate <- function(distanceMat,x,distanceFunction){
 #'
 #' @param x list of candidate solutions whose distance is evaluated
 #' @param distanceFunction Distance function of type f(x,y)=r, where r is a scalar and x and y are candidate solutions whose distance is evaluated.
+#' @param ... further arguments passed to distanceFunction
 #'
 #' @return matrix of distances between all solutions in list x
 #'
@@ -99,14 +104,35 @@ distanceMatrixUpdate <- function(distanceMat,x,distanceFunction){
 #' @export
 #' @keywords internal
 ###################################################################################
-distanceMatrixWrapper <- function(x,distanceFunction){
+distanceMatrixWrapper <- function(x,distanceFunction,...){
 	if(length(distanceFunction)==1){ # in case of a single distance function (all models)
-		distances <- distanceMatrix(x,distanceFunction)
+		distances <- distanceMatrix(x,distanceFunction,...)
 	}else{	# in case of multiple distance functions (kriging only atm.)
 		distances <- list()
 		for(i in 1:length(distanceFunction)){
-			distances[[i]] <- distanceMatrix(x,distanceFunction[[i]]) 
+			distances[[i]] <- distanceMatrix(x,distanceFunction[[i]],...) 
 		}
 	}
   distances
+}
+
+###################################################################################
+#' Euclidean Distance
+#' 
+#' The Euclidean distance for real vectors.
+#'
+#' @param x first real vector
+#' @param y second real vector
+#'
+#' @return numeric distance value \deqn{d(x,y)}
+#'
+#' @examples
+#' x <- runif(5)
+#' y <- runif(5)
+#' distanceRealEuclidean(x,y)
+#'
+#' @export
+###################################################################################
+distanceRealEuclidean <- function(x,y){
+	sqrt(sum((x-y)^2))
 }

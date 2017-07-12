@@ -4,12 +4,14 @@
 \alias{distanceMatrixWrapper}
 \title{Distance Matrix Wrapper}
 \usage{
-distanceMatrixWrapper(x, distanceFunction)
+distanceMatrixWrapper(x, distanceFunction, ...)
 }
 \arguments{
 \item{x}{list of candidate solutions whose distance is evaluated}
 
 \item{distanceFunction}{Distance function of type f(x,y)=r, where r is a scalar and x and y are candidate solutions whose distance is evaluated.}
+
+\item{...}{further arguments passed to distanceFunction}
 }
 \value{
 matrix of distances between all solutions in list x
@@ -25,4 +27,3 @@ dmBoth <- distanceMatrixWrapper(x,list(distancePermutationHamming,distancePermut
 
 }
 \keyword{internal}
-

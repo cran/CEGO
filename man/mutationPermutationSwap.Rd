@@ -21,4 +21,3 @@ mutated population
 Given a population of permutations, this function mutates all 
 individuals by randomly interchanging two adjacent elements of the permutation.
 }
-

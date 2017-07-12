@@ -4,18 +4,17 @@
 \alias{modelKrigingLikelihood}
 \title{Calculate negative log-likelihood}
 \usage{
-modelKrigingLikelihood(xt, D, y, optimizeP = FALSE, useLambda = FALSE,
-  corr = fcorrGauss, indefiniteMethod = "none", indefiniteType = "PSD",
-  indefiniteRepair = FALSE, returnLikelihoodOnly = TRUE)
+modelKrigingLikelihood(xt, D, y, useLambda = FALSE, corr = fcorrGauss,
+  indefiniteMethod = "none", indefiniteType = "PSD",
+  indefiniteRepair = FALSE, returnLikelihoodOnly = TRUE,
+  inverter = "chol", ntheta = 1)
 }
 \arguments{
-\item{xt}{vector, containing parameters like log10(theta), p and lambda.}
+\item{xt}{vector, containing parameters like theta, p and lambda.}
 
 \item{D}{matrix (or list of multiple matrices) of distances between training samples. In case of multiple distance matrices, theta (part of xt) has to be a vector, giving a weighting parameter for each matrix.}
 
 \item{y}{vector of observations at sample locations.}
-
-\item{optimizeP}{whether to optimize p or not (FALSE at default).}
 
 \item{useLambda}{whether to use nugget effect, i.e., lambda (FALSE at default).}
 
@@ -28,18 +27,26 @@ modelKrigingLikelihood(xt, D, y, optimizeP = FALSE, useLambda = FALSE,
 \item{indefiniteRepair}{boolean, whether conditions of the distance matrix (in case of \code{"NSD"},\code{"CNSD"} correction type) or correlation matrix (in case of \code{"PSD"} correction type) are repaired.}
 
 \item{returnLikelihoodOnly}{boolean, whether the function should return only the likelihood, or a else a list (see return information below).}
+
+\item{inverter}{string specifying method for inversion of correlation matrix ("chol", cholesky decomposition at default, any other string leads to using the solve function).}
+
+\item{ntheta}{number of kernel parameters.}
+
+\item{inverter}{string, defining the inverter to use. default \code{"chol"} is inversion via \code{chol2inv}. A different string will lead to use of \code{solve}.}
 }
 \value{
-the numeric Likelihood value (if \code{returnLikelihoodOnly} is TRUE) or a list with elements\cr
-\code{NegLnLike}  concentrated log-likelihood *-1 for minimising \cr
-\code{Psi} correlation matrix\cr
-\code{Psinv} inverse of correlation matrix (to save computation time in forrRegPredictor)\cr
-\code{mu} MLE of model parameter mu \cr
-\code{yMu} vector of observations y minus mu\cr
-\code{SSQ} MLE of model parameter sigma^2
-\code{a} transformation vector for eigenspectrum transformation, see Zaefferer and Bartz-Beielstein (2016)
-\code{U} Matrix of eigenvectors for eigenspectrum transformation, see Zaefferer and Bartz-Beielstein (2016)
-\code{isIndefinite} whether the uncorrected correlation (kernel) matrix is indefinite
+the numeric Likelihood value (if \code{returnLikelihoodOnly} is TRUE) or a list with elements:
+\describe{
+\item{\code{NegLnLike}}{ concentrated log-likelihood *-1 for minimising }
+\item{\code{Psi}}{ correlation matrix}
+\item{\code{Psinv}}{ inverse of correlation matrix (to save computation time in forrRegPredictor)}
+\item{\code{mu}}{ MLE of model parameter mu }
+\item{\code{yMu}}{ vector of observations y minus mu}
+\item{\code{SSQ}}{ MLE of model parameter sigma^2}
+\item{\code{a}}{ transformation vector for eigenspectrum transformation, see Zaefferer and Bartz-Beielstein (2016)}
+\item{\code{U}}{ Matrix of eigenvectors for eigenspectrum transformation, see Zaefferer and Bartz-Beielstein (2016)}
+\item{\code{isIndefinite}}{ whether the uncorrected correlation (kernel) matrix is indefinite}
+}
 }
 \description{
 Used to determine theta/lambda/p values for the Kriging model in \code{\link{modelKriging}}
@@ -58,4 +65,3 @@ Martin Zaefferer and Thomas Bartz-Beielstein. (2016). Efficient Global Optimizat
 \code{\link{modelKriging}}
 }
 \keyword{internal}
-

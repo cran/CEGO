@@ -26,8 +26,8 @@
 #' \tabular{ll}{
 #' Package: \tab CEGO\cr
 #' Type: \tab Package\cr
-#' Version: \tab 2.1.0\cr
-#' Date: \tab 2016-08-17\cr
+#' Version: \tab 2.2.0\cr
+#' Date: \tab 2017-07-12\cr
 #' License: \tab GPL (>= 3)\cr
 #' LazyLoad: \tab yes\cr
 #' }
@@ -48,7 +48,8 @@
 #' @import DEoptim
 #' @importFrom quadprog solve.QP
 #' @importFrom Matrix nearPD
-#' @importFrom expm expm
+#' @importFrom methods formalArgs
+#' @useDynLib CEGO, .registration = TRUE, .fixes = "C_"
 #' 
 #' @section Acknowledgments:
 #' This work has been partially supported by the Federal Ministry of Education

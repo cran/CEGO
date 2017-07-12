@@ -39,4 +39,3 @@ fun2(1:n)
 \seealso{
 \code{\link{benchmarkGeneratorQAP}}, \code{\link{benchmarkGeneratorFSP}}, \code{\link{benchmarkGeneratorWT}}
 }
-

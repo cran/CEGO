@@ -14,38 +14,43 @@
 #'      Maximum distances larger 1 are no problem, but may yield scaling bias when different measures are compared.
 #' 		Should be non-negative and symmetric.  It can also be a list of several distance functions. In this case, Maximum Likelihood Estimation (MLE) is used 
 #'		to determine the most suited distance measure.
-#' @param control (list), with the options for the model building procedure:\cr
-#' \code{lower} lower boundary for theta, default is \code{1e-6}\cr
-#' \code{upper} upper boundary for theta, default is \code{100}\cr
-#' \code{corr} function to be used for correlation modelling, default is \code{fcorrGauss}\cr
-#' \code{algTheta}  algorithm used to find theta (as well as p and lambda), default is \code{\link{optimInterface}}.\cr
-#' \code{algThetaControl}  list of controls passed to \code{algTheta}.\cr
-#' \code{optimizeP} boolean that specifies whether the exponents (\code{p}) should be optimized. Else they will be set to two. \cr
-#' \code{useLambda} whether or not to use the regularization constant lambda (nugget effect). Default is \code{FALSE}.\cr
-#' \code{lambdaLower} lower boundary for lambda (log scale), default is \code{-6}\cr 
-#' \code{lambdaUpper} upper boundary for lambda (log scale), default is \code{0}\cr
-#' \code{distances} a distance matrix. If available, this matrix is used for model building, instead of calculating the distance matrix using the parameters \code{distanceFunction}. Default is \code{NULL}.
-#' \code{scaling} If TRUE: Distances values are divided by maximum distance to avoid scale bias.\cr
-#' \code{reinterpolate} If TRUE: reinterpolation is used to generate better uncertainty estimates in the presence of noise. \cr
-#' \code{combineDistances} By default, several distance functions or matrices are subject to a likelihood based decision, choosing one. If this parameter is TRUE, they are instead combined by determining a weighted sum. The weighting parameters are determined by MLE.\cr
-#' \code{userParameters} By default: (\code{NULL}). Else, this vector is used instead of MLE to specify the model parameters, in the following form: \code{log10(c(theta,lambda,p))}. In case of multiple combined distance functions, \code{theta} is also a vector, one element for each distance function.\cr
-#' \code{indefiniteMethod} The specific method used for correction: spectrum \code{"clip"}, spectrum \code{"flip"}, spectrum \code{"square"}, spectrum \code{"diffusion"}, feature embedding "feature", nearest definite matrix "near". Default is no correction: \code{"none"}. See Zaefferer and Bartz-Beielstein (2016).\cr
-#' \code{indefiniteType}  The general type of correction for indefiniteness: \code{"NSD"},\code{"CNSD"} or the default \code{"PSD"}. See Zaefferer and Bartz-Beielstein (2016). Note, that feature embedding may not work in case of multiple distance functions.\cr
-#' \code{indefiniteRepair} boolean, whether conditions of the distance matrix (in case of \code{"NSD"},\code{"CNSD"} correction type) or correlation matrix (in case of \code{"PSD"} correction type) are repaired.
+#'		The distance function may have additional parameters. For that case, see distanceParametersLower/Upper in the controls.
+#'    If distanceFunction is missing, it can also be provided in the control list.
+#' @param control (list), with the options for the model building procedure:
+#' \describe{
+#' \item{\code{lower}}{ lower boundary for theta, default is \code{1e-6}}
+#' \item{\code{upper}}{ upper boundary for theta, default is \code{100}}
+#' \item{\code{corr}}{ function to be used for correlation modelling, default is \code{fcorrGauss}}
+#' \item{\code{algTheta}}{ algorithm used to find theta (as well as p and lambda), default is \code{\link{optimInterface}}.}
+#' \item{\code{algThetaControl}}{ list of controls passed to \code{algTheta}.}
+#' \item{\code{useLambda}}{ whether or not to use the regularization constant lambda (nugget effect). Default is \code{FALSE}.}
+#' \item{\code{lambdaLower}}{ lower boundary for lambda (log scale), default is \code{-6}}
+#' \item{\code{lambdaUpper}}{ upper boundary for lambda (log scale), default is \code{0}}
+#' \item{\code{distanceParametersLower}}{ lower boundary for parameters of the distance function, default is \code{NA} which means there are no distance function parameters. If several distance functions are supplied, this should be a list of lower boundary vectors for each function.}
+#' \item{\code{distanceParametersUpper}}{ upper boundary for parameters of the distance function, default is \code{NA} which means there are no distance function parameters. If several distance functions are supplied, this should be a list of upper boundary vectors for each function.}
+#' \item{\code{distances}}{ a distance matrix. If available, this matrix is used for model building, instead of calculating the distance matrix using the parameters \code{distanceFunction}. Default is \code{NULL}.}
+#' \item{\code{scaling}}{ If TRUE: Distances values are divided by maximum distance to avoid scale bias.}
+#' \item{\code{reinterpolate}}{ If TRUE: reinterpolation is used to generate better uncertainty estimates in the presence of noise. }
+#' \item{\code{combineDistances}}{ By default, several distance functions or matrices are subject to a likelihood based decision, choosing one. If this parameter is TRUE, they are instead combined by determining a weighted sum. The weighting parameters are determined by MLE.}
+#' \item{\code{userParameters}}{ By default: (\code{NULL}). Else, this vector is used instead of MLE to specify the model parameters, in the following order: kernel parameters, distance weights, lambda, distance parameters.}
+#' \item{\code{indefiniteMethod}}{ The specific method used for correction: spectrum \code{"clip"}, spectrum \code{"flip"}, spectrum \code{"square"}, spectrum \code{"diffusion"}, feature embedding "feature", nearest definite matrix "near". Default is no correction: \code{"none"}. See Zaefferer and Bartz-Beielstein (2016).}
+#' \item{\code{indefiniteType}}{  The general type of correction for indefiniteness: \code{"NSD"},\code{"CNSD"} or the default \code{"PSD"}. See Zaefferer and Bartz-Beielstein (2016). Note, that feature embedding may not work in case of multiple distance functions.}
+#' \item{\code{indefiniteRepair}}{ boolean, whether conditions of the distance matrix (in case of \code{"NSD"},\code{"CNSD"} correction type) or correlation matrix (in case of \code{"PSD"} correction type) are repaired.}
+######## \item{\code{conditionalSimulation}}{ boolean, whether a later performed simulation of the fitted model should be conditional on the training data.}
+#' }
 #'
-#' @return an object of class \code{modelKriging} containing the options (see control parameter) and determined parameters for the model:\cr
-#' \code{theta} activity or width parameter theta, a parameter of the correlation function determined with MLE\cr
-#' \code{log10Theta} log10 \code{theta} (i.e. \code{log10(theta)})\cr
-#' \code{lambda} regularization constant (nugget) lambda \cr
-#' \code{log10Lambda} log10 of regularization constant (nugget) lambda (i.e. \code{log10(lambda)})\cr
-#' \code{p} exponent p, parameter of the correlation function determined with MLE (if \code{optimizeP} is \code{TRUE})\cr
-#' \code{yMu} vector of observations y, minus MLE of mu\cr
-#' \code{SSQ} Maximum Likelihood Estimate (MLE) of model parameter sigma^2\cr
-#' \code{mu} MLE of model parameter mu\cr
-#' \code{Psi} correlation matrix Psi\cr
-#' \code{Psinv} inverse of Psi\cr
-#' \code{nevals} number of Likelihood evaluations during MLE of theta/lambda/p\cr
-#' \code{distanceFunctionIndexMLE} If a list of several distance measures (\code{distanceFunction}) was given, this parameter contains the index value of the measure chosen with MLE.
+#' @return an object of class \code{modelKriging} containing the options (see control parameter) and determined parameters for the model:
+#' \describe{
+#' \item{\code{theta}}{ parameters of the kernel / correlation function determined with MLE.}
+#' \item{\code{lambda}}{ regularization constant (nugget) lambda}
+#' \item{\code{yMu}}{ vector of observations y, minus MLE of mu}
+#' \item{\code{SSQ}}{ Maximum Likelihood Estimate (MLE) of model parameter sigma^2}
+#' \item{\code{mu}}{ MLE of model parameter mu}
+#' \item{\code{Psi}}{ correlation matrix Psi}
+#' \item{\code{Psinv}}{ inverse of Psi}
+#' \item{\code{nevals}}{ number of Likelihood evaluations during MLE of theta/lambda/p}
+#' \item{\code{distanceFunctionIndexMLE}}{ If a list of several distance measures (\code{distanceFunction}) was given, this parameter contains the index value of the measure chosen with MLE.}
+#' }
 #' 
 #' @seealso \code{\link{predict.modelKriging}} 
 #' 
@@ -104,29 +109,54 @@
 ###################################################################################
 modelKriging <- function(x, y, distanceFunction,control=list()){ 
 #TODO: use of tcrossprod or crossprod for speedup??
-	con<-list(lower=1e-6, upper=1e5, 
+	con<-list(lower=-6, upper=5, 
 						corr=fcorrGauss, 
 						algTheta= optimInterface, 
 						algThetaControl= list(funEvals=200,reltol=1e-4,factr=1e12,restarts=TRUE),
-						optimizeP= FALSE, 
 						combineDistances=FALSE, 
+						distanceParametersLower= NA,
+						distanceParametersUpper= NA,
 						useLambda=FALSE, lambdaLower = -6, lambdaUpper = 0, 
+						#conditionalSimulation=FALSE, simulationReturnAll = FALSE, lambdaUpper = 0, 
             indefiniteMethod= "none", indefiniteType="PSD", indefiniteRepair=TRUE,
-						scaling=FALSE,reinterpolate=FALSE);
+						scaling=FALSE,reinterpolate=FALSE) #todo always scale, remove scaling variable?
 	con$algThetaControl[names(control$algThetaControl)] <- control$algThetaControl
 	control$algThetaControl <- con$algThetaControl
-	con[names(control)] <- control;
- 	control<-con;
+	con[names(control)] <- control
+ 	control<-con
+
+	#
+	if(missing(distanceFunction))
+		distanceFunction <- control$distanceFunction
+		
+	if(is.null(distanceFunction))
+		stop("No distanceFunction passed to modelKriging.")
+	
+	if(length(distanceFunction)==1)
+		control$combineDistances <- FALSE
+	
+	#check whether distance function has parameters
+	useDistanceParameters=FALSE	
+	if(!any(is.na(control$distanceParametersLower))&!any(is.na(control$distanceParametersUpper)))
+		useDistanceParameters=TRUE 
 		
 	algThetaControl <- control$algThetaControl
 	useLambda <- control$useLambda
 	lambdaLower <- control$lambdaLower
 	lambdaUpper <- control$lambdaUpper
+	distanceParametersLower <- control$distanceParametersLower
+	distanceParametersUpper <- control$distanceParametersUpper
 	combineDistances <- control$combineDistances
+	indefiniteMethod <- control$indefiniteMethod
+	indefiniteType <- control$indefiniteType
+	indefiniteRepair <- control$indefiniteRepair
+	scaling <- control$scaling
 	fcorr <- control$corr
  	fit <- control
 
-	if(!is.matrix(y))
+	fit$useDistanceParameters <- useDistanceParameters
+	
+	if(!is.matrix(y)) #TODO why a matrix...
 		y <- as.matrix(y)
 	if(any(duplicated(x)) & !control$useLambda){ #duplicates HAVE to be removed, but duplicates for noisy problems are okay. 
 		duplicates <- which(duplicated(x))
@@ -134,127 +164,89 @@ modelKriging <- function(x, y, distanceFunction,control=list()){
 		y <- as.matrix(y[-duplicates])
 	}	
 	
-	#
-	##
-	#
-	if(control$indefiniteMethod=="feature"){ #distances as features #TODO what to do in case of multiple distance functions ?
-		if(is.null(control$distances))
-			D <-distanceMatrix(x,distanceFunction) 
-		else
-			D <- control$distances
-		fit$origx <- x
-		fit$origDistanceFunction <- distanceFunction
-		x <- split(D,seq(nrow(D))) #each distance vector in the distance matrix is now a feature vector
-		distanceFunction <- function(x,y){  #now use positive semidefinite euclidean distance on feature vector
-			sqrt(sum((x-y)^2))
-		}
-		control$distances <- distanceMatrix(x,distanceFunction) 
-	}	
-	#
-	##
-	#
 	fit$x <- x
 	fit$y <- y
 
 	n <- length(fit$x) #number of observations
 	nd <- length(distanceFunction) # number of distance functions
+	ntheta <- length(fit$lower) #number of theta parameters
+
+	if(any(is.na(fit$lower))) #no lower bound means no theta parameter.
+		ntheta=0
 	
 	#calculate distance matrix
-	if(nd==1){ #one distance function
-		if(is.null(control$distances))
-			D <-distanceMatrix(x,distanceFunction) 
-		else
-			D <- control$distances
-    maxD <- max(D) #maximum distance
-    if(control$scaling){
-      D <- D/maxD
-    }    
-	}else{ #multiple distance functions
-		if(is.null(control$distances)){
-			D <- list()
-      maxD <- list()
-			for(i in 1:nd){
-        D[[i]] <-distanceMatrix(x,distanceFunction[[i]]) 
-        maxD[[i]] <- max(D[[i]]) #maximum distance
-        if(control$scaling){
-          D[[i]] <- D[[i]]/maxD[[i]]
-        } 
-			}
-		}else{
-			D <- control$distances
-      maxD <- list()
-			for(i in 1:nd){
-        maxD[[i]] <- max(D[[i]]) #maximum distance
-        if(control$scaling){
-          D[[i]] <- D[[i]]/maxD[[i]]
-        } 
-			}    
-		}
-	}
-  
-	# Fix Definiteness (NSDness, CNSDness) of the provided distance matrix/matrices	
-	fit$origD <- D 
-	if(nd==1){#in case of one distance function
-		ret <- correctionDistanceMatrix(D,control$indefiniteType,control$indefiniteMethod,control$indefiniteRepair)
-		D <- ret$mat
-		fit$D <- ret$mat
-		fit$isCNSD <- ret$isCNSD
-		fit$A <- ret$A	
-	}else if(!combineDistances){ #in case of multiple distances, which are not combined (but chosen from):
-		fit$D <- list()
-		fit$isCNSD <- list()
-		fit$A <- list()	
-		for(i in 1:nd){
-			ret <- correctionDistanceMatrix(D[[i]],control$indefiniteType,control$indefiniteMethod,control$indefiniteRepair)
-			D[[i]] <- ret$mat
-			fit$D[[i]] <- ret$mat
-			fit$isCNSD[[i]] <- ret$isCNSD
-			fit$A[[i]] <- ret$A	
-		}
-	}
+	if(!useDistanceParameters){ #no distance parameters, can compute distance now. else: optimize and compute during MLE.
+		ret <- modelKrigingDistanceCalculation(x,distanceFunction=distanceFunction,parameters=NA,
+							distances=control$distances,scaling=scaling,combineDistances=combineDistances,indefiniteMethod=indefiniteMethod,
+							indefiniteType=indefiniteType,indefiniteRepair=indefiniteRepair,lower=distanceParametersLower)
+		fit[names(ret)] <- ret
+		D <- fit$D
+		fit$D <- NULL
+  }
+	
 	
 	if(is.null(control$userParameters)){ 
-		# start point for theta, and bounds:	
-		res <- modelKrigingInit(fit$startTheta,log10(fit$lower),log10(fit$upper),fit$optimizeP,useLambda,lambdaLower,lambdaUpper,combineDistances,nd)
+		# start point for theta and other model parameters + bounds:	
+		res <- modelKrigingInit(fit$startTheta,fit$lower,fit$upper,
+						useLambda,lambdaLower,lambdaUpper,
+						combineDistances,nd,useDistanceParameters,
+						distanceParametersLower,distanceParametersUpper)
 		x0 <- res$x0
-		lowerTheta <- res$lower
-		upperTheta <- res$upper
-	  
+		lower <- res$lower
+		upper <- res$upper
+		
 		# adapt tuning (MLE) budget to dimensionality of parameter space
 		algThetaControl$funEvals <- algThetaControl$funEvals*length(x0)	
 		if(combineDistances | nd==1){
-			res <- control$algTheta(x=x0,fun=modelKrigingLikelihood,lower=lowerTheta,upper=upperTheta,
-							control=algThetaControl,D=D,y=fit$y,optimizeP=fit$optimizeP,useLambda=useLambda,corr=fcorr,
-							indefiniteMethod=control$indefiniteMethod,indefiniteType=control$indefiniteType,indefiniteRepair=control$indefiniteRepair,returnLikelihoodOnly=TRUE)	
-			fit$distanceFunction <- distanceFunction
+			if(!useDistanceParameters){ # if distance function has no parameters (or default parameters are used:)
+				res <- control$algTheta(x=x0,fun=modelKrigingLikelihood,lower=lower,upper=upper,
+								control=algThetaControl,D=D,y=fit$y,useLambda=useLambda,corr=fcorr,
+								indefiniteMethod=indefiniteMethod,indefiniteType=indefiniteType,indefiniteRepair=indefiniteRepair,returnLikelihoodOnly=TRUE,inverter="chol",ntheta=ntheta)	
+				fit$distanceFunction <- distanceFunction
+			}else{ # parameters of the distance function optimized during MLE
+				res <- control$algTheta(x=x0,fun=modelKrigingParameterizedLikelihood,lower=lower,upper=upper,
+								control=algThetaControl,xs=fit$x,ys=fit$y,useLambda=useLambda,corr=fcorr,
+								indefiniteMethod=indefiniteMethod,indefiniteType=indefiniteType,indefiniteRepair=indefiniteRepair,returnLikelihoodOnly=TRUE,inverter="chol",
+								distanceFunction=distanceFunction,combineDistances=combineDistances,distanceParametersLower=distanceParametersLower,ntheta=ntheta,scaling=scaling)	
+				fit$distanceFunction <- distanceFunction #todo?
+			}	
+			nevals <- as.numeric(res$count[[1]])
 		}else{
 			res <- list()
 			minlik=Inf
 			minlikindex=1
+			nevals <- 0
 			for(i in 1:length(distanceFunction)){
-				res[[i]] <- control$algTheta(x=x0,fun=modelKrigingLikelihood,lower=lowerTheta,upper=upperTheta,
-							control=algThetaControl,D=D[[i]],y=fit$y,optimizeP=fit$optimizeP,useLambda=useLambda,corr=fcorr,
-							indefiniteMethod=control$indefiniteMethod,indefiniteType=control$indefiniteType,indefiniteRepair=control$indefiniteRepair,returnLikelihoodOnly=TRUE)	
+				if(!useDistanceParameters){ # if distance function has no parameters (or default parameters are used:)
+					res[[i]] <- control$algTheta(x=x0,fun=modelKrigingLikelihood,lower=lower,upper=upper,
+							control=algThetaControl,D=D[[i]],y=fit$y,useLambda=useLambda,corr=fcorr,
+							indefiniteMethod=indefiniteMethod,indefiniteType=indefiniteType,indefiniteRepair=indefiniteRepair,returnLikelihoodOnly=TRUE,inverter="chol",ntheta=ntheta)	
+				}else{ # parameters of the distance function optimized during MLE
+					res[[i]] <- control$algTheta(x=x0,fun=modelKrigingParameterizedLikelihood,lower=lower,upper=upper,
+									control=algThetaControl,xs=fit$x,ys=fit$y,useLambda=useLambda,corr=fcorr,
+									indefiniteMethod=indefiniteMethod,indefiniteType=indefiniteType,indefiniteRepair=indefiniteRepair,returnLikelihoodOnly=TRUE,inverter="chol",
+									distanceFunction=distanceFunction[[i]],combineDistances=combineDistances,distanceParametersLower=distanceParametersLower,ntheta=ntheta,scaling=scaling)
+				}
 				if(res[[i]]$ybest < minlik){
 					minlik <- res[[i]]$ybest
 					minlikindex <- i
 				}
+				nevals <- nevals + as.numeric(res$count[[1]])
 			}
 			res <- res[[minlikindex]]
 			fit$distanceFunction <- distanceFunction[[minlikindex]]
-			D<-D[[minlikindex]]
-			maxD <- maxD[[minlikindex]]
-			fit$D <- fit$D[[minlikindex]]
+			fit$maximumDistance <- fit$maximumDistance[[minlikindex]]
+			D <- D[[minlikindex]]
 			fit$origD <- fit$origD[[minlikindex]]
 			fit$isCNSD <- fit$isCNSD[[minlikindex]]
 			fit$A <- fit$A[[minlikindex]]
-			fit$distanceFunctionIndexMLE <- minlikindex
+			fit$distanceFunctionIndex <- minlikindex
+			nd <- 1
 		}	
 		if(is.null(res$xbest)){
 			res$xbest <- x0
 		}
 		Params <- res$xbest
-		nevals <- as.numeric(res$count[[1]])
 	}else{
 		Params <- control$userParameters
 		nevals <- 0
@@ -262,35 +254,47 @@ modelKriging <- function(x, y, distanceFunction,control=list()){
 	}
 
 	# extract model parameters:
-	# theta
-	if(combineDistances){
-		fit$theta <- 10^Params[1:nd]
-		fit$log10Theta <- Params[1:nd]
-	}else{
-		fit$theta <- 10^Params[1]
-		fit$log10Theta <- Params[1]
+	# kernel parameters (theta)	
+	if(ntheta>0){
+		fit$theta <- Params[1:ntheta]
 	}
-	# p
-	if(fit$optimizeP){	
-		fit$p <- Params[length(Params)-1]
-	}	
+	# weights for each distance matrix (combination)
+	if(combineDistances & nd>1){
+		fit$distanceWeights <- 10^Params[ntheta+(1:nd)]
+		nweights=nd
+	}else{
+		nweights=0#number of weight parameters
+	}
 	# lambda
 	if(useLambda){
-		fit$log10Lambda <- Params[length(Params)];
-		fit$lambda <- 10^fit$log10Lambda
+		fit$lambda <- 10^Params[ntheta+nweights+1]
 	}else{
-		fit$log10Lambda <- NULL;
-		fit$lambda <- 0;
+		fit$lambda <- 0
+	}
+	#distance function parameters
+	if(useDistanceParameters){
+		fit$distanceParameters <- Params[(ntheta+nweights+useLambda+1):length(Params)]
+		res <- modelKrigingParameterizedLikelihood(Params,fit$x,fit$y,useLambda,fcorr,
+											indefiniteMethod,indefiniteType,indefiniteRepair,
+											returnLikelihoodOnly=FALSE,inverter="chol",
+											distanceFunction=fit$distanceFunction,combineDistances=combineDistances,
+											distanceParametersLower=distanceParametersLower,ntheta=ntheta,scaling=scaling
+											)	#need to also return the correlation matrix and other elements of the model		
+	}else{	
+		res <- modelKrigingLikelihood(Params,D,fit$y,useLambda,fcorr,
+											indefiniteMethod,indefiniteType,indefiniteRepair,
+											returnLikelihoodOnly=FALSE,inverter="chol",ntheta=ntheta)	#need to also return the correlation matrix and other elements of the model
 	}
 	
-	res <- modelKrigingLikelihood(c(fit$log10Theta,fit$p, fit$log10Lambda),D,fit$y,fit$optimizeP,useLambda,fcorr,
-											control$indefiniteMethod,control$indefiniteType,control$indefiniteRepair,
-											returnLikelihoodOnly=FALSE)	#need to also return the correlation matrix and other elements of the model
-
-	if(combineDistances & nd>1){
-		D <- res$D
+	if(is.na(res$Psinv[1])){ #model building failed. no invertible correlation matrix was found. return NA fit
+		stop("Building the Kriging model failed, no invertible correlation matrix was found. This may be due to the specific data-set or distance function used.")
+	}
+	
+	if(useDistanceParameters | nd>1){
 		fit$A <- res$A
-		fit$D <- res$D
+		#D <- res$D
+		if(!is.null(res$maximumDistance))
+			fit$maximumDistance <- res$maximumDistance
 		fit$origD <- res$origD
 		fit$isCNSD <- res$isCNSD
 	}
@@ -304,19 +308,11 @@ modelKriging <- function(x, y, distanceFunction,control=list()){
 	fit$SSQ <- as.numeric(res$SSQ)
 	fit$mu <- res$mu
 	fit$Psi <- res$Psi 
-	if(combineDistances & nd>1){
-		thetatmp <- 1
-	}else{
-		thetatmp <- fit$theta
-	}
-	if(fit$optimizeP){
-		fit$origPsi <- fcorr(thetatmp,D^fit$p) 
-	}else{
-	  fit$origPsi <- fcorr(thetatmp,D) 
-	}
+	fit$origPsi <- res$origPsi
 	fit$Psinv <- res$Psinv
+
 	##precompute transformations
-	if(control$indefiniteType=="PSD" & !fit$indefiniteRepair & fit$isIndefinite & any(control$indefiniteMethod==c("clip","flip","square","param","diffusion"))){ #RETRANSFORMATION OF THE SOLUTION ONLY  
+	if(indefiniteType=="PSD" & !fit$indefiniteRepair & fit$isIndefinite & any(indefiniteMethod==c("clip","flip","square","param","diffusion"))){ #RETRANSFORMATION OF THE SOLUTION ONLY  
 		A <- res$U %*% diag(res$a) %*% t(res$U)
     fit$A <- A 
 		#
@@ -331,7 +327,7 @@ modelKriging <- function(x, y, distanceFunction,control=list()){
 			fit$PsinvReint <- ginv(PsiB) 
 		}	
 		#now apply same transformations as for non-reinterpolating matrices
-		if(control$indefiniteType=="PSD" & fit$isIndefinite  & !fit$indefiniteRepair & any(control$indefiniteMethod==c("clip","flip","square","param","diffusion"))){ #RETRANSFORMATION OF THE SOLUTION ONLY  
+		if(indefiniteType=="PSD" & fit$isIndefinite  & !fit$indefiniteRepair & any(indefiniteMethod==c("clip","flip","square","param","diffusion"))){ #RETRANSFORMATION OF THE SOLUTION ONLY  
       fit$PsinvReint <- t(A)%*%fit$PsinvReint %*% A #retransform
 		} 
 	}
@@ -339,40 +335,17 @@ modelKriging <- function(x, y, distanceFunction,control=list()){
 	##
 	fit$nevals <- nevals
 	fit$like <- res$NegLnLike
-  fit$maximumDistance <- maxD
   fit$predAll <- FALSE
+  fit$D <- D
 	class(fit)<- "modelKriging"
-	if(is.na(fit$Psinv[1])){ #model building failed. no invertible correlation matrix was found. return NA fit
-		stop("Building the Kriging model failed, no invertible correlation matrix was found. This may be due to the specific data-set or distance function used.")
-	}else{
-		return(fit)
-	}	
+	return(fit)
 }
-
-###################################################################################
-#' Kriging Model
-#'
-#' DEPRECATED version of the Kriging model, please use \code{\link{modelKriging}}
-#' 
-#' @param x list of samples in input space
-#' @param y column vector of observations for each sample
-#' @param distanceFunction a suitable distance function of type f(x1,x2), returning a scalar distance value
-#' @param control options for the model building procedure
-#'
-#' @keywords internal
-#' @export
-###################################################################################
-combinatorialKriging <- function(x, y, distanceFunction, control = list()){
-	.Deprecated("modelKriging")
-	modelKriging(x,y,distanceFunction,control)
-}
-
 
 ###################################################################################
 #' Gaussian Kernel for Kriging
 #'
-#' @param theta kernel parameter
 #' @param D distance matrix
+#' @param theta kernel parameter
 #'
 #' @return matrix (Psi)
 #'
@@ -381,15 +354,16 @@ combinatorialKriging <- function(x, y, distanceFunction, control = list()){
 #' @export
 #' @keywords internal
 ###################################################################################
-fcorrGauss <- function(theta,D){
+fcorrGauss <- function(D,theta=0){
+	theta <- 10^theta
 	exp(-theta * D)
 }
 
 ###################################################################################
 #' Cubic Kernel for Kriging
 #'
-#' @param theta kernel parameter
 #' @param D distance matrix
+#' @param theta kernel parameter
 #'
 #' @return matrix (Psi)
 #'
@@ -398,7 +372,8 @@ fcorrGauss <- function(theta,D){
 #' @export
 #' @keywords internal
 ###################################################################################
-fcorrCubic <- function(theta,D){
+fcorrCubic <- function(D,theta=0){
+	theta <- 10^theta
 	Psi <- pmin(D * theta,1)
 	1 - Psi^2 * (3 - 2*Psi)
 }
@@ -406,8 +381,8 @@ fcorrCubic <- function(theta,D){
 ###################################################################################
 #' Linear Kernel for Kriging
 #'
-#' @param theta kernel parameter
 #' @param D distance matrix
+#' @param theta kernel parameter
 #'
 #' @return matrix (Psi)
 #'
@@ -416,15 +391,16 @@ fcorrCubic <- function(theta,D){
 #' @export
 #' @keywords internal
 ###################################################################################
-fcorrLinear <- function(theta,D){
+fcorrLinear <- function(D,theta=0){
+	theta <- 10^theta
 	pmax(1- D * theta,0)
 }
 
 ###################################################################################
 #' Spherical Kernel for Kriging
 #'
-#' @param theta kernel parameter
 #' @param D distance matrix
+#' @param theta kernel parameter
 #'
 #' @return matrix (Psi)
 #'
@@ -433,9 +409,10 @@ fcorrLinear <- function(theta,D){
 #' @export
 #' @keywords internal
 ###################################################################################
-fcorrSphere <- function(theta,D){
+fcorrSphere <- function(D,theta=0){
+	theta <- 10^theta
 	Psi <- pmin(D * theta,1)
-	 1 - Psi * (1.5 - 0.5*Psi^2)
+	1 - Psi * (1.5 - 0.5*Psi^2)
 }	
 
 ###################################################################################
@@ -445,14 +422,16 @@ fcorrSphere <- function(theta,D){
 #' as well as bound constraints.
 #'
 #' @param startTheta user provided start guess (optional).
-#' @param lowerTheta lower boundary for theta values (log scale).
-#' @param upperTheta upper boundary for theta values (log scale).
-#' @param optimizeP boolean, whether parameter p is optimized.
+#' @param lowerTheta lower boundary for theta values (log scale), the kernel parameters.
+#' @param upperTheta upper boundary for theta values (log scale), the kernel parameters.
 #' @param useLambda boolean, whether nugget effect (lambda) is used.
 #' @param lambdaLower lower boundary for lambda (log scale).
 #' @param lambdaUpper upper boundary for lambda (log scale).
 #' @param combineDistances boolean, whether multiple distances are combined.
 #' @param nd number of distance function.
+#' @param distanceParameters whether the distance function parameters should be optimized
+#' @param distanceParametersLower lower boundary for parameters of the distance function, default is \code{NA} which means there are no distance function parameters. If several distance functions are supplied, this should be a list of lower boundary vectors for each function.
+#' @param distanceParametersUpper upper boundary for parameters of the distance function, default is \code{NA} which means there are no distance function parameters. If several distance functions are supplied, this should be a list of upper boundary vectors for each function.
 #'
 #' @return a list with elements \code{x0} (start guess), \code{lower} (lower bound), \code{upper} (upper bound).
 #'
@@ -460,40 +439,140 @@ fcorrSphere <- function(theta,D){
 #' 
 #' @keywords internal
 ###################################################################################
-modelKrigingInit	<- function(startTheta=NULL,lowerTheta,upperTheta,optimizeP,useLambda, lambdaLower, lambdaUpper, combineDistances,nd){
-	if(is.null(startTheta)){
-		x1 <- 0
-		if(combineDistances){
-			x1 <- rep(x1,nd)
-			lowerTheta <- rep(lowerTheta,nd)
-			upperTheta <- rep(upperTheta,nd)
-		}
-	}else{
-		x1 <- startTheta
+modelKrigingInit	<- function(startTheta=NULL,lowerTheta=NULL,upperTheta=NULL,useLambda, lambdaLower, lambdaUpper, combineDistances,nd,distanceParameters=F,distanceParametersLower=NA,distanceParametersUpper=NA){
+	#ordering of the parameters:
+	#first, the kernel function parameters. number:   - length(lowerTheta)
+	#second, the weights for combining several distances (optional), number:   - 0|nd
+	#fourth, lambda, regression constant, number:   - 0|1
+	#fifth, distance parameters, number:   - 0|length(distanceParametersLower)
+	if(any(is.na(lowerTheta))){ #NA bounds -> no parameter in the correlation function (at least none to be estimated)
+		lowerTheta <- NULL
+		upperTheta <- NULL
 	}
-	
-	if(optimizeP){ # optimize p
-		lowerTheta <- c(lowerTheta, 0.01)
-		upperTheta <- c(upperTheta, 2)		
-		x3 <- 1 #start values for p
-		x0 <- c(x1,x3)
-	}else{ # p  is fixed to 1 
-		x0 <- c(x1)
+	if(combineDistances){
+		lowerTheta <- c(lowerTheta,rep(-8,nd))
+		upperTheta <- c(upperTheta,rep(6,nd))
 	}
 	if(useLambda){
-		# start value for lambda:
-		x2 <- lambdaLower + (lambdaUpper - lambdaLower)*runif(1)
-		x0 <- c(x0,x2)
 		#append regression constant lambda (nugget)
 		lowerTheta <- c(lowerTheta,lambdaLower)
-		upperTheta <- c(upperTheta, lambdaUpper)
+		upperTheta <- c(upperTheta,lambdaUpper)
 	}	
-
-	#force x0 into bounds
-	x0 <- pmin(x0,upperTheta)
-	x0 <- pmax(x0,lowerTheta)
-	
+  
+  #parameters of the distance function
+  if(distanceParameters){
+    if(is.list(distanceParametersLower)){
+      distanceParametersLower <- unlist(distanceParametersLower)
+      distanceParametersUpper <- unlist(distanceParametersUpper)
+    }
+  	lowerTheta <- c(lowerTheta,distanceParametersLower)
+		upperTheta <- c(upperTheta,distanceParametersUpper)  
+  }
+    
+	#start value for theta	
+	if(is.null(startTheta)){
+		x0 <- lowerTheta + (upperTheta - lowerTheta)*0.5
+	}else{
+		#force x0 into bounds
+		x0 <- pmin(x0,upperTheta)
+		x0 <- pmax(x0,lowerTheta)
+	}
 	list(x0=x0,lower=lowerTheta,upper=upperTheta)
 }
 
+
+###################################################################################
+#' Kriging: Distance Matrix Calculation
+#'
+#' Calculate and scale the distance matrix used in a Kriging model.
+#' Include definiteness correction.
+#' Not to be called directly.
+#'
+#' @param x list of samples in input space
+#' @param distanceFunction a suitable distance function of type f(x1,x2), returning a scalar distance value, preferably between 0 and 1.
+#'      Maximum distances larger 1 are no problem, but may yield scaling bias when different measures are compared.
+#' 		Should be non-negative and symmetric.  It can also be a list of several distance functions. In this case, Maximum Likelihood Estimation (MLE) is used 
+#'		to determine the most suited distance measure.
+#'		The distance function may have additional parameters.
+#' @param parameters parameters passed to the distance function as a vector.
+#' @param distances precomputed distances, set to NA if not available.
+#' @param scaling boolean, whether to scale the distance matrix.
+#' @param combineDistances boolean, whether to combine the distances of different functions.
+#' @param indefiniteMethod method for handling non-conditionally-definite matrices.
+#' @param indefiniteType type of handling for non-conditionally-definite matrices.
+#' @param indefiniteRepair whether to further repair other conditions (beside definiteness).
+#' @param lower lower boundary for distance function parameters.
+#'
+#' @return a list with elements \code{D} (distance matrix), \code{maxD} (maximal distance for scaling purpose).
+#'
+#' @seealso \code{\link{modelKriging}}
+#' 
+#' @keywords internal
+###################################################################################
+modelKrigingDistanceCalculation <- function(x,distanceFunction,parameters=NA,
+	distances,scaling,combineDistances,indefiniteMethod,indefiniteType,indefiniteRepair,lower){
+	nd <- length(distanceFunction) # number of distance functions
 	
+	#calculate distance matrix
+	if(nd==1){ #one distance function
+		if(is.null(distances)){
+			if(any(is.na(parameters))) #no parameters given
+				D <-distanceMatrix(x,distanceFunction) 
+			else #parameters are given
+				D <-distanceMatrix(x,distanceFunction,parameters) 
+		}else{
+			D <- distances
+		}
+    maxD <- max(D) #maximum distance
+    if(scaling){
+			D <- D/maxD
+    }    
+	}else{ #multiple distance functions
+		if(is.null(distances)){
+			D <- list()
+			maxD <- list()
+			indices <- rep(1:nd,sapply(lower,length)) #indices assigning each parameter to a distances function
+			for(i in 1:nd){
+				if(any(is.na(parameters))) #no parameters given
+					D[[i]] <-distanceMatrix(x,distanceFunction[[i]]) 
+				else
+					D[[i]] <-distanceMatrix(x,distanceFunction[[i]],parameters[indices==i])  	
+        maxD[[i]] <- max(D[[i]]) #maximum distance
+        if(scaling){
+          D[[i]] <- D[[i]]/maxD[[i]]
+        } 
+			}
+		}else{
+			D <- distances
+      maxD <- list()
+			for(i in 1:nd){
+        maxD[[i]] <- max(D[[i]]) #maximum distance
+        if(scaling){
+          D[[i]] <- D[[i]]/maxD[[i]]
+        } 
+			}    
+		}
+	}
+	
+	# Fix Definiteness (NSDness, CNSDness) of the provided distance matrix/matrices	
+	origD <- D 
+	A <- NA
+	isCNSD <- NA
+	if(nd==1){#in case of one distance function
+		ret <- correctionDistanceMatrix(D,indefiniteType,indefiniteMethod,indefiniteRepair)
+		D <- ret$mat
+		isCNSD <- ret$isCNSD
+		A <- ret$A	
+	}else if(!combineDistances){ #in case of multiple distances, which are not combined (but chosen from):
+		isCNSD <- list()
+		A <- list()	
+		for(i in 1:nd){
+			ret <- correctionDistanceMatrix(D[[i]],indefiniteType,indefiniteMethod,indefiniteRepair)
+			D[[i]] <- ret$mat
+			isCNSD[[i]] <- ret$isCNSD
+			A[[i]] <- ret$A	
+		}
+	}
+		
+	list(maximumDistance=maxD,D=D,origD=origD,A=A,isCNSD=isCNSD)
+}

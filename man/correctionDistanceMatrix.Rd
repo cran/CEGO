@@ -12,7 +12,7 @@ correctionDistanceMatrix(mat, type = "NSD", method = "flip",
 
 \item{type}{string that specifies type of correction: \code{"CNSD"},\code{"NSD"} to enforce CNSD or NSD matrices respectively.}
 
-\item{method}{string that specifies method for correction: spectrum clip \code{"clip"}, spectrum flip \code{"flip"}, nearest definite matrix \code{"near"}, spectrum square\code{"square"}, spectrum diffusion \code{"diffusion"}.}
+\item{method}{string that specifies method for correction: spectrum clip \code{"clip"}, spectrum flip \code{"flip"}, nearest definite matrix \code{"near"}, spectrum square\code{"square"}, spectrum diffusion \code{"diffusion"}, feature embedding \code{"feature"}.}
 
 \item{repair}{boolean, whether or not to use condition repair, so that elements are positive, and diagonal is zero.}
 
@@ -40,4 +40,3 @@ Martin Zaefferer and Thomas Bartz-Beielstein. (2016). Efficient Global Optimizat
 \seealso{
 \code{\link{correctionDefinite}},\code{\link{correctionCNSD}},\code{\link{repairConditionsDistanceMatrix}}
 }
-

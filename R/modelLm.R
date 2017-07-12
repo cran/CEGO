@@ -14,10 +14,12 @@
 #' @param control currently unused, defaults to \code{list()}
 #'
 #'
-#' @return a fit (list, modelLinear), with the options and found parameters for the model which has to be passed to the predictor function:\cr
-#' \code{x} samples in input space (see parameters)\cr
-#' \code{y} observations for each sample (see parameters)\cr
-#' \code{distanceFunction} distance function (see parameters)
+#' @return a fit (list, modelLinear), with the options and found parameters for the model which has to be passed to the predictor function:
+#' \describe{
+#' \item{\code{x}}{ samples in input space (see parameters)}
+#' \item{\code{y}}{ observations for each sample (see parameters)}
+#' \item{\code{distanceFunction}}{ distance function (see parameters)}
+#' }
 #' 
 #' @seealso \code{\link{predict.modelLinear}} 
 #' 

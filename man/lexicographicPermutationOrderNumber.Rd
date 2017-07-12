@@ -32,4 +32,3 @@ lexicographicPermutationOrderNumber(7:1)
 \seealso{
 \code{\link{distancePermutationLex}}
 }
-

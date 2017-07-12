@@ -4,12 +4,12 @@
 \alias{fcorrCubic}
 \title{Cubic Kernel for Kriging}
 \usage{
-fcorrCubic(theta, D)
+fcorrCubic(D, theta = 0)
 }
 \arguments{
-\item{theta}{kernel parameter}
-
 \item{D}{distance matrix}
+
+\item{theta}{kernel parameter}
 }
 \value{
 matrix (Psi)
@@ -21,4 +21,3 @@ Cubic Kernel for Kriging
 \code{\link{modelKriging}}
 }
 \keyword{internal}
-

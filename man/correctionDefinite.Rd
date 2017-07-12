@@ -16,13 +16,15 @@ correctionDefinite(mat, type = "PSD", method = "flip", tol = 1e-08)
 \item{tol}{torelance value. Eigenvalues between \code{-tol} and \code{tol} are assumed to be zero.}
 }
 \value{
-list with\cr 
-corrected matrix \code{mat},\cr 
-\code{isIndefinite} (boolean, whether original matrix was indefinite),\cr
-the eigenvalues of the original matrix (\code{lambda}),\cr
-the eigenvalues of the corrected matrix (\code{lambdanew}),\cr
-the matrix of eigenvectors (\code{U}),
-the transformation vector (\code{a})
+list with
+\describe{ 
+ \item{\code{mat}}{ corrected matrix}
+ \item{\code{isIndefinite}}{ boolean, whether original matrix was indefinite}
+ \item{\code{lambda}}{ the eigenvalues of the original matrix}
+ \item{\code{lambdanew}}{ the eigenvalues of the corrected matrix }
+ \item{\code{U}}{ the matrix of eigenvectors}
+ \item{\code{a}}{ the transformation vector}
+}
 }
 \description{
 Correcting a (possibly indefinite) symmetric matrix with chosen approach so that it will have desired definiteness type: positive or negative semi-definite (PSD, NSD).
@@ -46,4 +48,3 @@ Martin Zaefferer and Thomas Bartz-Beielstein. (2016). Efficient Global Optimizat
 \seealso{
 \code{\link{modelKriging}}
 }
-

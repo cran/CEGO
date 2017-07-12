@@ -33,4 +33,3 @@ design <- designRandom(NULL,function()runif(2),20)
 \code{\link{optimRS}}, \code{\link{designMaxMinDist}}
 }
 \keyword{internal}
-

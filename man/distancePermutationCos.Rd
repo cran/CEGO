@@ -30,4 +30,3 @@ distanceMatrix(p,distancePermutationCos)
 \references{
 Singhal, Amit (2001)."Modern Information Retrieval: A Brief Overview". Bulletin of the IEEE Computer Society Technical Committee on Data Engineering 24 (4): 35-43
 }
-

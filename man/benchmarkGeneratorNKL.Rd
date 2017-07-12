@@ -4,7 +4,7 @@
 \alias{benchmarkGeneratorNKL}
 \title{NK-Landscape Benchmark Creation}
 \usage{
-benchmarkGeneratorNKL(N = 10, K = 1, PI = 1:K, g = NULL)
+benchmarkGeneratorNKL(N = 10, K = 1, PI = 1:K, g)
 }
 \arguments{
 \item{N}{length of the bit strings}
@@ -35,4 +35,3 @@ fun(c(1,0,1,1,0,0))
 fun(sample(c(0,1),6,TRUE))
 
 }
-

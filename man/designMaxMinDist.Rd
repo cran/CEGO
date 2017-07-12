@@ -46,4 +46,3 @@ plot(matrix(unlist(design),,2,byrow=TRUE))
 \code{\link{optimMaxMinDist}}, \code{\link{designRandom}}
 }
 \keyword{internal}
-

@@ -15,11 +15,13 @@ landscapeGeneratorGaussianBuild(nGaussian = 10, ratio = 0.2,
 \item{creationFunction}{function to randomly generate the centers of the gaussians}
 }
 \value{
-returns a list, with the following items:\cr
-\code{centers} samples which are the centers of each Gaussian
-\code{covinv} inverse of variance of each Gaussian 
-\code{opt} value at randomly chosen optimum center
-\code{nGauss} number of Gaussian components
+returns a list, with the following items:
+\describe{
+\item{\code{centers}}{ samples which are the centers of each Gaussian}
+\item{\code{covinv}}{ inverse of variance of each Gaussian}
+\item{\code{opt}}{ value at randomly chosen optimum center}
+\item{\code{nGauss}}{ number of Gaussian components}
+}
 }
 \description{
 Core Gaussian landscape function. Should not be called directly, as it does not contain proper seed handling.
@@ -28,4 +30,3 @@ Core Gaussian landscape function. Should not be called directly, as it does not 
 \code{\link{landscapeGeneratorGaussian}}
 }
 \keyword{internal}
-

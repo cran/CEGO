@@ -13,12 +13,14 @@
 #' @param maxit maximum number of iterations. The algorithm stops if this value is exceeded, even if not converged.
 #' @param conv.norm.type type of norm, by default the F-norm (Frobenius). See \code{\link[base]{norm}} for other choices.
 #'
-#' @return list with\cr 
-#' nearestCNSD matrix \code{mat},\cr
-#' F-norm between original and resulting matrices \code{normF},\cr
-#' the number of performed \code{iterations},\cr
-#' the relative value used for the tolerance convergence criterion \code{rel.tol},\cr
-#' a boolean that records whether the algorithm \code{converged}
+#' @return list with:
+#' \describe{
+#' \item{\code{mat}}{ nearestCNSD matrix}
+#' \item{\code{normF}}{ F-norm between original and resulting matrices}
+#' \item{\code{iterations}}{ the number of performed}
+#' \item{\code{rel.tol}}{ the relative value used for the tolerance convergence criterion}
+#' \item{\code{converged}}{ a boolean that records whether the algorithm}
+#' }
 #'
 #' @seealso \code{\link[Matrix]{nearPD}}, \code{\link{correctionCNSD}}, \code{\link{correctionDistanceMatrix}}
 #' 

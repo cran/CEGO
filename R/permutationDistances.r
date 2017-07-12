@@ -21,13 +21,13 @@
 #' distanceMatrix(p,distancePermutationInterchange)
 #'
 #' @export
-#' @useDynLib CEGO
 ###################################################################################
 distancePermutationInterchange <- function(x, y){
 	N<-length(x)
 	if(N!=length(y)|!is.numeric(x)|!is.numeric(y)) stop("Incorrect input to distance function, only permutations of same length are allowed.")
 	#x<-y[order(x)]
-	result <- .Call("permutationDistanceInterchange", as.integer(x),as.integer(y), PACKAGE="CEGO")
+	#result <- .Call("permutationDistanceInterchange", as.integer(x),as.integer(y), PACKAGE="CEGO")
+	result <- .Call(C_permutationDistanceInterchange, as.integer(x),as.integer(y))
 	(N-result) / (N-1) 
 }
 
@@ -78,12 +78,13 @@ distancePermutationInterchange <- function(x, y){
 #' distanceMatrix(p,distancePermutationLCStr)
 #'
 #' @export
-#' @useDynLib CEGO
+#' 
 ###################################################################################
 distancePermutationLCStr <- function(x, y){
 	N <- length(x)
 	if(N!=length(y)|!is.numeric(x)|!is.numeric(y)) stop("Incorrect input to distance function, only permutations of same length are allowed.")
-	result <- .Call("permutationDistanceLongestCommonSubstring",  as.integer(x),as.integer(y), PACKAGE="CEGO") 
+	#result <- .Call("permutationDistanceLongestCommonSubstring",  as.integer(x),as.integer(y), PACKAGE="CEGO") 
+	result <- .Call(C_permutationDistanceLongestCommonSubstring,  as.integer(x),as.integer(y)) 
 	(N-result)/(N-1)
 }
 
@@ -107,12 +108,12 @@ distancePermutationLCStr <- function(x, y){
 #' distanceMatrix(p,distancePermutationLevenshtein)
 #'
 #' @export
-#' @useDynLib CEGO
+#' 
 ###################################################################################
 distancePermutationLevenshtein <- function(x, y){
 	N <- length(x)
 	if(N!=length(y)|!is.numeric(x)|!is.numeric(y)) stop("Incorrect input to distance function, only permutations of same length are allowed.")
-	.Call("permutationDistanceLevenshtein",  as.integer(x),as.integer(y), PACKAGE="CEGO") / N
+	.Call(C_permutationDistanceLevenshtein,  as.integer(x),as.integer(y)) / N
 }
 
 ###################################################################################
@@ -136,12 +137,12 @@ distancePermutationLevenshtein <- function(x, y){
 #' distanceMatrix(p,distancePermutationSwap)
 #'
 #' @export
-#' @useDynLib CEGO
+#' 
 ###################################################################################
 distancePermutationSwap <- function(x, y){
 	N <- length(x)
 	if(N!=length(y)|!is.numeric(x)|!is.numeric(y)) stop("Incorrect input to distance function, only permutations of same length are allowed.")
-	result <- .Call("permutationDistanceSwap", as.integer(x),as.integer(y),  PACKAGE="CEGO")
+	result <- .Call(C_permutationDistanceSwap, as.integer(x),as.integer(y))
 	2*result / (N^2 - N)
 }
 
@@ -166,12 +167,13 @@ distancePermutationSwap <- function(x, y){
 #' distanceMatrix(p,distancePermutationR)
 #'
 #' @export
-#' @useDynLib CEGO
+#' 
 ###################################################################################
 distancePermutationR <- function(x, y){
 	N<-length(x)
 	if(N!=length(y)|!is.numeric(x)|!is.numeric(y)) stop("Incorrect input to distance function, only permutations of same length are allowed.")
-	result <- .Call("permutationDistanceR", as.integer(x), as.integer(y), PACKAGE="CEGO")
+	#result <- .Call("permutationDistanceR", as.integer(x), as.integer(y), PACKAGE="CEGO")
+	result <- .Call(C_permutationDistanceR, as.integer(x), as.integer(y))
 	result / (N - 1)
 }
 
@@ -196,12 +198,13 @@ distancePermutationR <- function(x, y){
 #' distanceMatrix(p,distancePermutationAdjacency)
 #'
 #' @export
-#' @useDynLib CEGO
+#' 
 ###################################################################################
 distancePermutationAdjacency <- function(x, y){
 	N<-length(x)
 	if(N!=length(y)|!is.numeric(x)|!is.numeric(y)) stop("Incorrect input to distance function, only permutations of same length are allowed.")
-	result <- .Call("permutationDistanceAdjacency", as.integer(x), as.integer(y), PACKAGE="CEGO")
+	#result <- .Call("permutationDistanceAdjacency", as.integer(x), as.integer(y), PACKAGE="CEGO")
+	result <- .Call(C_permutationDistanceAdjacency, as.integer(x), as.integer(y))
 	(N-result-1) / (N - 1)
 }
 
@@ -226,12 +229,13 @@ distancePermutationAdjacency <- function(x, y){
 #' distanceMatrix(p,distancePermutationPosition)
 #'
 #' @export
-#' @useDynLib CEGO
+#' 
 ###################################################################################
 distancePermutationPosition <- function(x, y){
 	N<-length(x)
 	if(N!=length(y)|!is.numeric(x)|!is.numeric(y)) stop("Incorrect input to distance function, only permutations of same length are allowed.")
-	dis <- .Call("permutationDistancePosition", as.integer(x), as.integer(y), PACKAGE="CEGO")
+	#dis <- .Call("permutationDistancePosition", as.integer(x), as.integer(y), PACKAGE="CEGO")
+	dis <- .Call(C_permutationDistancePosition, as.integer(x), as.integer(y))
 	if(N%%2) #scale to [0;1] in case of odd N
 		dis <- dis / ((N^2-1)/ 2)
 	else #scale to [0;1] in case of even N
@@ -260,12 +264,13 @@ distancePermutationPosition <- function(x, y){
 #' distanceMatrix(p,distancePermutationPosition2)
 #'
 #' @export
-#' @useDynLib CEGO
+#' 
 ###################################################################################
 distancePermutationPosition2 <- function(x, y){
 	N<-length(x)
 	if(N!=length(y)|!is.numeric(x)|!is.numeric(y)) stop("Incorrect input to distance function, only permutations of same length are allowed.")
-	result <- .Call("permutationDistancePosition2", as.integer(x), as.integer(y), PACKAGE="CEGO")
+	#result <- .Call("permutationDistancePosition2", as.integer(x), as.integer(y), PACKAGE="CEGO")
+	result <- .Call(C_permutationDistancePosition2, as.integer(x), as.integer(y))
 	result / ((N^3-N)/3) 
 }
 
@@ -422,12 +427,13 @@ distancePermutationChebyshev <- function(x, y){
 #' distanceMatrix(p,distancePermutationLee)
 #'
 #' @export
-#' @useDynLib CEGO
+#' 
 ###################################################################################
 distancePermutationLee <- function(x,y){
 	N <- length(x)
 	if(N!=length(y)|!is.numeric(x)|!is.numeric(y)) stop("Incorrect input to distance function, only permutations of same length are allowed.")
-	mdis <- .Call("permutationDistanceLee", as.integer(x), as.integer(y), PACKAGE="CEGO") #this works,but is actually slower than a pure R implementation, as below. at least for permutation length 30
+	#mdis <- .Call("permutationDistanceLee", as.integer(x), as.integer(y), PACKAGE="CEGO") #this works,but is actually slower than a pure R implementation, as below. at least for permutation length 30
+	mdis <- .Call(C_permutationDistanceLee, as.integer(x), as.integer(y)) #this works,but is actually slower than a pure R implementation, as below. at least for permutation length 30
 	#mdis <- sum(pmin(abs(x-y),N-abs(x-y)))
 	if(N%%2) #scale to [0;1] in case of odd N
 		dis <- mdis / ((N^2-1)/ 2)
@@ -461,13 +467,14 @@ distancePermutationLee <- function(x,y){
 #' distanceMatrix(p,distancePermutationInsert)
 #'
 #' @export
-#' @useDynLib CEGO
+#' 
 ###################################################################################
 distancePermutationInsert <- function(x, y){
 	N<-length(x) 
 	if(N!=length(y)|!is.numeric(x)|!is.numeric(y)) stop("Incorrect input to distance function, only permutations of same length are allowed.")
 	#x<-order(y)[x] #Important note: this line means "p1 * p2^{-1}". Schiavinotto say it should be  "p2^{-1} * p1" . That seems to be a typo/error. (of course it does not matter which permutation is is inverted. but the inverted permutation should be at the right.). Is now calculated in c code
-	result <- .Call("permutationDistanceInsert", as.integer(x), as.integer(y), PACKAGE="CEGO")
+	#result <- .Call("permutationDistanceInsert", as.integer(x), as.integer(y), PACKAGE="CEGO")
+	result <- .Call(C_permutationDistanceInsert, as.integer(x), as.integer(y))
 	(N-result)/(N-1)
 }
 
@@ -559,11 +566,12 @@ distancePermutationLex <- function(x,y){
 #' lexicographicPermutationOrderNumber(7:1)
 #'
 #' @export
-#' @useDynLib CEGO
+#' 
 ###################################################################################
 lexicographicPermutationOrderNumber <- function(x){
 	N <- length(x)
-	if(!is.numeric(x)) stop("Incorrect input to lexicographicPermutationOrderNumber, should be permutation.")
-	result <- .Call("lexPermOrder", as.integer(x), PACKAGE="CEGO")
+	if(!is.numeric(x)) stop("Incorrect input to lexicographicPermutationOrderNumber, should be permutation (numeric vector).")
+	#result <- .Call("lexPermOrder", as.integer(x), PACKAGE="CEGO")
+	result <- .Call(C_lexPermOrder, as.integer(x))
 	sum(result*factorial((N-1):0))+1
 }

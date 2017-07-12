@@ -19,4 +19,3 @@ combinatorialRBFN(x, y, distanceFunction, control = list())
 DEPRECATED version of the RBFN model, please use \code{\link{modelRBFN}}
 }
 \keyword{internal}
-

@@ -18,4 +18,3 @@ Returns \code{x} without duplicates
 Remove duplicates in \code{x}, replace with non-duplicated individuals according to \code{cf}.
 }
 \keyword{internal}
-

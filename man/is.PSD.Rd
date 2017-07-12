@@ -36,4 +36,3 @@ is.PSD(K)
 \seealso{
 \code{\link{is.CNSD}}, \code{\link{is.NSD}}
 }
-

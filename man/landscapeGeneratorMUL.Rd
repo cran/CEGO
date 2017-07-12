@@ -37,4 +37,3 @@ fun(x)
 \seealso{
 \code{\link{landscapeGeneratorUNI}}, \code{\link{landscapeGeneratorGaussian}}
 }
-

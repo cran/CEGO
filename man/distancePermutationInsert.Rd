@@ -34,4 +34,3 @@ Schiavinotto, Tommaso, and Thomas Stuetzle. "A review of metrics on permutations
 
 Wikipedia contributors, "Longest increasing subsequence", Wikipedia, The Free Encyclopedia, 12 November 2014, 19:38 UTC, <http://en.wikipedia.org/w/index.php?title=Longest_increasing_subsequence&oldid=633565014> [accessed 13 November 2014]
 }
-

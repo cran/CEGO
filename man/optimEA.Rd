@@ -12,41 +12,46 @@ If \code{x} has less individuals than the population size, creationFunction will
 
 \item{fun}{target function to be minimized}
 
-\item{control}{(list), with the options\cr
-\code{budget} The limit on number of target function evaluations (stopping criterion) (default: 1000)\cr
-\code{popsize} Population size (default: 100)\cr
-\code{generations} Number of generations (stopping criterion) (default: Inf)\cr
-\code{targetY} Target function value (stopping criterion) (default: -Inf)\cr
-\code{vectorized} Boolean. Defines whether target function is vectorized (takes a list of solutions as argument) or not (takes single solution as argument). Default: FALSE\cr
-\code{verbosity} Level of text output during run. Defaults to 0, no output.\cr
-\code{plotting} Plot optimization progress during run (TRUE) or not (FALSE). Default is FALSE.\cr
-\code{archive} Whether to keep all candidate solutions and their fitness in an archive (TRUE) or not (FALSE). Default is TRUE.\cr
-\code{recombinationFunction} Function that performs recombination, default: \code{\link{recombinationPermutationCycleCrossover}}, which is cycle crossover for permutations.\cr
-\code{recombinationParameters} Parameter list for recombination (e.g., recombinationParameters$recombinationRate => recombination rate, defaults to 0.5). List is passed to recombinationFunction. \cr
-\code{mutationFunction} Function that performs mutation, default: \code{\link{mutationPermutationSwap}}, which is swap mutation for permutations.\cr
-\code{mutationParameters} Parameter list for mutation (e.g., mutationParameters$mutationRate => mutation rate). List is passed to mutationFunction. Default: empty list.\cr
-\code{selection} Selection process: "tournament" (default) or "truncation"\cr
-\code{tournamentSize} Tournament size (default: 2)\cr
-\code{tournamentProbability} Tournament probability (default: 0.9)\cr
-\code{localSearchFunction} If specified, this function is used for a local search step. Default is NULL. \cr
-\code{localSearchRate} Specifies on what fraction of the population local search is applied. Default is zero. Maximum is 1 (100 percent).\cr
-\code{localSearchSettings} List of settings passed to the local search function control parameter.\cr
-\code{stoppingCriterionFunction} Custom additional stopping criterion. Function evaluated on the population, receiving all individuals (list) and their fitness (vector). If the result is FALSE, the algorithm stops.\cr
-\code{verbosity} >0 for text output.\cr
-\code{creationFunction} Function to create individuals/solutions in search space. Default is a function that creates random permutations of length 6 \cr
-\code{duplicateFunction} Function that evaluates a list of solutions for duplicates. Default is the \code{duplicated} function. \cr
-\code{duplicateRemoval} If set to "all" and archiving is on, new individuals are compared against the complete archive to avoid duplicates. With "population", this is limited to the current population.}
+\item{control}{(list), with the options:
+\describe{
+  \item{\code{budget}}{The limit on number of target function evaluations (stopping criterion) (default: 1000).}
+  \item{\code{popsize}}{Population size (default: 100).}
+  \item{\code{generations}}{Number of generations (stopping criterion) (default: Inf).}
+  \item{\code{targetY}}{Target function value (stopping criterion) (default: -Inf).}
+  \item{\code{vectorized}}{Boolean. Defines whether target function is vectorized (takes a list of solutions as argument) or not (takes single solution as argument). Default: FALSE.}
+  \item{\code{verbosity}}{Level of text output during run. Defaults to 0, no output.}
+  \item{\code{plotting}}{Plot optimization progress during run (TRUE) or not (FALSE). Default is FALSE.}
+  \item{\code{archive}}{Whether to keep all candidate solutions and their fitness in an archive (TRUE) or not (FALSE). Default is TRUE. New solutions that are identical to an archived one, will not be evaluated. Instead, their fitness is taken from the archive.}
+  \item{\code{recombinationFunction}}{Function that performs recombination, default: \code{\link{recombinationPermutationCycleCrossover}}, which is cycle crossover for permutations.}
+  \item{\code{recombinationRate}}{Number of offspring, defined by the fraction of the population (popsize) that will be recombined.}
+  \item{\code{mutationFunction}}{Function that performs mutation, default: \code{\link{mutationPermutationSwap}}, which is swap mutation for permutations.}
+  \item{\code{parameters}}{Default parameter list for the algorithm, e.g., mutation rate, etc.}
+  \item{\code{selection}}{Survival selection process: "tournament" (default) or "truncation".}
+  \item{\code{tournamentSize}}{Tournament size (default: 2).}
+  \item{\code{tournamentProbability}}{Tournament probability (default: 0.9).}
+  \item{\code{localSearchFunction}}{If specified, this function is used for a local search step. Default is NULL. }
+  \item{\code{localSearchRate}}{Specifies on what fraction of the population local search is applied. Default is zero. Maximum is 1 (100 percent).}
+  \item{\code{localSearchSettings}}{List of settings passed to the local search function control parameter.}
+  \item{\code{stoppingCriterionFunction}}{Custom additional stopping criterion. Function evaluated on the population, receiving all individuals (list) and their fitness (vector). If the result is FALSE, the algorithm stops.}
+  \item{\code{verbosity}}{>0 for text output.}
+  \item{\code{creationFunction}}{Function to create individuals/solutions in search space. Default is a function that creates random permutations of length 6.}
+  \item{\code{selfAdaption}}{An optional ParamHelpers object, that describes parameters of the optimization (see \code{parameters}) which are subject to self-adaption. An example is given in \link{mutationSelfAdapt}}.
+  \item{\code{selfAdaptTau}}{Positive numeric value, that controls the learning rate of numerical/integer self-adaptive parameters.}.
+  \item{\code{selfAdaptP}}{Value in [0,1]. A probability of mutation for all categorical, self-adaptive parameters.}.
+}}
 }
 \value{
-a list:\cr 	
-\code{xbest} best solution found\cr
-\code{ybest} fitness of the best solution\cr
-\code{x} history of all evaluated solutions\cr
-\code{y} corresponding target function values f(x)\cr
-\code{count} number of performed target function evaluations 
-\code{message} Termination message: Which stopping criterion was reached.
-\code{population} Last population
-\code{fitness} Fitness of last population
+a list:
+\describe{
+  \item{\code{xbest}}{best solution found.}
+  \item{\code{ybest}}{fitness of the best solution.}
+  \item{\code{x}}{history of all evaluated solutions.}
+  \item{\code{y}}{corresponding target function values f(x).}
+  \item{\code{count}}{number of performed target function evaluations.}
+  \item{\code{message}}{Termination message: Which stopping criterion was reached.}
+  \item{\code{population}}{Last population.}
+  \item{\code{fitness}}{Fitness of last population.}
+}
 }
 \description{
 A basic implementation of a simple Evolutionary Algorithm for Combinatorial Optimization. Default evolutionary operators
@@ -67,7 +72,7 @@ lF <- landscapeGeneratorUNI(1:5,dF)
 #start optimization
 set.seed(seed)
 res <- optimEA(,lF,list(creationFunction=cF,mutationFunction=mF,recombinationFunction=rF,
-	popsize=15,budget=100,targetY=0,verbosity=1,
+	popsize=6,budget=60,targetY=0,verbosity=1,
 	vectorized=TRUE)) ##target function is "vectorized", expects list as input
 res$xbest 
 
@@ -75,4 +80,3 @@ res$xbest
 \seealso{
 \code{\link{optimCEGO}}, \code{\link{optimRS}}, \code{\link{optim2Opt}}, \code{\link{optimMaxMinDist}}
 }
-

@@ -4,17 +4,17 @@
 \alias{modelKrigingInit}
 \title{Kriging: Initial guess and bounds}
 \usage{
-modelKrigingInit(startTheta = NULL, lowerTheta, upperTheta, optimizeP,
-  useLambda, lambdaLower, lambdaUpper, combineDistances, nd)
+modelKrigingInit(startTheta = NULL, lowerTheta = NULL, upperTheta = NULL,
+  useLambda, lambdaLower, lambdaUpper, combineDistances, nd,
+  distanceParameters = F, distanceParametersLower = NA,
+  distanceParametersUpper = NA)
 }
 \arguments{
 \item{startTheta}{user provided start guess (optional).}
 
-\item{lowerTheta}{lower boundary for theta values (log scale).}
+\item{lowerTheta}{lower boundary for theta values (log scale), the kernel parameters.}
 
-\item{upperTheta}{upper boundary for theta values (log scale).}
-
-\item{optimizeP}{boolean, whether parameter p is optimized.}
+\item{upperTheta}{upper boundary for theta values (log scale), the kernel parameters.}
 
 \item{useLambda}{boolean, whether nugget effect (lambda) is used.}
 
@@ -25,6 +25,12 @@ modelKrigingInit(startTheta = NULL, lowerTheta, upperTheta, optimizeP,
 \item{combineDistances}{boolean, whether multiple distances are combined.}
 
 \item{nd}{number of distance function.}
+
+\item{distanceParameters}{whether the distance function parameters should be optimized}
+
+\item{distanceParametersLower}{lower boundary for parameters of the distance function, default is \code{NA} which means there are no distance function parameters. If several distance functions are supplied, this should be a list of lower boundary vectors for each function.}
+
+\item{distanceParametersUpper}{upper boundary for parameters of the distance function, default is \code{NA} which means there are no distance function parameters. If several distance functions are supplied, this should be a list of upper boundary vectors for each function.}
 }
 \value{
 a list with elements \code{x0} (start guess), \code{lower} (lower bound), \code{upper} (upper bound).
@@ -37,4 +43,3 @@ as well as bound constraints.
 \code{\link{modelKriging}}
 }
 \keyword{internal}
-

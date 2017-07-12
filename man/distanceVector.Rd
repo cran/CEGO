@@ -4,7 +4,7 @@
 \alias{distanceVector}
 \title{Calculate Distance Vector}
 \usage{
-distanceVector(a, X, distFun)
+distanceVector(a, X, distFun, ...)
 }
 \arguments{
 \item{a}{A single sample which is a suitable input for \code{distFun}}
@@ -12,6 +12,8 @@ distanceVector(a, X, distFun)
 \item{X}{list of samples, where each list element is a suitable input for \code{distFun}}
 
 \item{distFun}{Distance function of type f(x,y)=r, where r is a scalar and x and y are elements whose distance is evaluated.}
+
+\item{...}{further arguments passed to distFun}
 }
 \value{
 A numerical vector of distances
@@ -25,4 +27,3 @@ y <- list(5:1,c(2,4,5,1,3),c(5,4,3,1,2))
 distanceVector(x,y,distancePermutationHamming)
 
 }
-

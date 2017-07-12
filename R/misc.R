@@ -95,13 +95,13 @@ tournamentSelection <- function(fitness, tournamentSize, tournamentProbability, 
 	pvec <- tournamentProbability*(1-tournamentProbability)^tmp #probabilities for individual selection
 	cump <- cumsum(pvec) #cumulative probability vector
 	cump[tournamentSize] <- 1 #make sure that sum is one.
-	tf <- function(x){
+	tf <- function(){
 		individuals <- sample(N,tournamentSize,FALSE,NULL)#select TSIZE individuals for a tournament, randomly.		
-		fitnessrank <- order(fitness[individuals])
 		rnd <- runif(1)
-		i=which(cump>rnd)[1]
-		individuals[fitnessrank[i]]
+		i <- which(cump>rnd)[1]
+		fitnessorderTmp <- order(fitness[individuals])
+		individuals[fitnessorderTmp[i]]
 	}
-	unlist(lapply(integer(selectFromN),tf))
+	#unlist(lapply(integer(selectFromN),tf))
+	replicate(selectFromN,tf())
 }
-

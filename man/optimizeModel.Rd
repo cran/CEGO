@@ -25,4 +25,3 @@ Interface to the optimization of the surrogate model
 \code{\link{optimCEGO}}
 }
 \keyword{internal}
-

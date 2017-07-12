@@ -35,4 +35,3 @@ Martin Zaefferer and Thomas Bartz-Beielstein. (2016). Efficient Global Optimizat
 \seealso{
 \code{\link{modelKriging}}
 }
-

@@ -16,8 +16,7 @@ population of recombined offspring
 }
 \description{
 Given a population of permutations, this function recombines each
-individual with another random individual.
+individual with another individual.
 Note, that \code{\link{optimEA}} will not pass the whole population
 to recombination functions, but only the chosen parents.
 }
-

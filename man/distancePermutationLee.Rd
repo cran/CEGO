@@ -31,4 +31,3 @@ distanceMatrix(p,distancePermutationLee)
 \references{
 Lee, C., "Some properties of nonbinary error-correcting codes," Information Theory, IRE Transactions on, vol.4, no.2, pp.77,82, June 1958
 }
-

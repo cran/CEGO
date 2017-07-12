@@ -23,4 +23,3 @@ Correct new (test) distances, via correcting the augmented distance matrix. Inte
 Martin Zaefferer and Thomas Bartz-Beielstein. (2016). Efficient Global Optimization with Indefinite Kernels. Parallel Problem Solving from Nature-PPSN XIV. Accepted, in press. Springer.
 }
 \keyword{internal}
-

@@ -12,21 +12,25 @@ buildModel(res, distanceFunction, control)
     Should be non-negative and symmetric.  In case Kriging is chosen, it can also be a list of several distance functions. In this case, MLE is used 
 to determine the most suited distance measure (see the last reference).}
 
-\item{control}{list of options \cr
-\code{model} Model to be used as a surrogate of the target function. Default is "K" (Kriging). Also
-    available are: "LM" (linear, distance-based model), "RBFN" Radial Basis Function Network.\cr
-\code{modelSettings} List of settings for model building, passed on as the control argument to the model training functions \code{\link{modelKriging}}, \code{\link{modelLinear}}, \code{\link{modelRBFN}}.
-\code{infill} This parameter specifies a function to be used for the infill criterion (e.g., the default is expected improvement \code{infillExpectedImprovement}).
-To use no specific infill criterion this has to be set to \code{NA}. Infill criteria are only used with models that may provide some error estimate with predictions.\cr}
+\item{control}{list with options:
+\describe{
+\item{\code{model}}{ Model to be used as a surrogate of the target function. Default is "K" (Kriging). Also
+    available are: "LM" (linear, distance-based model), "RBFN" Radial Basis Function Network.}
+\item{\code{modelSettings}}{ List of settings for model building, passed on as the control argument to the model training functions \code{\link{modelKriging}}, \code{\link{modelLinear}}, \code{\link{modelRBFN}}.}
+\item{\code{infill}}{ This parameter specifies a function to be used for the infill criterion (e.g., the default is expected improvement \code{infillExpectedImprovement}).
+To use no specific infill criterion this has to be set to \code{NA}. Infill criteria are only used with models that may provide some error estimate with predictions.}
+}}
 
 \item{x}{list of samples in input space}
 
 \item{y}{matrix, column vector of observations for each sample}
 }
 \value{
-a list:\cr 	
-\code{fit} model-fit \cr
-\code{fpred} prediction function
+a list:
+\describe{
+\item{\code{fit}}{ model-fit }
+\item{\code{fpred}}{ prediction function}
+}
 }
 \description{
 Model building support function for optimCEGO. Should not be called directly.
@@ -35,4 +39,3 @@ Model building support function for optimCEGO. Should not be called directly.
 \code{\link{optimCEGO}}
 }
 \keyword{internal}
-

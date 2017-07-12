@@ -6,17 +6,21 @@
 #'
 #' @param x start solution of the local search
 #' @param fun function that determines cost or length of a route/permutation
-#' @param control (list), with the options\cr
-#' \code{archive} Whether to keep all candidate solutions and their fitness in an archive (TRUE) or not (FALSE). Default is TRUE.\cr
-#' \code{budget} The limit on number of target function evaluations (stopping criterion) (default: 100)\cr
-#' \code{creationFunction} Function to create individuals/solutions in search space. Default is a function that creates random permutations of length 6\cr
-#' \code{vectorized} Boolean. Defines whether target function is vectorized (takes a list of solutions 
-#' as argument) or not (takes single solution as argument). Default: FALSE
+#' @param control (list), with the options:
+#' \describe{
+#' \item{\code{archive}}{ Whether to keep all candidate solutions and their fitness in an archive (TRUE) or not (FALSE). Default is TRUE.}
+#' \item{\code{budget}}{ The limit on number of target function evaluations (stopping criterion) (default: 100)}
+#' \item{\code{creationFunction}}{ Function to create individuals/solutions in search space. Default is a function that creates random permutations of length 6}
+#' \item{\code{vectorized}}{ Boolean. Defines whether target function is vectorized (takes a list of solutions 
+#' as argument) or not (takes single solution as argument). Default: FALSE}
+#' }
 #'
-#' @return a list:\cr 	
-#' \code{xbest} best solution found\cr
-#' \code{ybest} fitness of the best solution\cr
-#' \code{count} number of performed target function evaluations 
+#' @return a list with:
+#' \describe{
+#' \item{\code{xbest}}{ best solution found}
+#' \item{\code{ybest}}{ fitness of the best solution}
+#' \item{\code{count}}{ number of performed target function evaluations }
+#' }
 #' 
 #' @examples
 #' seed=0

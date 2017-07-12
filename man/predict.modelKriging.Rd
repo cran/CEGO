@@ -23,5 +23,6 @@ Predict with a model fit resulting from \code{\link{modelKriging}}.
 }
 \seealso{
 \code{\link{modelKriging}}
-}
 
+\code{\link{simulate.modelKriging}}
+}

@@ -11,18 +11,22 @@ optim2Opt(x = NULL, fun, control = list())
 
 \item{fun}{function that determines cost or length of a route/permutation}
 
-\item{control}{(list), with the options\cr
-\code{archive} Whether to keep all candidate solutions and their fitness in an archive (TRUE) or not (FALSE). Default is TRUE.\cr
-\code{budget} The limit on number of target function evaluations (stopping criterion) (default: 100)\cr
-\code{creationFunction} Function to create individuals/solutions in search space. Default is a function that creates random permutations of length 6\cr
-\code{vectorized} Boolean. Defines whether target function is vectorized (takes a list of solutions 
+\item{control}{(list), with the options:
+\describe{
+\item{\code{archive}}{ Whether to keep all candidate solutions and their fitness in an archive (TRUE) or not (FALSE). Default is TRUE.}
+\item{\code{budget}}{ The limit on number of target function evaluations (stopping criterion) (default: 100)}
+\item{\code{creationFunction}}{ Function to create individuals/solutions in search space. Default is a function that creates random permutations of length 6}
+\item{\code{vectorized}}{ Boolean. Defines whether target function is vectorized (takes a list of solutions 
 as argument) or not (takes single solution as argument). Default: FALSE}
+}}
 }
 \value{
-a list:\cr 	
-\code{xbest} best solution found\cr
-\code{ybest} fitness of the best solution\cr
-\code{count} number of performed target function evaluations
+a list with:
+\describe{
+\item{\code{xbest}}{ best solution found}
+\item{\code{ybest}}{ fitness of the best solution}
+\item{\code{count}}{ number of performed target function evaluations }
+}
 }
 \description{
 Implementation of a Two-Opt local search.
@@ -48,4 +52,3 @@ Wikipedia contributors. "2-opt." Wikipedia, The Free Encyclopedia. Wikipedia, Th
 \seealso{
 \code{\link{optimCEGO}}, \code{\link{optimEA}}, \code{\link{optimRS}}, \code{\link{optimMaxMinDist}}
 }
-

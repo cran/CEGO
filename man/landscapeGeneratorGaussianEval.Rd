@@ -23,4 +23,3 @@ Evaluate a Gaussian landscape. Should not be called directly.
 \code{\link{landscapeGeneratorGaussian}}
 }
 \keyword{internal}
-

@@ -20,4 +20,3 @@ a new route
 Helper function: A single 2-opt step for \code{\link{optim2Opt}}
 }
 \keyword{internal}
-

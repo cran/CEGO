@@ -2,8 +2,8 @@
 % Please edit documentation in R/cegoPackage.R
 \docType{package}
 \name{CEGO-package}
-\alias{CEGO}
 \alias{CEGO-package}
+\alias{CEGO}
 \title{Combinatorial Efficient Global Optimization in R}
 \description{
 Combinatorial Efficient Global Optimization
@@ -17,8 +17,8 @@ modeling and handling of indefinite kernels/distances.
 \tabular{ll}{
 Package: \tab CEGO\cr
 Type: \tab Package\cr
-Version: \tab 2.1.0\cr
-Date: \tab 2016-08-17\cr
+Version: \tab 2.2.0\cr
+Date: \tab 2017-07-12\cr
 License: \tab GPL (>= 3)\cr
 LazyLoad: \tab yes\cr
 }
@@ -29,9 +29,7 @@ This work has been partially supported by the Federal Ministry of Education
 and Research (BMBF) under the grants CIMO (FKZ 17002X11) and
 MCIOP (FKZ 17N0311).
 }
-\author{
-Martin Zaefferer \email{mzaefferer@gmail.com}
-}
+
 \references{
 Zaefferer, Martin; Stork, Joerg; Friese, Martina; Fischbach, Andreas; Naujoks, Boris; Bartz-Beielstein, Thomas. (2014). Efficient global optimization for combinatorial problems. In Proceedings of the 2014 conference on Genetic and evolutionary computation (GECCO '14). ACM, New York, NY, USA, 871-878. DOI=10.1145/2576768.2598282 http://doi.acm.org/10.1145/2576768.2598282
 
@@ -42,5 +40,7 @@ Zaefferer, Martin and Bartz-Beielstein, Thomas (2016). Efficient Global Optimiza
 \seealso{
 Interface of main function: \code{\link{optimCEGO}}
 }
+\author{
+Martin Zaefferer \email{mzaefferer@gmail.com}
+}
 \keyword{package}
-

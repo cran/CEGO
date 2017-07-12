@@ -15,24 +15,28 @@ modelRBFN(x, y, distanceFunction, control = list())
 Maximum distances larger 1 are no problem, but may yield scaling bias when different measures are compared.
    Should be non-negative and symmetric.}
 
-\item{control}{(list), with the options for the model building procedure:\cr
-\code{beta} Parameter of the radial basis function: exp(-beta*D), where D is the distance matrix. If beta is not specified, the heuristic in fbeta will be used to determine it, which is default behavior.\cr
-\code{fbeta} Function f(x) to calculate the beta parameter, x is the maximum distance observed in the input data. Default function is \code{1/(2*(x^2))}. \cr 
-\code{distances} a distance matrix. If available, this matrix is used for model building, instead of calculating the distance matrix using the parameters \code{distanceFunction}. Default is \code{NULL}.}
+\item{control}{(list), with the options for the model building procedure:
+\describe{
+\item{\code{beta}}{ Parameter of the radial basis function: exp(-beta*D), where D is the distance matrix. If beta is not specified, the heuristic in fbeta will be used to determine it, which is default behavior.}
+\item{\code{fbeta}}{ Function f(x) to calculate the beta parameter, x is the maximum distance observed in the input data. Default function is \code{1/(2*(x^2))}.} 
+\item{\code{distances}}{ a distance matrix. If available, this matrix is used for model building, instead of calculating the distance matrix using the parameters \code{distanceFunction}. Default is \code{NULL}.}
+}}
 }
 \value{
-a fit (list, modelRBFN), with the options and found parameters for the model which has to be passed to the predictor function:\cr
-\code{SSQ} Variance of the observations (y)\cr
-\code{centers} Centers of the RBFN model, samples in input space (see parameters)\cr
-\code{w} Model parameters (weights) w\cr
-\code{Phi} Gram matrix \cr
-\code{Phinv} (Pseudo)-Inverse of Gram matrix\cr
-\code{w0} Mean of observations (y)\cr
-\code{dMax} Maximum observed distance\cr
-\code{D} Matrix of distances between all samples\cr
-\code{beta} See parameters\cr
-\code{fbeta} See parameters\cr
-\code{distanceFunction} See parameters
+a fit (list, modelRBFN), with the options and found parameters for the model which has to be passed to the predictor function:
+\describe{
+\item{\code{SSQ}}{ Variance of the observations (y)}
+\item{\code{centers}}{ Centers of the RBFN model, samples in input space (see parameters)}
+\item{\code{w}}{ Model parameters (weights) w}
+\item{\code{Phi}}{ Gram matrix}
+\item{\code{Phinv}}{ (Pseudo)-Inverse of Gram matrix}
+\item{\code{w0}}{ Mean of observations (y)}
+\item{\code{dMax}}{ Maximum observed distance}
+\item{\code{D}}{ Matrix of distances between all samples}
+\item{\code{beta}}{ See parameters}
+\item{\code{fbeta}}{ See parameters}
+\item{\code{distanceFunction}}{See parameters}
+}
 }
 \description{
 Implementation of a distance-based Radial Basis Function Network (RBFN) model, e.g., for mixed or combinatorial input spaces.
@@ -66,4 +70,3 @@ Moraglio, Alberto, and Ahmed Kattan. "Geometric generalisation of surrogate mode
 \seealso{
 \code{\link{predict.modelRBFN}}
 }
-

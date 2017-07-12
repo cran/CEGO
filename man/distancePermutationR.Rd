@@ -30,4 +30,3 @@ Sevaux, Marc, and Kenneth Soerensen. "Permutation distance measures for memetic 
 
 Reeves, Colin R. "Landscapes, operators and heuristic search." Annals of Operations Research 86 (1999): 473-490.
 }
-

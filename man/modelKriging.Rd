@@ -12,43 +12,47 @@ modelKriging(x, y, distanceFunction, control = list())
 \item{y}{column vector of observations for each sample}
 
 \item{distanceFunction}{a suitable distance function of type f(x1,x2), returning a scalar distance value, preferably between 0 and 1.
- Maximum distances larger 1 are no problem, but may yield scaling bias when different measures are compared.
-    Should be non-negative and symmetric.  It can also be a list of several distance functions. In this case, Maximum Likelihood Estimation (MLE) is used 
-to determine the most suited distance measure.}
+  Maximum distances larger 1 are no problem, but may yield scaling bias when different measures are compared.
+     Should be non-negative and symmetric.  It can also be a list of several distance functions. In this case, Maximum Likelihood Estimation (MLE) is used 
+ to determine the most suited distance measure.
+ The distance function may have additional parameters. For that case, see distanceParametersLower/Upper in the controls.
+If distanceFunction is missing, it can also be provided in the control list.}
 
-\item{control}{(list), with the options for the model building procedure:\cr
-\code{lower} lower boundary for theta, default is \code{1e-6}\cr
-\code{upper} upper boundary for theta, default is \code{100}\cr
-\code{corr} function to be used for correlation modelling, default is \code{fcorrGauss}\cr
-\code{algTheta}  algorithm used to find theta (as well as p and lambda), default is \code{\link{optimInterface}}.\cr
-\code{algThetaControl}  list of controls passed to \code{algTheta}.\cr
-\code{optimizeP} boolean that specifies whether the exponents (\code{p}) should be optimized. Else they will be set to two. \cr
-\code{useLambda} whether or not to use the regularization constant lambda (nugget effect). Default is \code{FALSE}.\cr
-\code{lambdaLower} lower boundary for lambda (log scale), default is \code{-6}\cr 
-\code{lambdaUpper} upper boundary for lambda (log scale), default is \code{0}\cr
-\code{distances} a distance matrix. If available, this matrix is used for model building, instead of calculating the distance matrix using the parameters \code{distanceFunction}. Default is \code{NULL}.
-\code{scaling} If TRUE: Distances values are divided by maximum distance to avoid scale bias.\cr
-\code{reinterpolate} If TRUE: reinterpolation is used to generate better uncertainty estimates in the presence of noise. \cr
-\code{combineDistances} By default, several distance functions or matrices are subject to a likelihood based decision, choosing one. If this parameter is TRUE, they are instead combined by determining a weighted sum. The weighting parameters are determined by MLE.\cr
-\code{userParameters} By default: (\code{NULL}). Else, this vector is used instead of MLE to specify the model parameters, in the following form: \code{log10(c(theta,lambda,p))}. In case of multiple combined distance functions, \code{theta} is also a vector, one element for each distance function.\cr
-\code{indefiniteMethod} The specific method used for correction: spectrum \code{"clip"}, spectrum \code{"flip"}, spectrum \code{"square"}, spectrum \code{"diffusion"}, feature embedding "feature", nearest definite matrix "near". Default is no correction: \code{"none"}. See Zaefferer and Bartz-Beielstein (2016).\cr
-\code{indefiniteType}  The general type of correction for indefiniteness: \code{"NSD"},\code{"CNSD"} or the default \code{"PSD"}. See Zaefferer and Bartz-Beielstein (2016). Note, that feature embedding may not work in case of multiple distance functions.\cr
-\code{indefiniteRepair} boolean, whether conditions of the distance matrix (in case of \code{"NSD"},\code{"CNSD"} correction type) or correlation matrix (in case of \code{"PSD"} correction type) are repaired.}
+\item{control}{(list), with the options for the model building procedure:
+\describe{
+\item{\code{lower}}{ lower boundary for theta, default is \code{1e-6}}
+\item{\code{upper}}{ upper boundary for theta, default is \code{100}}
+\item{\code{corr}}{ function to be used for correlation modelling, default is \code{fcorrGauss}}
+\item{\code{algTheta}}{ algorithm used to find theta (as well as p and lambda), default is \code{\link{optimInterface}}.}
+\item{\code{algThetaControl}}{ list of controls passed to \code{algTheta}.}
+\item{\code{useLambda}}{ whether or not to use the regularization constant lambda (nugget effect). Default is \code{FALSE}.}
+\item{\code{lambdaLower}}{ lower boundary for lambda (log scale), default is \code{-6}}
+\item{\code{lambdaUpper}}{ upper boundary for lambda (log scale), default is \code{0}}
+\item{\code{distanceParametersLower}}{ lower boundary for parameters of the distance function, default is \code{NA} which means there are no distance function parameters. If several distance functions are supplied, this should be a list of lower boundary vectors for each function.}
+\item{\code{distanceParametersUpper}}{ upper boundary for parameters of the distance function, default is \code{NA} which means there are no distance function parameters. If several distance functions are supplied, this should be a list of upper boundary vectors for each function.}
+\item{\code{distances}}{ a distance matrix. If available, this matrix is used for model building, instead of calculating the distance matrix using the parameters \code{distanceFunction}. Default is \code{NULL}.}
+\item{\code{scaling}}{ If TRUE: Distances values are divided by maximum distance to avoid scale bias.}
+\item{\code{reinterpolate}}{ If TRUE: reinterpolation is used to generate better uncertainty estimates in the presence of noise. }
+\item{\code{combineDistances}}{ By default, several distance functions or matrices are subject to a likelihood based decision, choosing one. If this parameter is TRUE, they are instead combined by determining a weighted sum. The weighting parameters are determined by MLE.}
+\item{\code{userParameters}}{ By default: (\code{NULL}). Else, this vector is used instead of MLE to specify the model parameters, in the following order: kernel parameters, distance weights, lambda, distance parameters.}
+\item{\code{indefiniteMethod}}{ The specific method used for correction: spectrum \code{"clip"}, spectrum \code{"flip"}, spectrum \code{"square"}, spectrum \code{"diffusion"}, feature embedding "feature", nearest definite matrix "near". Default is no correction: \code{"none"}. See Zaefferer and Bartz-Beielstein (2016).}
+\item{\code{indefiniteType}}{  The general type of correction for indefiniteness: \code{"NSD"},\code{"CNSD"} or the default \code{"PSD"}. See Zaefferer and Bartz-Beielstein (2016). Note, that feature embedding may not work in case of multiple distance functions.}
+\item{\code{indefiniteRepair}}{ boolean, whether conditions of the distance matrix (in case of \code{"NSD"},\code{"CNSD"} correction type) or correlation matrix (in case of \code{"PSD"} correction type) are repaired.}
+}}
 }
 \value{
-an object of class \code{modelKriging} containing the options (see control parameter) and determined parameters for the model:\cr
-\code{theta} activity or width parameter theta, a parameter of the correlation function determined with MLE\cr
-\code{log10Theta} log10 \code{theta} (i.e. \code{log10(theta)})\cr
-\code{lambda} regularization constant (nugget) lambda \cr
-\code{log10Lambda} log10 of regularization constant (nugget) lambda (i.e. \code{log10(lambda)})\cr
-\code{p} exponent p, parameter of the correlation function determined with MLE (if \code{optimizeP} is \code{TRUE})\cr
-\code{yMu} vector of observations y, minus MLE of mu\cr
-\code{SSQ} Maximum Likelihood Estimate (MLE) of model parameter sigma^2\cr
-\code{mu} MLE of model parameter mu\cr
-\code{Psi} correlation matrix Psi\cr
-\code{Psinv} inverse of Psi\cr
-\code{nevals} number of Likelihood evaluations during MLE of theta/lambda/p\cr
-\code{distanceFunctionIndexMLE} If a list of several distance measures (\code{distanceFunction}) was given, this parameter contains the index value of the measure chosen with MLE.
+an object of class \code{modelKriging} containing the options (see control parameter) and determined parameters for the model:
+\describe{
+\item{\code{theta}}{ parameters of the kernel / correlation function determined with MLE.}
+\item{\code{lambda}}{ regularization constant (nugget) lambda}
+\item{\code{yMu}}{ vector of observations y, minus MLE of mu}
+\item{\code{SSQ}}{ Maximum Likelihood Estimate (MLE) of model parameter sigma^2}
+\item{\code{mu}}{ MLE of model parameter mu}
+\item{\code{Psi}}{ correlation matrix Psi}
+\item{\code{Psinv}}{ inverse of Psi}
+\item{\code{nevals}}{ number of Likelihood evaluations during MLE of theta/lambda/p}
+\item{\code{distanceFunctionIndexMLE}}{ If a list of several distance measures (\code{distanceFunction}) was given, this parameter contains the index value of the measure chosen with MLE.}
+}
 }
 \description{
 Implementation of a distance-based Kriging model, e.g., for mixed or combinatorial input spaces.
@@ -118,4 +122,3 @@ Zaefferer, Martin and Bartz-Beielstein, Thomas (2016). Efficient Global Optimiza
 \seealso{
 \code{\link{predict.modelKriging}}
 }
-

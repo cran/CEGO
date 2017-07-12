@@ -46,4 +46,3 @@ Glunt, W.; Hayden, T. L.; Hong, S. and Wells, J. An alternating projection algor
 \seealso{
 \code{\link{is.NSD}}, \code{\link{is.PSD}}
 }
-

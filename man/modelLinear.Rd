@@ -18,10 +18,12 @@ Maximum distances larger 1 are no problem, but may yield scaling bias when diffe
 \item{control}{currently unused, defaults to \code{list()}}
 }
 \value{
-a fit (list, modelLinear), with the options and found parameters for the model which has to be passed to the predictor function:\cr
-\code{x} samples in input space (see parameters)\cr
-\code{y} observations for each sample (see parameters)\cr
-\code{distanceFunction} distance function (see parameters)
+a fit (list, modelLinear), with the options and found parameters for the model which has to be passed to the predictor function:
+\describe{
+\item{\code{x}}{ samples in input space (see parameters)}
+\item{\code{y}}{ observations for each sample (see parameters)}
+\item{\code{distanceFunction}}{ distance function (see parameters)}
+}
 }
 \description{
 A simple linear model based on arbitrary distances. Comparable to a k nearest neighbor model, but potentially able to extrapolate
@@ -54,4 +56,3 @@ Zaefferer, Martin; Stork, Joerg; Friese, Martina; Fischbach, Andreas; Naujoks, B
 \seealso{
 \code{\link{predict.modelLinear}}
 }
-

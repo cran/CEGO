@@ -11,18 +11,22 @@ optimRS(x = NULL, fun, control = list())
 
 \item{fun}{target function to be minimized}
 
-\item{control}{(list), with the options\cr
-\code{budget} The limit on number of target function evaluations (stopping criterion) (default: 100)\cr
-\code{vectorized} Boolean. Defines whether target function is vectorized (takes a list of solutions as argument) or not (takes single solution as argument). Default: FALSE\cr
-\code{creationFunction} Function to create individuals/solutions in search space. Default is a function that creates random permutations of length 6}
+\item{control}{(list), with the options:
+\describe{
+\item{\code{budget}}{ The limit on number of target function evaluations (stopping criterion) (default: 100)}
+\item{\code{vectorized}}{ Boolean. Defines whether target function is vectorized (takes a list of solutions as argument) or not (takes single solution as argument). Default: FALSE}
+\item{\code{creationFunction}}{ Function to create individuals/solutions in search space. Default is a function that creates random permutations of length 6}
+}}
 }
 \value{
-a list:\cr 	
-\code{xbest} best solution found\cr
-\code{ybest} fitness of the best solution\cr
-\code{x} history of all evaluated solutions\cr
-\code{y} corresponding target function values f(x)\cr
-\code{count} number of performed target function evaluations
+a list: 	
+\describe{
+\item{\code{xbest}}{ best solution found}
+\item{\code{ybest}}{ fitness of the best solution}
+\item{\code{x}}{ history of all evaluated solutions}
+\item{\code{y}}{ corresponding target function values f(x)}
+\item{\code{count}}{ number of performed target function evaluations }
+}
 }
 \description{
 Random Search for mixed or combinatorial optimization. Solutions are generated completely at random.
@@ -45,4 +49,3 @@ res$xbest
 \seealso{
 \code{\link{optimCEGO}}, \code{\link{optimEA}}, \code{\link{optim2Opt}}, \code{\link{optimMaxMinDist}}
 }
-

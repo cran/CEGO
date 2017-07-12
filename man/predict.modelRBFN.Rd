@@ -24,4 +24,3 @@ Predict with a model fit resulting from \code{\link{modelRBFN}}.
 \seealso{
 \code{\link{modelRBFN}}
 }
-

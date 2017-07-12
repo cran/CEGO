@@ -16,4 +16,3 @@ returns a function, without any arguments
 Returns a function that generates random bit-strings of length N.
 Can be used to create individuals of NK-Landscapes or other problems with binary representation.
 }
-

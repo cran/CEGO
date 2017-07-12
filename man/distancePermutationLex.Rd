@@ -32,4 +32,3 @@ distanceMatrix(p,distancePermutationLex)
 \seealso{
 \code{\link{lexicographicPermutationOrderNumber}}
 }
-

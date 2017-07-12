@@ -16,4 +16,10 @@ returns a function, without any arguments
 Returns a function that generates random permutations of length N.
 Can be used to generate individual solutions for permutation problems, e.g., Travelling Salesperson Problem
 }
+\examples{
+fun <- solutionFunctionGeneratorPermutation(10)
+fun()
+fun()
+fun()
 
+}

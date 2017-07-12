@@ -22,4 +22,3 @@ Predict with amodelLinear fit.
 \seealso{
 \code{\link{modelLinear}}
 }
-

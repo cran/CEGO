@@ -28,4 +28,3 @@ distanceMatrix(p,distancePermutationLevenshtein)
 \references{
 Levenshtein, Vladimir I. "Binary codes capable of correcting deletions, insertions and reversals." Soviet physics doklady. Vol. 10. 1966.
 }
-

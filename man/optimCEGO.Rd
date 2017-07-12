@@ -12,44 +12,48 @@ If \code{x} has less individuals than specified by \code{control$evalInit}, \cod
 
 \item{fun}{target function to be minimized}
 
-\item{control}{(list), with the options of optimization and model building approaches employed\cr
-\code{evalInit} Number of initial evaluations (i.e., size of the initial design), integer, default is \code{2}\cr
-\code{vectorized} Boolean. Defines whether target function is vectorized (takes a list of solutions as argument) or not (takes single solution as argument). Default: FALSE\cr
-\code{verbosity} Level of text output during run. Defaults to 0, no output.\cr
-\code{plotting} Plot optimization progress during run (TRUE) or not (FALSE). Default is FALSE.\cr
-\code{targetY} optimal value to be found, stopping criterion, default is \code{-Inf}\cr
-\code{evalBudget} maximum number of target function evaluations, default is \code{100}\cr
-\code{creationRetries} When a model does not predict an actually improving solution, a random exploration step is performed. \code{creationRetries} solutions are created randomly. 
+\item{control}{(list), with the options of optimization and model building approaches employed:
+\describe{
+\item{\code{evalInit}}{ Number of initial evaluations (i.e., size of the initial design), integer, default is \code{2}}
+\item{\code{vectorized}}{ Boolean. Defines whether target function is vectorized (takes a list of solutions as argument) or not (takes single solution as argument). Default: FALSE}
+\item{\code{verbosity}}{ Level of text output during run. Defaults to 0, no output.}
+\item{\code{plotting}}{ Plot optimization progress during run (TRUE) or not (FALSE). Default is FALSE.}
+\item{\code{targetY}}{ optimal value to be found, stopping criterion, default is \code{-Inf}}
+\item{\code{evalBudget}}{ maximum number of target function evaluations, default is \code{100}}
+\item{\code{creationRetries}}{ When a model does not predict an actually improving solution, a random exploration step is performed. \code{creationRetries} solutions are created randomly. 
         For each, distance to all known solutions is calculated. The minimum distance is recorded for each random solution. 
-        The random solution with maximal minimum distance is chosen doe be evaluated in the next iteration.\cr
-\code{model} Model to be used as a surrogate of the target function. Default is "K" (Kriging). Also
-    available are: "LM" (linear, distance-based model), "RBFN" Radial Basis Function Network.\cr
-\code{modelSettings} List of settings for \code{model} building, passed on as the \code{control} argument to the model training functions \code{\link{modelKriging}}, \code{\link{modelLinear}}, \code{\link{modelRBFN}}.\cr
-\code{infill} This parameter specifies a function to be used for the infill criterion (e.g., the default is expected improvement \code{infillExpectedImprovement}).
-To use no specific infill criterion this has to be set to \code{NA}. Infill criteria are only used with models that may provide some error estimate with predictions.\cr
-\code{optimizer} Optimizer that finds the minimum of the surrogate model. Default is \code{\link{optimEA}}, an Evolutionary Algorithm.\cr
-\code{optimizerSettings} List of settings (\code{control}) for the \code{optimizer} function.\cr
-\code{initialDesign} Design function that generates the initial design. Default is \code{designMaxMinDist}, which creates a design that maximizes the minimum distance between points.\cr
-\code{initialDesignSettings} List of settings (\code{control}) for the \code{initialDesign} function.\cr
-\code{creationFunction} Function to create individuals/solutions in search space. Default is a function that creates random permutations of length 6\cr
-\code{distanceFunction} distanceFunction a suitable distance function of type f(x1,x2), returning a scalar distance value, preferably between 0 and 1.
+        The random solution with maximal minimum distance is chosen doe be evaluated in the next iteration.}
+\item{\code{model}}{ Model to be used as a surrogate of the target function. Default is "K" (Kriging). Also
+    available are: "LM" (linear, distance-based model), "RBFN" Radial Basis Function Network.}
+\item{\code{modelSettings}}{ List of settings for \code{model} building, passed on as the \code{control} argument to the model training functions \code{\link{modelKriging}}, \code{\link{modelLinear}}, \code{\link{modelRBFN}}.}
+\item{\code{infill}}{ This parameter specifies a function to be used for the infill criterion (e.g., the default is expected improvement \code{infillExpectedImprovement}).
+To use no specific infill criterion this has to be set to \code{NA}, in which case the prediction of the surrogate model is used. Infill criteria are only used with models that may provide some error estimate with predictions.}
+\item{\code{optimizer}}{ Optimizer that finds the minimum of the surrogate model. Default is \code{\link{optimEA}}, an Evolutionary Algorithm.}
+\item{\code{optimizerSettings}}{ List of settings (\code{control}) for the \code{optimizer} function.}
+\item{\code{initialDesign}}{ Design function that generates the initial design. Default is \code{designMaxMinDist}, which creates a design that maximizes the minimum distance between points.}
+\item{\code{initialDesignSettings}}{ List of settings (\code{control}) for the \code{initialDesign} function.}
+\item{\code{creationFunction}}{ Function to create individuals/solutions in search space. Default is a function that creates random permutations of length 6}
+\item{\code{distanceFunction}}{ distanceFunction a suitable distance function of type f(x1,x2), returning a scalar distance value, preferably between 0 and 1.
      Maximum distances larger 1 are not a problem, but may yield scaling bias when different measures are compared.
         Should be non-negative and symmetric. With the setting \code{control$model="K"} this can also be a list of different fitness functions.
    Default is Hamming distance for permutations: distancePermutationHamming.}
+}}
 }
 \value{
-a list:\cr 	
-\code{xbest} best solution found\cr
-\code{ybest} fitness of the best solution\cr
-\code{x} history of all evaluated solutions\cr
-\code{y} corresponding target function values f(x)\cr
-\code{fit} model-fit created in the last iteration\cr
-\code{fpred} prediction function created in the last iteration\cr
-\code{count} number of performed target function evaluations\cr 
-\code{message} message string, giving information on termination reason
-\code{convergence} error/status code: \code{-1} for termination due 
+a list:
+\describe{
+\item{\code{xbest}}{ best solution found}
+\item{\code{ybest}}{ fitness of the best solution}
+\item{\code{x}}{ history of all evaluated solutions}
+\item{\code{y}}{ corresponding target function values f(x)}
+\item{\code{fit}}{ model-fit created in the last iteration}
+\item{\code{fpred}}{ prediction function created in the last iteration}
+\item{\code{count}}{ number of performed target function evaluations}
+\item{\code{message}}{ message string, giving information on termination reason}
+\item{\code{convergence}}{ error/status code: \code{-1} for termination due 
 to failed model building, \code{0} for termination due to depleted budget, 
-\code{1} if attained objective value is equal to or below target (\code{control$targetY})
+\code{1} if attained objective value is equal to or below target (\code{control$targetY})}
+}
 }
 \description{
 Model-based optimization for combinatorial or mixed problems. Based on measures of distance or dissimilarity.
@@ -95,4 +99,3 @@ Zaefferer, Martin; Stork, Joerg; Bartz-Beielstein, Thomas. (2014). Distance Meas
 \seealso{
 \code{\link{modelKriging}}, \code{\link{modelLinear}}, \code{\link{modelRBFN}}, \code{\link{buildModel}}, \code{\link{optimEA}}
 }
-

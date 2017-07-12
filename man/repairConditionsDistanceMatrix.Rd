@@ -32,4 +32,3 @@ Martin Zaefferer and Thomas Bartz-Beielstein. (2016). Efficient Global Optimizat
 \seealso{
 \code{\link{correctionDefinite}}, \code{\link{correctionDistanceMatrix}}, \code{\link{correctionKernelMatrix}}, \code{\link{correctionCNSD}}, \code{\link{repairConditionsCorrelationMatrix}}
 }
-

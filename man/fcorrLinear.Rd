@@ -4,12 +4,12 @@
 \alias{fcorrLinear}
 \title{Linear Kernel for Kriging}
 \usage{
-fcorrLinear(theta, D)
+fcorrLinear(D, theta = 0)
 }
 \arguments{
-\item{theta}{kernel parameter}
-
 \item{D}{distance matrix}
+
+\item{theta}{kernel parameter}
 }
 \value{
 matrix (Psi)
@@ -21,4 +21,3 @@ Linear Kernel for Kriging
 \code{\link{modelKriging}}
 }
 \keyword{internal}
-

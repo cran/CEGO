@@ -27,4 +27,3 @@ distanceMatrix(p,distancePermutationLCStr)
 \references{
 Hirschberg, Daniel S. "A linear space algorithm for computing maximal common subsequences." Communications of the ACM 18.6 (1975): 341-343.
 }
-

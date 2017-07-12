@@ -30,4 +30,3 @@ Schiavinotto, Tommaso, and Thomas Stuetzle. "A review of metrics on permutations
 
 Reeves, Colin R. "Landscapes, operators and heuristic search." Annals of Operations Research 86 (1999): 473-490.
 }
-

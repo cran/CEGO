@@ -40,4 +40,3 @@ Moraglio, Alberto, Yong-Hyuk Kim, and Yourim Yoon. "Geometric surrogate-based op
 \seealso{
 \code{\link{landscapeGeneratorMUL}}, \code{\link{landscapeGeneratorGaussian}}
 }
-

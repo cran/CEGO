@@ -4,12 +4,12 @@
 \alias{fcorrSphere}
 \title{Spherical Kernel for Kriging}
 \usage{
-fcorrSphere(theta, D)
+fcorrSphere(D, theta = 0)
 }
 \arguments{
-\item{theta}{kernel parameter}
-
 \item{D}{distance matrix}
+
+\item{theta}{kernel parameter}
 }
 \value{
 matrix (Psi)
@@ -21,4 +21,3 @@ Spherical Kernel for Kriging
 \code{\link{modelKriging}}
 }
 \keyword{internal}
-

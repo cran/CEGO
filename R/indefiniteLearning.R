@@ -42,13 +42,15 @@ correctionCNSD <- function(mat,method="flip",tol=1e-8){
 #' @param method string that specifies method for correction: spectrum clip \code{"clip"}, spectrum flip \code{"flip"}, nearest definite matrix \code{"near"}, spectrum square\code{"square"}, spectrum diffusion \code{"diffusion"}.
 #' @param tol torelance value. Eigenvalues between \code{-tol} and \code{tol} are assumed to be zero.
 #'
-#' @return list with\cr 
-#' corrected matrix \code{mat},\cr 
-#' \code{isIndefinite} (boolean, whether original matrix was indefinite),\cr
-#' the eigenvalues of the original matrix (\code{lambda}),\cr
-#' the eigenvalues of the corrected matrix (\code{lambdanew}),\cr
-#' the matrix of eigenvectors (\code{U}),
-#' the transformation vector (\code{a})
+#' @return list with
+#' \describe{ 
+#'  \item{\code{mat}}{ corrected matrix}
+#'  \item{\code{isIndefinite}}{ boolean, whether original matrix was indefinite}
+#'  \item{\code{lambda}}{ the eigenvalues of the original matrix}
+#'  \item{\code{lambdanew}}{ the eigenvalues of the corrected matrix }
+#'  \item{\code{U}}{ the matrix of eigenvectors}
+#'  \item{\code{a}}{ the transformation vector}
+#' }
 #'
 #' @seealso \code{\link{modelKriging}}
 #' @references Martin Zaefferer and Thomas Bartz-Beielstein. (2016). Efficient Global Optimization with Indefinite Kernels. Parallel Problem Solving from Nature-PPSN XIV. Accepted, in press. Springer. 
@@ -126,7 +128,7 @@ correctionDefinite <- function(mat,type='PSD',method="flip",tol=1e-8){
 #'
 #' @param mat symmetric distance matrix
 #' @param type string that specifies type of correction: \code{"CNSD"},\code{"NSD"} to enforce CNSD or NSD matrices respectively.
-#' @param method string that specifies method for correction: spectrum clip \code{"clip"}, spectrum flip \code{"flip"}, nearest definite matrix \code{"near"}, spectrum square\code{"square"}, spectrum diffusion \code{"diffusion"}.
+#' @param method string that specifies method for correction: spectrum clip \code{"clip"}, spectrum flip \code{"flip"}, nearest definite matrix \code{"near"}, spectrum square\code{"square"}, spectrum diffusion \code{"diffusion"}, feature embedding \code{"feature"}.
 #' @param repair boolean, whether or not to use condition repair, so that elements are positive, and diagonal is zero.
 #' @param tol torelance value. Eigenvalues between \code{-tol} and \code{tol} are assumed to be zero.
 #'
@@ -146,11 +148,11 @@ correctionDefinite <- function(mat,type='PSD',method="flip",tol=1e-8){
 correctionDistanceMatrix <- function(mat,type="NSD",method="flip",repair=TRUE,tol=1e-8){
 	isCNSD <- NA
 	A <- NA
-  if((type=="NSD" | type=="CNSD") & any(method==c("clip","flip","near","square","diffusion"))){ 
+  if((type=="NSD" | type=="CNSD") & any(method==c("clip","flip","near","square","diffusion","feature"))){
     isCNSD <- is.CNSD(mat,tol=tol) # check if definite 
 		A <- diag(nrow(mat))
     if(!isCNSD){# mat is not CNSD, needs correction
-      if(type=="NSD"){
+			if(type=="NSD"){
         ret <- correctionDefinite(mat,type="NSD",method=method,tol=tol)
 				#resulting, transformed matrix
         mat <- ret$mat
@@ -161,19 +163,22 @@ correctionDistanceMatrix <- function(mat,type="NSD",method="flip",repair=TRUE,to
         }
       }else if(type=="CNSD"){
         if(method == "near"){
-          ret <- nearCNSD(mat,eig.tol=tol)
-          mat <- ret$mat
-        }else{
+          mat <- nearCNSD(mat,eig.tol=tol)$mat
+				}else if(method=="feature"){
+					x <- split(mat,seq(nrow(mat))) #each distance vector in the distance matrix is now a feature vector
+					mat <- distanceMatrix(x,distanceRealEuclidean)  #TODO options for other surrogate distances?
+				}else{
 					mat <- correctionCNSD(mat,method=method,tol=tol)
 					if(repair){ # fix diagonal and range of values
 						mat <- repairConditionsDistanceMatrix(mat)
-          }  
+          }
         }
       }
     }
   }
 	return(list(mat=mat,isCNSD=isCNSD,A=A))
 }  
+
 ###################################################################################
 #' Correction of a Kernel (Correlation) Matrix
 #'
@@ -256,7 +261,7 @@ repairConditionsDistanceMatrix <- function(mat){
 	if(sum(abs(diag(mat)))>eps | (min(mat) < -eps)){ #if diagonal values are non zero, or if negative distance
 		mat <- -mat #make cpsd kernel. (mat HAS TO be cnsd)
 		Kaa <- matrix(diag(mat),n,n)
-		mat <- Kaa + t(Kaa) - 2*mat #convert to valid distance (proven, because (c)psd.)
+		mat <- Kaa + t(Kaa) - 2*mat #convert to valid distance (proven, because (c)psd.) #TODO: take root, so that this is a metric?
 	}
 	mat	
 }
@@ -302,19 +307,31 @@ repairConditionsCorrelationMatrix <- function(mat){ #dg: diag 1 or diag 0
 #' @keywords internal
 ###################################################################################
 correctionAugmentedDistanceVector <- function(d,object,x){ 
+  if(is.vector(d))
+    d <- matrix(d,1)
 	D <- object$origD
 	
 	if(is.list(object$distanceFunction)){ #in case of multiple distance matrices 
 		dself <- list()
+		if(object$useDistanceParameters){
+			indices <- rep(1:length(object$distanceFunction),sapply(object$distanceParametersLower,length)) #indices assigning each parameter to a distances function
+		}
 		for(i in 1:length(object$distanceFunction)){
-			dself[[i]] <- distanceMatrix(x,object$distanceFunction[[i]]) 
+			if(!object$useDistanceParameters){
+				dself[[i]] <- distanceMatrix(x,object$distanceFunction[[i]]) 
+			}else{
+				dself[[i]] <- distanceMatrix(x,object$distanceFunction[[i]],object$distanceParameters[indices==i])			
+			}	
 			if(object$scaling){
 				dself[[i]] <- dself[[i]]/object$maximumDistance[[i]]
 			}
 		}
-		dself <- Reduce("+",mapply("*",dself,object$theta,SIMPLIFY=FALSE)) #weight each matrix by corresponding theta value, and compute sum of the matrices
+		dself <- Reduce("+",mapply("*",dself,object$distanceWeights,SIMPLIFY=FALSE)) #weight each matrix by corresponding theta value, and compute sum of the matrices
 	}else{
-		dself <- distanceMatrix(x,object$distanceFunction) 
+		if(!object$useDistanceParameters)
+			dself <- distanceMatrix(x,object$distanceFunction) 
+		else	
+			dself <- distanceMatrix(x,object$distanceFunction,object$distanceParameters)			
 		if(object$scaling){
 			dself <- dself/object$maximumDistance
 		}
@@ -345,39 +362,54 @@ correctionAugmentedDistanceVector <- function(d,object,x){
 #' @references Martin Zaefferer and Thomas Bartz-Beielstein. (2016). Efficient Global Optimization with Indefinite Kernels. Parallel Problem Solving from Nature-PPSN XIV. Accepted, in press. Springer. 
 #' @keywords internal
 ###################################################################################
-correctionAugmentedKernelVector <- function(k,object,x){
+correctionAugmentedKernelVector <- function(k,object,x){ #todo: tolerances! here and above
+  if(is.vector(k))
+    k <- matrix(k,1)
 	K <- object$origPsi 
 	if(is.list(object$distanceFunction)){ #in case of multiple distance matrices 
 		dself <- list()
+		if(object$useDistanceParameters){
+			indices <- rep(1:length(object$distanceFunction),sapply(object$distanceParametersLower,length)) #indices assigning each parameter to a distances function
+		}
 		for(i in 1:length(object$distanceFunction)){
-			dself[[i]] <- distanceMatrix(x,object$distanceFunction[[i]]) 
+			if(!object$useDistanceParameters){
+				dself[[i]] <- distanceMatrix(x,object$distanceFunction[[i]]) 
+			}else{
+				dself[[i]] <- distanceMatrix(x,object$distanceFunction[[i]],object$distanceParameters[indices==i])			
+			}	
 			if(object$scaling){
 				dself[[i]] <- dself[[i]]/object$maximumDistance[[i]]
 			}
 		}
-		dself <- Reduce("+",mapply("*",dself,theta,SIMPLIFY=FALSE)) #weight each matrix by corresponding theta value, and compute sum of the matrices
-		theta <- 1 #theta used in correlation function (corr) set to 1, because included in weighted sum.		
+		dself <- Reduce("+",mapply("*",dself,object$distanceWeights,SIMPLIFY=FALSE)) #weight each matrix by corresponding theta value, and compute sum of the matrices
 	}else{
-		dself <- distanceMatrix(x,object$distanceFunction) 
+		if(!object$useDistanceParameters)
+			dself <- distanceMatrix(x,object$distanceFunction) 
+		else	
+			dself <- distanceMatrix(x,object$distanceFunction,object$distanceParameters)
 		if(object$scaling){
 			dself <- dself/object$maximumDistance
 		}
-		theta <- object$theta	
 	}
-  if(object$optimizeP){
-    dself <- dself^object$p
-  }	
-	kself <- object$corr(theta,dself)	
+	if(is.null(object$theta)) #corr function has no parameters
+		kself <- object$corr(dself)
+	else
+		kself <- object$corr(dself,object$theta)	
 	kaug <- cbind(k,kself)
 	Kaug <- rbind(K,k)
 	Kaug <- cbind(Kaug,t(kaug))
 	## Fix Definiteness (PNSDness) of the provided kernel matrix
-	Kaugtransformed <- correctionDefinite(Kaug,"PSD",object$indefiniteMethod,object$a)$mat
-	Kaugtransformed <- repairConditionsCorrelationMatrix(Kaugtransformed) 
+	#Kaugtransformed <- correctionDefinite(Kaug,"PSD",object$indefiniteMethod,object$a)$mat
+	#Kaugtransformed <- repairConditionsCorrelationMatrix(Kaugtransformed) 
+  Kaugtransformed <- correctionKernelMatrix(Kaug,object$indefiniteMethod,object$indefiniteRepair)$mat
 				## The following would only be needed if the whole matrix is of interest
 				#Kaugtransformed <- Kaugtransformed + diag(object$lambda,nrow(Kaugtransformed))
 	## extract only the new values
 	knewtransformed <- Kaugtransformed[(nrow(K)+1):nrow(Kaugtransformed),1:ncol(K),drop=FALSE]
+	
+	#NOTE: lambda is not added to diagonal of Kaugtransformed, because this affects only the diagonal
+	# which is not part of the returned vector
+	
 	## return
 	knewtransformed
 }	

@@ -21,4 +21,3 @@ This function calculates the Expected Improvement" of candidate solutions,
 based on predicted means, standard deviations (uncertainty) and
 the best known objective function value so far.
 }
-

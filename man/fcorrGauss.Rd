@@ -4,12 +4,12 @@
 \alias{fcorrGauss}
 \title{Gaussian Kernel for Kriging}
 \usage{
-fcorrGauss(theta, D)
+fcorrGauss(D, theta = 0)
 }
 \arguments{
-\item{theta}{kernel parameter}
-
 \item{D}{distance matrix}
+
+\item{theta}{kernel parameter}
 }
 \value{
 matrix (Psi)
@@ -21,4 +21,3 @@ Gaussian Kernel for Kriging
 \code{\link{modelKriging}}
 }
 \keyword{internal}
-

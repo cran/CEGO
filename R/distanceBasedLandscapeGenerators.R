@@ -178,11 +178,13 @@ landscapeGeneratorGaussian <- function(nGaussian=10,theta=1,ratio=0.2,seed=1, di
 #' @param ratio minimal function value of the local minima. Default is 0.2. (Note: Global minimum will be at zero, local minimal will be in range \code{[ratio;1]})
 #' @param creationFunction function to randomly generate the centers of the gaussians
 #'
-#' @return returns a list, with the following items:\cr
-#' \code{centers} samples which are the centers of each Gaussian
-#' \code{covinv} inverse of variance of each Gaussian 
-#' \code{opt} value at randomly chosen optimum center
-#' \code{nGauss} number of Gaussian components
+#' @return returns a list, with the following items:
+#' \describe{
+#' \item{\code{centers}}{ samples which are the centers of each Gaussian}
+#' \item{\code{covinv}}{ inverse of variance of each Gaussian}
+#' \item{\code{opt}}{ value at randomly chosen optimum center}
+#' \item{\code{nGauss}}{ number of Gaussian components}
+#' }
 #'
 #' @keywords internal
 #' @export

@@ -25,4 +25,3 @@ mutated population
 Support function for \code{\link{mutationPermutationInterchange}} and \code{\link{mutationPermutationSwap}}.
 }
 \keyword{internal}
-

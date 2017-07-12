@@ -41,4 +41,3 @@ fun(n:1)
 \seealso{
 \code{\link{benchmarkGeneratorQAP}}, \code{\link{benchmarkGeneratorTSP}}, \code{\link{benchmarkGeneratorFSP}}
 }
-

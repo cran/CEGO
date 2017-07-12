@@ -23,4 +23,3 @@ Correct new (test) kernel values, via correcting the augmented kernel matrix. In
 Martin Zaefferer and Thomas Bartz-Beielstein. (2016). Efficient Global Optimization with Indefinite Kernels. Parallel Problem Solving from Nature-PPSN XIV. Accepted, in press. Springer.
 }
 \keyword{internal}
-

@@ -4,7 +4,7 @@
 \alias{distanceMatrixUpdate}
 \title{Update distance matrix}
 \usage{
-distanceMatrixUpdate(distanceMat, x, distanceFunction)
+distanceMatrixUpdate(distanceMat, x, distanceFunction, ...)
 }
 \arguments{
 \item{distanceMat}{original distance matrix \code{D_mat}}
@@ -12,6 +12,8 @@ distanceMatrixUpdate(distanceMat, x, distanceFunction)
 \item{x}{list of candidate solutions, last in list is the new solution}
 
 \item{distanceFunction}{Distance function of type f(x,y)=r, where r is a scalar and x and y are candidate solutions whose distance is evaluated.}
+
+\item{...}{further arguments passed to distanceFunction}
 }
 \value{
 matrix of distances between all solutions x
@@ -28,4 +30,3 @@ dmUp <- distanceMatrixUpdate(dm,x,distancePermutationHamming)
 
 }
 \keyword{internal}
-

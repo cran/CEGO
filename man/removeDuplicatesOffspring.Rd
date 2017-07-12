@@ -22,4 +22,3 @@ Returns \code{off} without duplicates
 Remove duplicates in \code{c(xhist,off)}, replace with non-duplicated individuals according to \code{cf}.
 }
 \keyword{internal}
-

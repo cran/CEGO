@@ -21,4 +21,3 @@ mutated population
 Given a population of permutations, this function mutates all 
 individuals by randomly selecting two indices, and reversing the respective sub-permutation.
 }
-

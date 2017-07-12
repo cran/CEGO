@@ -19,4 +19,3 @@ combinatorialLM(x, y, distanceFunction, control = list())
 DEPRECATED version of the linear, distance-based model, please use \code{\link{modelLinear}}
 }
 \keyword{internal}
-

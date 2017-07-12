@@ -10,29 +10,27 @@
 #' in the Kriging model (based on Maximum Likelihood Estimation).
 #' Note that this function is NOT applicable to combinatorial optimization problems. 
 #'
-#' The control list contains:\cr
-#' \code{funEvals} stopping criterion, number of evaluations allowed for \code{fun}  (defaults to 100) \cr
-#' \code{reltol} stopping criterion, relative tolerance  (default: 1e-6) \cr
-#' \code{factr} stopping criterion, specifying relative tolerance parameter factr for the L-BFGS-B method in the optim function (default: 1e10) \cr
-#' \code{popsize} population size or number of particles  (default: \code{10*dimension}, where \code{dimension} is derived from the length of the vector \code{lower}). \cr
-#' \code{restarts} whether to perform restarts (Default: FALSE). Restarts will only be performed if some of the evaluation budget is left once the algorithm stopped due to some stopping criterion (e.g., reltol).\cr
-#' Violations of the provided budget may decrease the number of restarts.\cr
-#' \code{method} will be used to choose the optimization method from the following list:\cr
-#' "L-BFGS-B" - BFGS quasi-Newton: \code{stats} Package \code{optim} function\cr
-#' "nlminb" - box-constrained optimization using PORT routines: \code{stats} Package \code{nlminb} function\cr
-#' "DEoptim" - Differential Evolution implementation: \code{DEoptim} Package\cr
-#' Additionally to the above methods, several methods from the package \code{nloptr} can be chosen. 
-#' The complete list of suitable nlopt methods (non-gradient, bound constraints) is: \cr
-#'	"NLOPT_GN_DIRECT","NLOPT_GN_DIRECT_L","NLOPT_GN_DIRECT_L_RAND",
-#'	"NLOPT_GN_DIRECT_NOSCAL","NLOPT_GN_DIRECT_L_NOSCAL","NLOPT_GN_DIRECT_L_RAND_NOSCAL",
-#'	"NLOPT_GN_ORIG_DIRECT","NLOPT_GN_ORIG_DIRECT_L","NLOPT_LN_PRAXIS",							
-#'	"NLOPT_GN_CRS2_LM","NLOPT_LN_COBYLA",
-#'	"NLOPT_LN_NELDERMEAD","NLOPT_LN_SBPLX","NLOPT_LN_BOBYQA","NLOPT_GN_ISRES"\cr\cr
-#' All of the above methods use bound constraints.
-#' For references and details on the specific methods, please check the documentation of the packages that provide them.\cr\cr
-#' Furthermore, the user can choose to use a function instead of a string for the \code{method}.
-#' The used function should have the same parameters and arguments as documented for this very function, i.e. \code{optimInterface}.
-#' The \code{method} parameters for the call to the supplied function will be extracted from \code{control$method}.
+#' The control list contains:
+#' \describe{
+#'   \item{\code{funEvals}}{ stopping criterion, number of evaluations allowed for \code{fun}  (defaults to 100)}
+#'   \item{\code{reltol}}{ stopping criterion, relative tolerance  (default: 1e-6)}
+#'   \item{\code{factr}}{ stopping criterion, specifying relative tolerance parameter factr for the L-BFGS-B method in the optim function (default: 1e10) }
+#'   \item{\code{popsize}}{ population size or number of particles  (default: \code{10*dimension}, where \code{dimension} is derived from the length of the vector \code{lower}). }
+#'   \item{\code{restarts}}{ whether to perform restarts (Default: TRUE). Restarts will only be performed if some of the evaluation budget is left once the algorithm stopped due to some stopping criterion (e.g., reltol).}
+#'   \item{\code{method}}{ will be used to choose the optimization method from the following list:
+#'   "L-BFGS-B" - BFGS quasi-Newton: \code{stats} Package \code{optim} function\cr
+#'   "nlminb" - box-constrained optimization using PORT routines: \code{stats} Package \code{nlminb} function\cr
+#'   "DEoptim" - Differential Evolution implementation: \code{DEoptim} Package\cr
+#'   Additionally to the above methods, several methods from the package \code{nloptr} can be chosen. 
+#'   The complete list of suitable nlopt methods (non-gradient, bound constraints) is: \cr
+#'  	"NLOPT_GN_DIRECT","NLOPT_GN_DIRECT_L","NLOPT_GN_DIRECT_L_RAND",
+#'	  "NLOPT_GN_DIRECT_NOSCAL","NLOPT_GN_DIRECT_L_NOSCAL","NLOPT_GN_DIRECT_L_RAND_NOSCAL",
+#'	  "NLOPT_GN_ORIG_DIRECT","NLOPT_GN_ORIG_DIRECT_L","NLOPT_LN_PRAXIS",							
+#'	  "NLOPT_GN_CRS2_LM","NLOPT_LN_COBYLA",
+#'	  "NLOPT_LN_NELDERMEAD","NLOPT_LN_SBPLX","NLOPT_LN_BOBYQA","NLOPT_GN_ISRES"\cr\cr
+#'   All of the above methods use bound constraints.
+#'   For references and details on the specific methods, please check the documentation of the packages that provide them.}
+#' }
 #'
 #' @param x is a point (vector) in the decision space of \code{fun}
 #' @param fun is the target function of type \code{y = f(x, ...)}
@@ -41,10 +39,12 @@
 #' @param control is a list of additional settings. See details.
 #' @param ... additional parameters to be passed on to \code{fun}
 #'
-#' @return This function returns a list with:\cr
-#'	\code{xbest} parameters of the found solution\cr
-#'	\code{ybest} target function value of the found solution\cr
-#'	\code{count} number of evaluations of \code{fun}
+#' @return This function returns a list with:
+#' \describe{
+#'	  \item{\code{xbest}}{ parameters of the found solution}
+#'	  \item{\code{ybest}}{ target function value of the found solution}
+#'	  \item{\code{count}}{ number of evaluations of \code{fun}}
+#' }
 #'
 #' @export
 ###################################################################################################
@@ -56,7 +56,7 @@ optimInterface<-function(x,fun,lower=-Inf,upper=Inf,control=list(),...){
 			,popsize=NULL			
 			,ineq_constr=NULL
 			,verbosity=0
-			,restarts=FALSE)
+			,restarts=TRUE)
 	con[names(control)] <- control;
 	control<-con;
 	
@@ -115,7 +115,7 @@ optimInterface<-function(x,fun,lower=-Inf,upper=Inf,control=list(),...){
 		}
 		x <- lower+(upper-lower)*runif(dim)
 		#Stop while loop when limit reached
-		if(sumevals>=control$funEvals){
+		if(sumevals>=control$funEvals | !control$restarts){
 			run=FALSE
 		}
 		

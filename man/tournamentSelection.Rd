@@ -25,4 +25,3 @@ Simple Tournament Selection implementation.
 \code{\link{modelKriging}}
 }
 \keyword{internal}
-

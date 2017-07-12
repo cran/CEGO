@@ -29,4 +29,3 @@ distanceMatrix(p,distancePermutationSwap)
 \references{
 Schiavinotto, Tommaso, and Thomas Stuetzle. "A review of metrics on permutations for search landscape analysis." Computers & operations research 34.10 (2007): 3143-3153.
 }
-

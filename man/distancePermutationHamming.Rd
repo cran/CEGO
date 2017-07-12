@@ -26,4 +26,3 @@ p <- replicate(10,sample(1:5),simplify=FALSE)
 distanceMatrix(p,distancePermutationHamming)
 
 }
-

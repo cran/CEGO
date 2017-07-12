@@ -1,5 +1,26 @@
 CEGO Patch Notes 
 
+Version 2.2.0 @ 2017-07-12
+	- New functionality: 
+	- CEGO now contains an implementation of a Mixed Integer Evolution Strategy (MIES), see optimMIES.
+	- Distances for numerical (binary) data as well as for string data are now included in the package. See distanceNumeric* and distanceString*
+	- Several new mutation* and recombination* functions (for binary, string and permutation data) have been added.
+	- The EA (optimEA) can now handle parts of its configuration in a self-adaptive way. See documentation.
+	- Objects created by modelKriging can now be used for simulation (rather than just estimation/prediction), by calling simulate.modelKriging.
+	  Connected to this last, there are now two functions that can be used to create simulation-based test functions:
+	  createSimulatedTestFunction and testFunctionGeneratorSim
+	
+	- Other major changes:
+	- Changed some details (e.g., registering, interfacing) of C code calls, to satisfy recently introduced CRAN check procedures. 
+	  Incidentally, this may speed up calls to the various distance* functions that employ C code.
+	
+	- Other minor changes:
+	- Fixed a bug in the optimInterface function: the restarts variable is now actually used (and by default TRUE)
+	- Feature embedding is now included in the correctionDistanceMatrix function
+	- The object returned by modelKriging now has a more informative print function
+	- Various improvements of documentation (content and formatting)
+
+
 Version 2.1.0 @ 2016-08-17
 	- New functionality: 
 	- By setting the control parameters indefiniteType, indefiniteMethod and indefiniteRepair,
