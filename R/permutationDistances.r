@@ -448,8 +448,7 @@ distancePermutationLee <- function(x,y){
 #' The Insert Distance is an edit distance. It counts the minimum number of delete/insert operations
 #' required to transform one permutation into another. A delete/insert operation shifts one element to a new position.
 #' All other elements move accordingly to make place for the element. E.g., the following shows a single delete/insert move that
-#' sorts the corresponding permutation: 1 4 2 3 5 -> 1 2 3 4 5. This distance is also called Ulam's metric and can as well
-#' be interpreted to be based on the longest common subsequence of two permutations. 
+#' sorts the corresponding permutation: 1 4 2 3 5 -> 1 2 3 4 5. 
 #'
 #' @param x first permutation (integer vector)
 #' @param y second permutation (integer vector)

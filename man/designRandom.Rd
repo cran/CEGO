@@ -4,16 +4,16 @@
 \alias{designRandom}
 \title{Random Design}
 \usage{
-designRandom(x = NULL, cF, size, control = list())
+designRandom(x = NULL, cf, size, control = list())
 }
 \arguments{
 \item{x}{Optional list of user specified solutions to be added to the design, defaults to NULL}
 
+\item{cf}{Creation function, creates random new individuals}
+
 \item{size}{size of the design}
 
 \item{control}{not used}
-
-\item{cf}{Creation function, creates random new individuals}
 }
 \value{
 Returns list with experimental design without duplicates

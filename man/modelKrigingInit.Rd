@@ -4,10 +4,10 @@
 \alias{modelKrigingInit}
 \title{Kriging: Initial guess and bounds}
 \usage{
-modelKrigingInit(startTheta = NULL, lowerTheta = NULL, upperTheta = NULL,
-  useLambda, lambdaLower, lambdaUpper, combineDistances, nd,
-  distanceParameters = F, distanceParametersLower = NA,
-  distanceParametersUpper = NA)
+modelKrigingInit(startTheta = NULL, lowerTheta = NULL,
+  upperTheta = NULL, useLambda, lambdaLower, lambdaUpper,
+  combineDistances, nd, distanceParameters = F,
+  distanceParametersLower = NA, distanceParametersUpper = NA)
 }
 \arguments{
 \item{startTheta}{user provided start guess (optional).}

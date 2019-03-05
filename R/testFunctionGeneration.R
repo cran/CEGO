@@ -103,7 +103,7 @@ createSimulatedTestFunction <- function(xsim, fit, nsim=10, conditionalSimulatio
 	n <- length(xsim)
 	
 	##precompute transformations
-	if(fit$indefiniteType=="PSD" & !fit$indefiniteRepair & fit$isIndefinite & any(fit$indefiniteMethod==c("clip","flip","square","param","diffusion"))){ #RETRANSFORMATION OF THE SOLUTION ONLY  
+	if(fit$indefiniteType=="PSD" & !fit$indefiniteRepair & fit$isIndefinite & any(fit$indefiniteMethod==c("clip","flip","square","diffusion"))){ #RETRANSFORMATION OF THE SOLUTION ONLY  
     fit$Psinv <- t(fit$A)%*%fit$Psinv #retransform the result	for prediction
 		fit$PsinvA <- fit$Psinv %*% fit$A #retransform the result	(for variance estimation only)
 	}
@@ -122,7 +122,7 @@ createSimulatedTestFunction <- function(xsim, fit, nsim=10, conditionalSimulatio
 				fit$PsinvReint <- MASS::ginv(PsiB) 
 			}	
 			#now apply same transformations as for non-reinterpolating matrices
-			if(fit$indefiniteType=="PSD" & fit$isIndefinite  & !fit$indefiniteRepair & any(fit$indefiniteMethod==c("clip","flip","square","param","diffusion"))){ #RETRANSFORMATION OF THE SOLUTION ONLY  
+			if(fit$indefiniteType=="PSD" & fit$isIndefinite  & !fit$indefiniteRepair & any(fit$indefiniteMethod==c("clip","flip","square","diffusion"))){ #RETRANSFORMATION OF THE SOLUTION ONLY  
 				fit$PsinvReint <- t(fit$A)%*%fit$PsinvReint %*% fit$A #retransform
 			} 
 		}

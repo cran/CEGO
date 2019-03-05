@@ -74,7 +74,7 @@ correctionDefinite <- function(mat,type='PSD',method="flip",tol=1e-8){
   if(method != "none"){	
     if(type=="NSD")
       defSign <- -1
-    else  if(type=="PSD")
+    else if(type=="PSD")
       defSign <- 1
 		eig <- eigen(mat,symmetric=T)
     defEig <- defSign * eig$values
@@ -82,12 +82,7 @@ correctionDefinite <- function(mat,type='PSD',method="flip",tol=1e-8){
 		a <- rep(1,nrow(U))
 		isDefinite <- min(defEig) >= -tol
 		if(!isDefinite){ # only adapt if actually needed, else use default MLE algorithm.
-			if(method=="param"){ 
-				sel <- defEig>=tol | defEig<=-tol
-				m <- sum(sel)
-				a <- abs(a) * sign(defEig)
-				mat <- U[,sel,drop=F] %*% diag(a[sel]*eig$values[sel],m,m)%*% t(U[,sel,drop=F]) 
-			}else if(method=="clip"){ #or denoise in wu2005
+			if(method=="clip"){ #or denoise in wu2005
 				sel <- defEig>=tol 
 				m <- sum(sel)
 				a <- as.numeric(sel) 
@@ -148,6 +143,7 @@ correctionDefinite <- function(mat,type='PSD',method="flip",tol=1e-8){
 correctionDistanceMatrix <- function(mat,type="NSD",method="flip",repair=TRUE,tol=1e-8){
 	isCNSD <- NA
 	A <- NA
+	matNoRep <- NA
   if((type=="NSD" | type=="CNSD") & any(method==c("clip","flip","near","square","diffusion","feature"))){
     isCNSD <- is.CNSD(mat,tol=tol) # check if definite 
 		A <- diag(nrow(mat))
@@ -159,6 +155,8 @@ correctionDistanceMatrix <- function(mat,type="NSD",method="flip",repair=TRUE,to
         #transformation matrix for new data (predict):
         A <- ret$U %*% diag(ret$a) %*% t(ret$U)
 				if(repair){ # fix diagonal and range of values
+					if(repair>1)
+						matNoRep <- mat # mat before repair. only needed for Nystroem approximated repair.
 					mat <- repairConditionsDistanceMatrix(mat)
         }
       }else if(type=="CNSD"){
@@ -170,13 +168,15 @@ correctionDistanceMatrix <- function(mat,type="NSD",method="flip",repair=TRUE,to
 				}else{
 					mat <- correctionCNSD(mat,method=method,tol=tol)
 					if(repair){ # fix diagonal and range of values
+						if(repair>1)
+							matNoRep <- mat # mat before repair. only needed for Nystroem approximated repair.
 						mat <- repairConditionsDistanceMatrix(mat)
           }
         }
       }
     }
   }
-	return(list(mat=mat,isCNSD=isCNSD,A=A))
+	return(list(mat=mat,isCNSD=isCNSD,A=A,matNoRep=matNoRep))
 }  
 
 ###################################################################################
@@ -212,6 +212,7 @@ correctionKernelMatrix <- function(mat,method="flip",repair=TRUE,tol=1e-8){
 	A <- diag(nrow(mat))
 	a <- NA
 	U <- NA
+	matNoRep <- NA
   if(any(method==c("clip","flip","near","square","diffusion"))){
     isPSD <- is.PSD(mat,tol=tol) # check if definite 
     if(!isPSD){# mat is not PSD, needs correction
@@ -222,13 +223,15 @@ correctionKernelMatrix <- function(mat,method="flip",repair=TRUE,tol=1e-8){
 			U <- ret$U
 			isPSD <- ret$isDefinite
 			#transformation matrix for new data (predict):
-			A <- ret$U %*% diag(ret$a) %*% t(ret$U)
+			A <- ret$U %*% diag(ret$a) %*% t(ret$U)			
 			if(repair){ # fix diagonal and range of values
+				if(repair>1)
+					matNoRep <- mat # mat before repair. only needed for Nystroem approximated repair.
 				mat <- repairConditionsCorrelationMatrix(mat)
       }
     }
   }
-	return(list(mat=mat,isPSD=isPSD,A=A,a=a,U=U))
+	return(list(mat=mat,matNoRep=matNoRep,isPSD=isPSD,A=A,a=a,U=U))
 }  
 
 
@@ -261,7 +264,7 @@ repairConditionsDistanceMatrix <- function(mat){
 	if(sum(abs(diag(mat)))>eps | (min(mat) < -eps)){ #if diagonal values are non zero, or if negative distance
 		mat <- -mat #make cpsd kernel. (mat HAS TO be cnsd)
 		Kaa <- matrix(diag(mat),n,n)
-		mat <- Kaa + t(Kaa) - 2*mat #convert to valid distance (proven, because (c)psd.) #TODO: take root, so that this is a metric?
+		mat <- Kaa + t(Kaa) - 2*mat #convert to valid distance (proven, because (c)psd.) 
 	}
 	mat	
 }

@@ -1,3 +1,4 @@
+# R version of a mixed integer evolution strategy by Martin Zaefferer, intended for use in the CEGO package.
 
 ###################################################################################
 #' Mixed Integer Evolution Strategy (MIES)
@@ -5,6 +6,8 @@
 #' An optimization algorithm from the family of Evolution Strategies, designed to
 #' optimize mixed-integer problems: The search space is composed of continuous (real-valued) parameters,
 #' ordinal integers and categorical parameters.
+#' Please note that the categorical parameters need to be coded as integers 
+#' (type should not be a factor or character).
 #' It is an implementation (with a slight modification) of MIES as described by Li et al. (2013).
 #' Note, that this algorithm always has a step size for each solution parameter, unlike Li et al.,
 #' we did not include the option to change to a single step-size for all parameters.
@@ -36,7 +39,9 @@
 #'   \item{\code{types}}{A vector that specifies the data type of each variable: "numeric", "integer" or "factor".}
 #'   \item{\code{lower}}{Lower bound of each variable. Factor variables can have the lower bound set to NA.}
 #'   \item{\code{upper}}{Upper bound of each variable. Factor variables can have the upper bound set to NA.}
-#'   \item{\code{levels}}{List of levels for each variable (only relevant for categorical variables). HAS to be given if any factors/categoricals are present. Else, set to NA.}
+#'   \item{\code{levels}}{List of levels for each variable (only relevant for categorical variables). 
+#' Should be a vector of numerical values, usually integers, but not necessarily a sequence.
+#' HAS to be given if any factors/categoricals are present. Else, set to NA.}
 #' }
 #'
 #' @return a list:
@@ -57,19 +62,19 @@
 #' set.seed(1)
 #' controlList <- list(lower=c(-5,-5,1,1,NA,NA),upper=c(10,5,10,10,NA,NA),
 #' 		types=c("numeric","numeric","integer","integer","factor","factor"),
-#'		levels=list(NA,NA,NA,NA,c("a","b","c"),1:4),
+#'		levels=list(NA,NA,NA,NA,c(1,3,5),1:4),
 #' 		vectorized = FALSE)
 #' objFun <- function(x){		
 #' 		x[[3]] <- round(x[[3]])
 #' 		x[[4]] <- round(x[[4]])
 #' 		y <- sum(as.numeric(x[1:4])^2) 
-#' 		if(x[[5]]=="a" & x[[5]]==4)
+#' 		if(x[[5]]==1 & x[[6]]==4)
 #' 			y <- exp(y)
 #' 		else
 #' 			y <- y^2
-#' 		if(x[[5]]=="b")
+#' 		if(x[[5]]==3)
 #' 			y<-y-1	
-#' 		if(x[[5]]=="c")
+#' 		if(x[[5]]==5)
 #' 			y<-y-2	
 #' 		if(x[[6]]==1)
 #' 			y<-y*2
@@ -79,7 +84,7 @@
 #' 			y<- y +2
 #' 		if(x[[6]]==4)
 #' 			y<- y * 0.5	
-#' 		if(x[[5]]=="a")
+#' 		if(x[[5]]==1)
 #' 			y<- y * 9	
 #' 		y	
 #' 	}
@@ -177,12 +182,15 @@ optimMIES <- function(x=NULL,fun,control=list()){
 
 	
 	creationFunction <- function(){
-	  x <- list() 
-		x[ireal] <- runif(nreal,lower[ireal],upper[ireal])
-		x[iint] <- floor(runif(nint,lower[iint],upper[iint]+ 1-.Machine$double.eps ))
-		x[icat] <- sapply(levels[icat], sample,1,simplify=F)
+	  x <- numeric(npar)
+		if(length(ireal)>0)
+			x[ireal] <- runif(nreal,lower[ireal],upper[ireal])
+		if(length(iint)>0)
+			x[iint] <- floor(runif(nint,lower[iint],upper[iint]+ 1-.Machine$double.eps ))
+		if(length(icat)>0)
+			x[icat] <- sapply(levels[icat], sample,1,simplify=T)
 		## append strategy parameters
-		x <- append(x,list(sigma0))
+		x <- c(x,sigma0)
 		x
 	}
 	#creationFunction()
@@ -192,7 +200,7 @@ optimMIES <- function(x=NULL,fun,control=list()){
 		inds <- sample(1:npar,ceiling(npar/2))
 		parent1[inds] <- parent2[inds]
 		## intermediate recombination for strategy parameters
-		parent1[[npar+1]] <- (parent1[[npar+1]] + parent2[[npar+1]]) / 2
+		parent1[npar+1] <- (parent1[npar+1] + parent2[npar+1]) / 2
 		parent1
 	}
 	
@@ -208,42 +216,44 @@ optimMIES <- function(x=NULL,fun,control=list()){
 	#Tlu(1:4,c(2,2,2,2),c(3,3,3,3))
 	#Tlu(-1:4,c(1,1,1,1,-1,-1),c(2,3,4,2,10,10))
 	
+	sigids <- (npar+1):(npar*2)
+	
 	#TODO: auslagern
 	mutationFunctionReal <- function(individual){ 
 		Nc <- rnorm(1,0,1)
-		sigma <- individual[[npar+1]][ireal]
+		sigma <- individual[sigids][ireal]
 		sigmaDash <- sigma * exp(tauReal * Nc + tauRealDash * rnorm(nreal,0,1))
-		newval <-  as.numeric(individual[ireal]) + sigma * rnorm(nreal,0,1)
+		newval <-  as.numeric(individual[ireal]) + sigmaDash * rnorm(nreal,0,1)
 		#individual[ireal] <- Tlu(newval,lower,upper)
 		newval <- pmin(upper[ireal],newval) #fix solution parameters to bounds #TODO: Tab(x) implementation
 		individual[ireal] <- pmax(lower[ireal],newval) 				
-		individual[[npar+1]][ireal] <- sigmaDash
+		individual[sigids][ireal] <- sigmaDash
 		individual
 	}	
 
 	
 	mutationFunctionInt <- function(individual){ 
 		Nc <- rnorm(1,0,1)
-		sigma <- individual[[npar+1]][iint]
+		sigma <- individual[sigids][iint]
 		sigmaDash <- pmax(1,sigma * exp(tauInt * Nc + tauIntDash * rnorm(nint,0,1)))
 		#u1 <- runif(nint)
 		#u2 <- runif(nint)
 		p <- sigmaDash/nint
 		p <- 1-p/(1+sqrt(1+p^2))
-		G1 <- rgeom(nint,prob=p)
+		G1 <- rgeom(nint,prob=p) #TODO: may be NA for very small p (~1e-10)
 		G2 <- rgeom(nint,prob=p)
 		newval <- as.numeric(individual[iint]) + G1-G2
 		#individual[iint] <- Tlu(newval,lower[iint],upper[iint]) #fix solution parameters to bounds with transformation
 		newval <- pmin(upper[iint],newval) #fix solution parameters to bounds
 		individual[iint] <- pmax(lower[iint],newval) 
-		individual[[npar+1]][iint] <- sigmaDash
+		individual[sigids][iint] <- sigmaDash
 		individual
 	}	
 
 	
 	mutationFunctionCat <- function(individual){  
 		Nc <- rnorm(1,0,1)
-		sigma <- individual[[npar+1]][icat]
+		sigma <- individual[sigids][icat]
 		sigmaDash <- 1/(1+((1-sigma)/sigma * exp(-tauCat * Nc - tauCatDash * rnorm(ncat,0,1))))
 		#sigmaDash <- Tlu(sigmaDash,rep(1/(3*ncat),ncat),rep(0.5,ncat))
 		sigmaDash <-  pmin(0.5,sigmaDash)
@@ -252,7 +262,7 @@ optimMIES <- function(x=NULL,fun,control=list()){
 		inds <- u < sigmaDash
 		newval <- sapply(levels[icat], sample,1)
 		individual[icat][inds] <- newval[inds]
-		individual[[npar+1]][icat] <- sigmaDash
+		individual[sigids][icat] <- sigmaDash
 		individual
 	}
 	#x1 <- creationFunction()
@@ -271,7 +281,7 @@ optimMIES <- function(x=NULL,fun,control=list()){
 	gen <- 1
 	
   fitbest <- min(fitness,na.rm=TRUE)
-  xbest <- population[[which.min(fitness)]][-(npar+1)]
+  xbest <- population[[which.min(fitness)]][-sigids]
   if(archive){
     fithist <- fitness
     xhist <- population
@@ -295,9 +305,12 @@ optimMIES <- function(x=NULL,fun,control=list()){
 			offspring <- offspring[1:min(budget-count,length(offspring))]
 			#evaluate
 			if(vectorized)
-				newfit <- fun(sapply(offspring,'[',-(npar+1),simplify=F))#note: this also first cuts off strategy parameters
+				newfit <- fun(sapply(offspring,'[',-sigids,simplify=F))#note: this also first cuts off strategy parameters
 			else
-				newfit <- unlist(lapply(sapply(offspring,'[',-(npar+1),simplify=F),fun))#note: this also first cuts off strategy parameters
+				newfit <- unlist(lapply(sapply(offspring,'[',-sigids,simplify=F),fun))#note: this also first cuts off strategy parameters
+			####newfit <- fun(unname(split(offspring[,1:npar],1:nrow(offspring))))#note: this also first cuts off strategy parameters
+			
+			
 			#update count
 			count=count+ length(newfit)    
 			# keep archive
@@ -309,7 +322,7 @@ optimMIES <- function(x=NULL,fun,control=list()){
 			newbest <- min(newfit,na.rm=TRUE)
 			if(newbest < fitbest){
 				fitbest <- newbest
-				xbest <- offspring[[which.min(newfit)]][-(npar+1)]
+				xbest <- offspring[[which.min(newfit)]][-sigids]
 			}  				
 			if(strategy == "plus"){
 				population <- c(population,  offspring)
@@ -357,4 +370,4 @@ optimMIES <- function(x=NULL,fun,control=list()){
     return(list(xbest=xbest,ybest=fitbest,x=xhist,y=fithist, count=count, message=msg, population=population, fitness=fitness))
   else
     return(list(xbest=xbest,ybest=fitbest,count=count, message=msg, population=population, fitness=fitness)) 
-}	
+}

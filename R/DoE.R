@@ -21,7 +21,7 @@
 #' design <- designRandom(NULL,function()runif(2),20)
 #' @export
 ###################################################################################
-designRandom <- function(x=NULL,cF,size,control=list()){
+designRandom <- function(x=NULL,cf,size,control=list()){
 	## initialization
 	if(is.null(x)){
     x <- list()
@@ -34,11 +34,11 @@ designRandom <- function(x=NULL,cF,size,control=list()){
 		x <- x[1:size]
 	}else if(k<size){
 		## CREATE initial population
-		x <- c(x, replicate(size-k , cF(),simplify=FALSE))
+		x <- c(x, replicate(size-k , cf(),simplify=FALSE))
 	}#else if k==size do nothing.
 		
 	## REPLACE duplicates from initial population with unique individuals
-	x <- removeDuplicates(x, cF)
+	x <- removeDuplicates(x, cf)
 }
 
 ###################################################################################

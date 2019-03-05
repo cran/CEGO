@@ -175,6 +175,14 @@ modelKrigingInternalPredictor <- function(object,x){
 			psi <- psi/object$maximumDistance
 		}
   }
+	#
+	##
+	#
+	if(object$indefiniteRepair == 3){ #Required distance data for Weighted Sum Repair.
+		rd <- 1/psi #reciprocal distances
+	}else if(object$indefiniteRepair == 4){ #required indices of nearest neighbours for NN repair
+		rd1 <- apply(psi,1,function(x) which(x==min(x))) #which are the nearest neighbors to the predicted points
+	}
   #
 	##
   #
@@ -184,8 +192,61 @@ modelKrigingInternalPredictor <- function(object,x){
 				psi <- psi %*% t(object$A)
     }
 		if(object$indefiniteType=="CNSD" | (object$indefiniteType=="NSD" & object$indefiniteRepair)){ 
-			if(!object$isCNSD)
-				psi <- correctionAugmentedDistanceVector(psi,object,x) #in case of repair, CNSD-correction: retransform with augmented distance matrix
+			if(!object$isCNSD){
+				if(object$indefiniteRepair == 1 | object$indefiniteType=="CNSD"){ #1 is augmented repair
+					if(object$indefiniteMethod!="near") #this could be removed, but is currently computationally too expensive
+					psi <- correctionAugmentedDistanceVector(psi,object,x) #in case of repair, CNSD-correction: retransform with augmented distance matrix
+				}else if(object$indefiniteRepair == 2){#nystroem. will not work for CNSD, lacks linear transform.
+					#nystroem approximation instead of correctionAugmented* 
+					#so: first compute transformed (not repaired) psi, then inverse of the actual, transformed (but not repaired) Psi matrix, 
+					# (this may require saving that matrix separately, because A may already be in it.)
+					#then use product to get self-similarities. use as divider for transformed psi.
+					psi <- psi %*% t(object$A)
+					add <- diag(psi %*% ginv(object$matNoRep) %*% t(psi)) #nystroem. only diagonal needed as divider
+					add <- matrix(add,nrow(psi),nrow(object$matNoRep))
+					add2 <- matrix(diag(object$matNoRep),nrow(psi),nrow(object$matNoRep),byrow=T)
+					psi <- 2*psi - add - add2 #repair		
+					#correct lower bound add by 
+					rdif <- rowSums(psi<0)>0 # rows with at least one negative value
+					if(any(rdif))
+						psi[rdif,] <- psi[rdif,,drop=FALSE] - apply(psi[rdif,,drop=FALSE],1,min) 
+				}else if(object$indefiniteRepair == 3){ #weighted sum repair. will not work for CNSD, lacks linear transform.
+					rd1 <- rd / rowSums(rd) #scale by row sum, such that rows sum to 1
+					if(any(is.na(rd1))){ #inf values produce NAs that should be 1
+						nas <- is.na(rd1)
+						naIndex <- which(nas)
+						rd1[naIndex] <- (nas / rowSums(nas))[naIndex]
+					}
+					psi <- psi %*% t(object$A)
+					#rd is a weight vecor. need weighted sum of diagonal of unrepaired distance matrix (after correction, before repair.)
+					add <- rd1 %*% diag(object$matNoRep)
+					add <- matrix(add,nrow(psi),nrow(object$matNoRep))
+					add2 <- matrix(diag(object$matNoRep),nrow(psi),nrow(object$matNoRep),byrow=T)
+					#lower bound for add (the estimated repair factor): 2*psi - add2 (add2 is the known repair factor of the observations)
+					psi <- 2*psi - add2 - add #repair	procedure
+					#correct lower bound add by 
+					rdif <- rowSums(psi<0)>0 # rows with at least one negative value
+					if(any(rdif))
+						psi[rdif,] <- psi[rdif,,drop=FALSE] - apply(psi[rdif,,drop=FALSE],1,min) 
+				}else if(object$indefiniteRepair == 4){ #nearest neighbour repair. will not work for CNSD, lacks linear transform.
+					psi <- psi %*% t(object$A) #transform psi
+					#need mean of diagonal values indexed by rd1, of unrepaired distance matrix (after correction, before repair.)
+					diagNN <- diag(object$matNoRep)
+					meanidx <- function(x){
+						return(mean(diagNN[x]))
+					}
+					meanDiagNN <- sapply(rd1,meanidx) #get the mean diagonal elements of nearest neighbors
+					add <- matrix(meanDiagNN,nrow(psi),nrow(object$matNoRep)) #the NN elements are the first added factor
+					add2 <- matrix(diag(object$matNoRep),nrow(psi),nrow(object$matNoRep),byrow=T) #the elements of the matNoRep are the second element.
+					psi <- 2*psi - add2 - add #repair	procedure
+					##
+					#lower bound for add (the estimated repair factor): 2*psi - add2 (add2 is the known repair factor of the observations)
+					#correct lower bound add by 
+					rdif <- rowSums(psi<0)>0 # rows with at least one negative value
+					if(any(rdif))
+						psi[rdif,] <- psi[rdif,,drop=FALSE] - apply(psi[rdif,,drop=FALSE],1,min) 
+				}
+			}	
 		}
   }	
 	if((object$indefiniteType=="CNSD" | object$indefiniteType=="NSD") & object$indefiniteMethod=="feature"){ #distances as features
@@ -205,10 +266,42 @@ modelKrigingInternalPredictor <- function(object,x){
  
 	if(object$indefiniteType=="PSD" & any(object$indefiniteMethod==c("clip","flip","near","square","diffusion"))){ 
     if(object$isIndefinite){
-			if(!object$indefiniteRepair & any(object$indefiniteMethod==c("clip","flip","square","diffusion"))){
+			if(!object$indefiniteRepair){
 				#psi <- psi %*% t(object$A)  #This is already included in Psinv. do nothing. 
-			}else{
-				psi <- correctionAugmentedKernelVector(psi,object,x)
+			}else{			
+				if(object$indefiniteRepair == 1){
+					psi <- correctionAugmentedKernelVector(psi,object,x)
+				}else{
+					if(object$indefiniteRepair == 2){ # Nystroem repair.
+						#todo: note: this case is not working. zero variances.
+						#psi <- psi %*% t(object$A) #not needed, contained in unrepairedAPsinvA / unrepairedADivier
+						div <- diag(psi %*% object$unrepairedAPsinvA %*% t(psi)) #nystroem. only diagonal needed as divider
+						div <- diag(1/sqrt(div),nrow(psi))
+						psi <- div %*% psi %*% object$ADividedSqrtDiagPsi #repair						
+					}else if(object$indefiniteRepair == 3){ #Weighted Sum Repair.
+						rd1 <- rd / rowSums(rd) #scale by row sum, such that rows sum to 1
+						if(any(is.na(rd1))){ #inf values produce NAs that should be 1
+							nas <- is.na(rd1)
+							naIndex <- which(nas)
+							rd1[naIndex] <- (nas / rowSums(nas))[naIndex]
+						}
+						#rd is a weight vecor. need weighted sum of diagonal of unrepaired Psi (after correction, before repair.)
+						rd2 <- rd1 %*% object$diagUnrepairedPsi
+						div <- diag(1/sqrt(as.numeric(rd2)),nrow(psi))
+						psi <- div %*% psi %*% object$ADividedSqrtDiagPsi #repair									
+					}else if(object$indefiniteRepair == 4){ #nearest neighbour repair. will not work for CNSD, lacks linear transform.
+						#need mean of diagonal values indexed by rd1, of unrepaired distance matrix (after correction, before repair.)
+						diagNN <- object$diagUnrepairedPsi
+						meanidx <- function(x){
+							return(mean(diagNN[x]))
+						}
+						meanDiagNN <- sapply(rd1,meanidx) #get the mean diagonal elements of nearest neighbors
+						div <- diag(1/sqrt(as.numeric(meanDiagNN)),nrow(psi))
+						psi <- div %*% psi %*% object$ADividedSqrtDiagPsi #repair	
+					}
+					psi[psi >  1] <-  1 #make sure that psi stays in bounds. to avoid numerical issues. see "NOTE" above for distance case.
+					psi[psi < -1] <- -1 #no guarantees that approximated repair keeps bounds intact for new data?
+				}
 			}
     }
   }

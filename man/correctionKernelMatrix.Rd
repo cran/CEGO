@@ -4,7 +4,8 @@
 \alias{correctionKernelMatrix}
 \title{Correction of a Kernel (Correlation) Matrix}
 \usage{
-correctionKernelMatrix(mat, method = "flip", repair = TRUE, tol = 1e-08)
+correctionKernelMatrix(mat, method = "flip", repair = TRUE,
+  tol = 1e-08)
 }
 \arguments{
 \item{mat}{symmetric kernel matrix}

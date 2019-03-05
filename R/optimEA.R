@@ -31,9 +31,9 @@
 #'   \item{\code{stoppingCriterionFunction}}{Custom additional stopping criterion. Function evaluated on the population, receiving all individuals (list) and their fitness (vector). If the result is FALSE, the algorithm stops.}
 #'   \item{\code{verbosity}}{>0 for text output.}
 #'   \item{\code{creationFunction}}{Function to create individuals/solutions in search space. Default is a function that creates random permutations of length 6.}
-#'   \item{\code{selfAdaption}}{An optional ParamHelpers object, that describes parameters of the optimization (see \code{parameters}) which are subject to self-adaption. An example is given in \link{mutationSelfAdapt}}.
-#'   \item{\code{selfAdaptTau}}{Positive numeric value, that controls the learning rate of numerical/integer self-adaptive parameters.}.
-#'   \item{\code{selfAdaptP}}{Value in [0,1]. A probability of mutation for all categorical, self-adaptive parameters.}.
+#'   \item{\code{selfAdaption}}{An optional ParamHelpers object, that describes parameters of the optimization (see \code{parameters}) which are subject to self-adaption. An example is given in \link{mutationSelfAdapt}.}
+#'   \item{\code{selfAdaptTau}}{Positive numeric value, that controls the learning rate of numerical/integer self-adaptive parameters.}
+#'   \item{\code{selfAdaptP}}{Value in [0,1]. A probability of mutation for all categorical, self-adaptive parameters.}
 #' }
 #'
 #' @return a list:
@@ -49,6 +49,7 @@
 #' }
 #' 
 #' @examples
+#' #First example: permutation optimization
 #' seed=0
 #' #distance
 #' dF <- distancePermutationHamming
@@ -66,6 +67,34 @@
 #'		popsize=6,budget=60,targetY=0,verbosity=1,
 #'		vectorized=TRUE)) ##target function is "vectorized", expects list as input
 #' res$xbest 
+#' #Second example: binary string optimization
+#' #number of bits
+#' N <- 50
+#' #target function (simple example)
+#' f <- function(x){
+#'	 sum(x)
+#' }
+#' #function to create random Individuals
+#' cf <- function(){
+#' 		sample(c(FALSE,TRUE),N,replace=TRUE)
+#' }
+#' #control list
+#' cntrl <- list(
+#' 	budget = 100,
+#' 	popsize = 5,
+#' 	creationFunction = cf,
+#' 	vectorized = FALSE, #set to TRUE if f evaluates a list of individuals
+#' 	recombinationFunction = recombinationBinary2Point,
+#' 	recombinationRate = 0.1,
+#' 	mutationFunction = mutationBinaryBitFlip,
+#' 	parameters=list(mutationRate = 1/N),
+#' 	archive=FALSE #recommended for larger budgets. do not change.
+#' )
+#' #start algorithm
+#' set.seed(1)
+#' res <- optimEA(fun=f,control=cntrl)
+#' res$xbest
+#' res$ybest
 #'
 #' @seealso \code{\link{optimCEGO}}, \code{\link{optimRS}}, \code{\link{optim2Opt}}, \code{\link{optimMaxMinDist}} 
 #' 
@@ -305,7 +334,7 @@ optimEA <- function(x=NULL,fun,control=list()){
 			plot(besthist,type="l")
 		}
     if(verbosity > 0){
-    	print(paste("Generations: ",gen," Evaluations: ",count, "Best Fitness: ", min(fitness,na.rm=TRUE)))
+    	print(paste("Generations: ",gen," Evaluations: ",count, "Best Fitness: ",fitbest))
     }
 	}
 	#stopping criteria information for user:

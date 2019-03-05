@@ -26,7 +26,9 @@ If \code{x} has less individuals than the population size, creationFunction will
   \item{\code{types}}{A vector that specifies the data type of each variable: "numeric", "integer" or "factor".}
   \item{\code{lower}}{Lower bound of each variable. Factor variables can have the lower bound set to NA.}
   \item{\code{upper}}{Upper bound of each variable. Factor variables can have the upper bound set to NA.}
-  \item{\code{levels}}{List of levels for each variable (only relevant for categorical variables). HAS to be given if any factors/categoricals are present. Else, set to NA.}
+  \item{\code{levels}}{List of levels for each variable (only relevant for categorical variables). 
+Should be a vector of numerical values, usually integers, but not necessarily a sequence.
+HAS to be given if any factors/categoricals are present. Else, set to NA.}
 }}
 }
 \value{
@@ -46,6 +48,8 @@ a list:
 An optimization algorithm from the family of Evolution Strategies, designed to
 optimize mixed-integer problems: The search space is composed of continuous (real-valued) parameters,
 ordinal integers and categorical parameters.
+Please note that the categorical parameters need to be coded as integers 
+(type should not be a factor or character).
 It is an implementation (with a slight modification) of MIES as described by Li et al. (2013).
 Note, that this algorithm always has a step size for each solution parameter, unlike Li et al.,
 we did not include the option to change to a single step-size for all parameters.
@@ -65,19 +69,19 @@ The control variables types, lower, upper and levels are especially important.
 set.seed(1)
 controlList <- list(lower=c(-5,-5,1,1,NA,NA),upper=c(10,5,10,10,NA,NA),
 		types=c("numeric","numeric","integer","integer","factor","factor"),
-	levels=list(NA,NA,NA,NA,c("a","b","c"),1:4),
+	levels=list(NA,NA,NA,NA,c(1,3,5),1:4),
 		vectorized = FALSE)
 objFun <- function(x){		
 		x[[3]] <- round(x[[3]])
 		x[[4]] <- round(x[[4]])
 		y <- sum(as.numeric(x[1:4])^2) 
-		if(x[[5]]=="a" & x[[5]]==4)
+		if(x[[5]]==1 & x[[6]]==4)
 			y <- exp(y)
 		else
 			y <- y^2
-		if(x[[5]]=="b")
+		if(x[[5]]==3)
 			y<-y-1	
-		if(x[[5]]=="c")
+		if(x[[5]]==5)
 			y<-y-2	
 		if(x[[6]]==1)
 			y<-y*2
@@ -87,7 +91,7 @@ objFun <- function(x){
 			y<- y +2
 		if(x[[6]]==4)
 			y<- y * 0.5	
-		if(x[[5]]=="a")
+		if(x[[5]]==1)
 			y<- y * 9	
 		y	
 	}

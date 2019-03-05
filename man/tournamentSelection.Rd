@@ -4,7 +4,8 @@
 \alias{tournamentSelection}
 \title{Tournament Selection}
 \usage{
-tournamentSelection(fitness, tournamentSize, tournamentProbability, selectFromN)
+tournamentSelection(fitness, tournamentSize, tournamentProbability,
+  selectFromN)
 }
 \arguments{
 \item{fitness}{Fitness values of individuals}

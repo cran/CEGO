@@ -112,7 +112,7 @@ modelKriging <- function(x, y, distanceFunction,control=list()){
 	con<-list(lower=-6, upper=5, 
 						corr=fcorrGauss, 
 						algTheta= optimInterface, 
-						algThetaControl= list(funEvals=200,reltol=1e-4,factr=1e12,restarts=TRUE),
+						algThetaControl= list(funEvals=200,reltol=1e-4,factr=1e12,restarts=TRUE),#TODO: change reltol and factr defaults?
 						combineDistances=FALSE, 
 						distanceParametersLower= NA,
 						distanceParametersUpper= NA,
@@ -310,14 +310,28 @@ modelKriging <- function(x, y, distanceFunction,control=list()){
 	fit$Psi <- res$Psi 
 	fit$origPsi <- res$origPsi
 	fit$Psinv <- res$Psinv
-
+	#fit$unrepairedPsi <- res$unrepairedPsi
+	
 	##precompute transformations
-	if(indefiniteType=="PSD" & !fit$indefiniteRepair & fit$isIndefinite & any(indefiniteMethod==c("clip","flip","square","param","diffusion"))){ #RETRANSFORMATION OF THE SOLUTION ONLY  
+	if(indefiniteType=="PSD" & !fit$indefiniteRepair & fit$isIndefinite & any(indefiniteMethod==c("clip","flip","square","diffusion"))){ #RETRANSFORMATION OF THE SOLUTION ONLY  
 		A <- res$U %*% diag(res$a) %*% t(res$U)
     fit$A <- A 
 		#
-    fit$Psinv <- t(A)%*%fit$Psinv #retransform the result	for prediction
+    fit$Psinv <- t(A) %*% fit$Psinv #retransform the result	for prediction
 		fit$PsinvA <- fit$Psinv %*% A #retransform the result	(for variance estimation only)
+	}
+	if(indefiniteType=="PSD" & (fit$indefiniteRepair %in% c(2,3,4)) & fit$isIndefinite & any(indefiniteMethod==c("clip","flip","square","diffusion"))){
+		A <- res$U %*% diag(res$a) %*% t(res$U)
+    fit$A <- A 
+		fit$diagUnrepairedPsi <- diag(res$unrepairedPsi)			
+		if(fit$indefiniteRepair==2){# for repair with nystroem only:	
+			unrepairedPsinv <- try(chol2inv(chol(res$unrepairedPsi)), TRUE) 
+			if(class(unrepairedPsinv) == "try-error"){
+				unrepairedPsinv <- ginv(res$unrepairedPsi) 
+			}			
+			fit$unrepairedAPsinvA <- t(A) %*% unrepairedPsinv %*% A 
+		}
+		fit$ADividedSqrtDiagPsi <- t(A) %*% diag(1/sqrt(diag(res$unrepairedPsi))) # divider for repair during prediction, including A
 	}
 	if(useLambda){ 
 		PsiB <- res$Psi-diag(fit$lambda,n)+diag(.Machine$double.eps,n) 
@@ -327,7 +341,7 @@ modelKriging <- function(x, y, distanceFunction,control=list()){
 			fit$PsinvReint <- ginv(PsiB) 
 		}	
 		#now apply same transformations as for non-reinterpolating matrices
-		if(indefiniteType=="PSD" & fit$isIndefinite  & !fit$indefiniteRepair & any(indefiniteMethod==c("clip","flip","square","param","diffusion"))){ #RETRANSFORMATION OF THE SOLUTION ONLY  
+		if(indefiniteType=="PSD" & fit$isIndefinite  & !fit$indefiniteRepair & any(indefiniteMethod==c("clip","flip","square","diffusion"))){ #RETRANSFORMATION OF THE SOLUTION ONLY  
       fit$PsinvReint <- t(A)%*%fit$PsinvReint %*% A #retransform
 		} 
 	}
@@ -335,7 +349,7 @@ modelKriging <- function(x, y, distanceFunction,control=list()){
 	##
 	fit$nevals <- nevals
 	fit$like <- res$NegLnLike
-  fit$predAll <- FALSE
+  fit$predAll <- FALSE #todo : should be option
   fit$D <- D
 	class(fit)<- "modelKriging"
 	return(fit)
@@ -558,21 +572,24 @@ modelKrigingDistanceCalculation <- function(x,distanceFunction,parameters=NA,
 	origD <- D 
 	A <- NA
 	isCNSD <- NA
+	matNoRep <- NA
 	if(nd==1){#in case of one distance function
 		ret <- correctionDistanceMatrix(D,indefiniteType,indefiniteMethod,indefiniteRepair)
 		D <- ret$mat
 		isCNSD <- ret$isCNSD
 		A <- ret$A	
+		matNoRep <- ret$matNoRep		
 	}else if(!combineDistances){ #in case of multiple distances, which are not combined (but chosen from):
 		isCNSD <- list()
 		A <- list()	
+		matNoRep <- list()
 		for(i in 1:nd){
 			ret <- correctionDistanceMatrix(D[[i]],indefiniteType,indefiniteMethod,indefiniteRepair)
+			matNoRep[[i]] <- ret$matNoRep	
 			D[[i]] <- ret$mat
 			isCNSD[[i]] <- ret$isCNSD
 			A[[i]] <- ret$A	
 		}
-	}
-		
-	list(maximumDistance=maxD,D=D,origD=origD,A=A,isCNSD=isCNSD)
+	}		
+	list(maximumDistance=maxD,D=D,origD=origD,A=A,isCNSD=isCNSD,matNoRep=matNoRep)
 }

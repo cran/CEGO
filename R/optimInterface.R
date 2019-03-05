@@ -92,7 +92,7 @@ optimInterface<-function(x,fun,lower=-Inf,upper=Inf,control=list(),...){
 			res <- DEoptim::DEoptim(fn=fun ,lower=lower,upper=upper,control=DEoptim.control(NP=control$popsize,itermax=floor((budget-control$popsize)/control$popsize),reltol=control$reltol,trace=FALSE),...)
 			resval <- res$optim$bestval
 			respar <- res$optim$bestmem
-			resevals <- budget
+			resevals <- budget # TODO: this is not correct if reltol hits
 		}else if (any(method==c("NLOPT_GN_DIRECT","NLOPT_GN_DIRECT_L","NLOPT_GN_DIRECT_L_RAND",
 								"NLOPT_GN_DIRECT_NOSCAL","NLOPT_GN_DIRECT_L_NOSCAL","NLOPT_GN_DIRECT_L_RAND_NOSCAL",
 								"NLOPT_GN_ORIG_DIRECT","NLOPT_GN_ORIG_DIRECT_L","NLOPT_LN_PRAXIS",							

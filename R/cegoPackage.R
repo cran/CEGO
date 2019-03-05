@@ -26,8 +26,8 @@
 #' \tabular{ll}{
 #' Package: \tab CEGO\cr
 #' Type: \tab Package\cr
-#' Version: \tab 2.2.0\cr
-#' Date: \tab 2017-07-12\cr
+#' Version: \tab 2.3.0\cr
+#' Date: \tab 2019-03-05\cr
 #' License: \tab GPL (>= 3)\cr
 #' LazyLoad: \tab yes\cr
 #' }

@@ -42,6 +42,7 @@ modelKrigingLikelihood <- function(xt,D,y,useLambda=FALSE,corr=fcorrGauss,
 								indefiniteMethod="none",indefiniteType="PSD",indefiniteRepair=FALSE,
 								returnLikelihoodOnly=TRUE,inverter = "chol",ntheta=1){	
 	n <- dim(y)[1] #number of observations	
+	isIndefinite <- NA
 	
 	if(is.list(D)){ #in case of multiple distance matrices 
 		distanceWeights <- 10^xt[ntheta+(1:length(D))]
@@ -64,12 +65,12 @@ modelKrigingLikelihood <- function(xt,D,y,useLambda=FALSE,corr=fcorrGauss,
 		if(returnLikelihoodOnly){
 			return(penalty)
 		}
-		return(list(NegLnLike=penalty,origPsi=NA,Psi=NA,Psinv=NA,mu=NA,SSQ=NA,a=NA,U=NA,isIndefinite=TRUE))
+		return(list(NegLnLike=penalty,origPsi=NA,Psi=NA,unrepairedPsi=NA,Psinv=NA,mu=NA,yMu=NA,SSQ=NA,a=NA,U=NA,isIndefinite=isIndefinite))
 	}
 	
 	U <- a <- NA
-	isIndefinite <- NA
 	origPsi <- NA
+	unrepairedPsi <- NA
 	if(indefiniteType == "PSD"){
 		origPsi <- Psi
 		ret <- correctionKernelMatrix(Psi,indefiniteMethod,indefiniteRepair)
@@ -77,6 +78,7 @@ modelKrigingLikelihood <- function(xt,D,y,useLambda=FALSE,corr=fcorrGauss,
 		U <- ret$U
 		isIndefinite <- !ret$isPSD
 		Psi <- ret$mat				
+		unrepairedPsi <- ret$matNoRep
 		#check whether indef-correction somehow yielded malformed values
 		if(any(is.na(Psi))){
 			#warning("NaN or NA values due to failed indefiniteness-correction in (in modelKrigingLikelihood). Returning penalty.")
@@ -84,7 +86,7 @@ modelKrigingLikelihood <- function(xt,D,y,useLambda=FALSE,corr=fcorrGauss,
 			if(returnLikelihoodOnly){
 				return(penalty)
 			}
-			return(list(NegLnLike=penalty,origPsi=NA,Psi=NA,Psinv=NA,mu=NA,SSQ=NA,a=NA,U=NA,isIndefinite=TRUE))
+			return(list(NegLnLike=penalty,origPsi=NA,Psi=NA,unrepairedPsi=NA,Psinv=NA,mu=NA,yMu=NA,SSQ=NA,a=NA,U=NA,isIndefinite=isIndefinite))
 		}
 	}
 
@@ -104,7 +106,7 @@ modelKrigingLikelihood <- function(xt,D,y,useLambda=FALSE,corr=fcorrGauss,
 			if(returnLikelihoodOnly){
 				return(penalty)
 			}
-			return(list(NegLnLike=penalty,origPsi=NA,Psi=NA,Psinv=NA,mu=NA,SSQ=NA,a=NA,U=NA,isIndefinite=TRUE)) 
+			return(list(NegLnLike=penalty,origPsi=NA,Psi=NA,unrepairedPsi=NA,Psinv=NA,mu=NA,yMu=NA,SSQ=NA,a=NA,U=NA,isIndefinite=isIndefinite)) 
 		}	
 			
 		#calculate natural log of the determinant of Psi (numerically more reliable and also faster than using det or determinant)
@@ -118,7 +120,7 @@ modelKrigingLikelihood <- function(xt,D,y,useLambda=FALSE,corr=fcorrGauss,
 			if(returnLikelihoodOnly){
 				return(penalty)
 			}
-			return(list(NegLnLike=penalty,origPsi=NA,Psi=NA,Psinv=NA,mu=NA,SSQ=NA,a=NA,U=NA,isIndefinite=TRUE)) 
+			return(list(NegLnLike=penalty,origPsi=NA,Psi=NA,unrepairedPsi=NA,Psinv=NA,mu=NA,yMu=NA,SSQ=NA,a=NA,U=NA,isIndefinite=isIndefinite)) 
 		}
 	}else{		
 		Psinv <- try(solve(Psi),TRUE) #inverse with LU decomposition
@@ -128,7 +130,7 @@ modelKrigingLikelihood <- function(xt,D,y,useLambda=FALSE,corr=fcorrGauss,
 			if(returnLikelihoodOnly){
 				return(penalty)
 			}
-			return(list(NegLnLike=penalty,origPsi=NA,Psi=NA,Psinv=NA,mu=NA,SSQ=NA,a=NA,U=NA,isIndefinite=TRUE)) 
+			return(list(NegLnLike=penalty,origPsi=NA,Psi=NA,unrepairedPsi=NA,Psinv=NA,mu=NA,yMu=NA,SSQ=NA,a=NA,U=NA,isIndefinite=isIndefinite)) 
 		}		
 		#calculate natural log of the determinant of Psi 
 		LnDetPsi <- determinant(Psi,logarithm=TRUE)$modulus
@@ -144,7 +146,7 @@ modelKrigingLikelihood <- function(xt,D,y,useLambda=FALSE,corr=fcorrGauss,
 		if(returnLikelihoodOnly){
 			return(penalty)
 		}	
-		return(list(NegLnLike=penalty,origPsi=NA,Psi=NA,Psinv=NA,mu=NA,SSQ=NA,a=NA,U=NA,isIndefinite=TRUE))
+		return(list(NegLnLike=penalty,origPsi=NA,Psi=NA,unrepairedPsi=NA,Psinv=NA,mu=NA,yMu=NA,SSQ=NA,a=NA,U=NA,isIndefinite=isIndefinite))
 	}
 	
 	psisum <- sum(Psinv) #this sum of all matrix elements may sometimes become zero, which may be caused by inaccuracies. then, the following may help
@@ -156,7 +158,7 @@ modelKrigingLikelihood <- function(xt,D,y,useLambda=FALSE,corr=fcorrGauss,
 			if(returnLikelihoodOnly){
 				return(penalty)
 			}
-			return(list(NegLnLike=penalty,origPsi=NA,Psi=NA,Psinv=NA,mu=NA,SSQ=NA,a=NA,U=NA,isIndefinite=isIndefinite))
+			return(list(NegLnLike=penalty,origPsi=NA,Psi=NA,unrepairedPsi=NA,Psinv=NA,mu=NA,yMu=NA,SSQ=NA,a=NA,U=NA,isIndefinite=isIndefinite))
 		}
 	}		
 	mu <- sum(Psinv%*%y)/psisum
@@ -166,7 +168,7 @@ modelKrigingLikelihood <- function(xt,D,y,useLambda=FALSE,corr=fcorrGauss,
 		if(returnLikelihoodOnly){
 			return(penalty)
 		}		
-		return(list(NegLnLike=penalty,origPsi=NA,Psi=NA,Psinv=NA,mu=NA,SSQ=NA,a=NA,U=NA,isIndefinite=isIndefinite))
+		return(list(NegLnLike=penalty,origPsi=NA,Psi=NA,unrepairedPsi=NA,Psinv=NA,mu=NA,yMu=NA,SSQ=NA,a=NA,U=NA,isIndefinite=isIndefinite))
 	}			
 	yMu <- y-mu 
 	#SigmaSqr <- (t(yMu)%*%Psinv%*%yMu)/n
@@ -177,7 +179,7 @@ modelKrigingLikelihood <- function(xt,D,y,useLambda=FALSE,corr=fcorrGauss,
 		if(returnLikelihoodOnly){
 			return(penalty)
 		}
-		return(list(NegLnLike=penalty,origPsi=NA,Psi=NA,Psinv=NA,mu=NA,SSQ=NA,a=NA,U=NA,isIndefinite=isIndefinite)) 
+		return(list(NegLnLike=penalty,origPsi=NA,Psi=NA,unrepairedPsi=NA,Psinv=NA,mu=NA,yMu=NA,SSQ=NA,a=NA,U=NA,isIndefinite=isIndefinite)) 
 	}
 	NegLnLike <- n*log(SigmaSqr) + LnDetPsi
 	if(is.na(NegLnLike)|is.infinite(NegLnLike)){#this may happen eg if all y are 0
@@ -185,12 +187,12 @@ modelKrigingLikelihood <- function(xt,D,y,useLambda=FALSE,corr=fcorrGauss,
 		if(returnLikelihoodOnly){
 			return(penalty)
 		}		
-		return(list(NegLnLike=penalty,origPsi=NA,Psi=NA,Psinv=NA,mu=NA,SSQ=NA,isIndefinite=isIndefinite)) 
+		return(list(NegLnLike=penalty,origPsi=NA,Psi=NA,unrepairedPsi=NA,Psinv=NA,mu=NA,yMu=NA,SSQ=NA,a=NA,U=NA,isIndefinite=isIndefinite)) 
 	}
 	if(returnLikelihoodOnly){
 		return(as.numeric(NegLnLike))
 	}		
-	ret <- list(NegLnLike=NegLnLike,origPsi=origPsi,Psi=Psi,Psinv=Psinv,mu=mu,yMu=yMu,SSQ=SigmaSqr,a=a,U=U,isIndefinite=isIndefinite)
+	ret <- list(NegLnLike=NegLnLike,origPsi=origPsi,Psi=Psi,unrepairedPsi=unrepairedPsi,Psinv=Psinv,mu=mu,yMu=yMu,SSQ=SigmaSqr,a=a,U=U,isIndefinite=isIndefinite)
 	if(exists("origD")){
 		ret$D <- D
 		ret$origD <- origD

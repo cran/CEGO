@@ -139,12 +139,15 @@ optimCEGO <- function(x=NULL,fun,control=list()){
 	res$x <- control$initialDesign(x,creationFunction,count,control$initialDesignSettings)
 
 	## Calculate distances between samples. If distance function has parameters: do not calculate.
-	if(length(distanceFunction)==1)
-		distanceHasParam <- length(formalArgs(distanceFunction))>2
-	else
-		distanceHasParam <- any(sapply(sapply(distanceFunction,formalArgs),length) > 2)
-	if(!distanceHasParam)
-		res$distances <- distanceMatrixWrapper(res$x,distanceFunction)
+	distanceHasParam <- FALSE
+	if(is.function(distanceFunction)){
+		if(length(distanceFunction)==1)
+			distanceHasParam <- length(formalArgs(distanceFunction))>2
+		else
+			distanceHasParam <- any(sapply(sapply(distanceFunction,formalArgs,simplify=FALSE),length) > 2)
+		if(!distanceHasParam)
+			res$distances <- distanceMatrixWrapper(res$x,distanceFunction)
+	}		
 
 	
 	## Evaluate initial population	
@@ -180,7 +183,7 @@ optimCEGO <- function(x=NULL,fun,control=list()){
     if(!identical(model,NA)){ 
       optimres <- optimizeModel(res,creationFunction,model,control)				
       ## Handle duplicated new candidate solution	
-      duplicate <- optimres$xbest %in% res$x
+      duplicate <- list(optimres$xbest) %in% res$x
 			## Check whether next candidate solution is better than the best observed so far (based on model prediction)
       improved <- optimres$ybest < optimres$fpredbestKnownY
     }else{# model building failed, force termination
@@ -196,9 +199,17 @@ optimCEGO <- function(x=NULL,fun,control=list()){
 		if(!duplicate && ((improved || useEI))){ #exploitation step		#for a new individual to be accepted, it has to have a better predicted value than the prediction for the best known individual. One could also use the actual value of the best known individual, but this would deteriorate results in case of an offset.
 			res$x[[res$count]] <- optimres$xbest		#NOTE; exploitation step and exploration is both the same when EI is used., thus the "||"
 		}else{ #exploration step: no promising individual found, or promising individual is a duplicate -> create a new one randomly
-			designSize <- length(res$x)+1
-			xc <- designMaxMinDist(res$x,creationFunction,designSize,control=list(budget=control$creationRetries,distanceFunction=distanceFunction))			
-			res$x[[res$count]] <- xc[[designSize]] #this maximizes distance, but may still create a duplicate if max(min(dist))==0, e.g. if all randomly created individuals are duplicates of known solutions
+			if(!distanceHasParam){
+				designSize <- length(res$x)+1
+				if(is.list(distanceFunction)) #in case of multiple distances
+					dfun <- distanceFunction[[1]]
+				else 	
+					dfun <- distanceFunction
+				xc <- designMaxMinDist(res$x,creationFunction,designSize,control=list(budget=control$creationRetries,distanceFunction=dfun))			
+				res$x[[res$count]] <- xc[[designSize]] #this maximizes distance, but may still create a duplicate if max(min(dist))==0, e.g. if all randomly created individuals are duplicates of known solutions
+			}else{
+				res$x[[res$count]] <- optimres$xbest
+			}
 		}
 		res$x <- removeDuplicates(res$x, creationFunction)
 		
@@ -219,7 +230,7 @@ optimCEGO <- function(x=NULL,fun,control=list()){
 		}
 	
 		## Update the distance matrix				#TODO what if distance parameters?
-		if(!distanceHasParam)
+		if(!distanceHasParam & is.function(distanceFunction))
 			res$distances <- distanceMatrixUpdate(res$distances,res$x,distanceFunction)
 	
 		## Update surrogate model and prediction function:

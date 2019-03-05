@@ -1,5 +1,15 @@
 CEGO Patch Notes 
 
+Version 2.3.0 @ 2019-03-05
+	- Fixed a bug that occured when checking for duplicates (to avoid them) in optimCEGO
+	- A bug in optimMIES was fixed. The wrong sigma variable was used in the self-adpation for real-valued parameters.
+	- optimMIES was changed to include categoricals only if they are coded as integers (but not necessarily as a sequence)
+	  See also the changed example in optimMIES' help.
+	- Fixed a potential alloc/PROTECT problem in distancePermutationInterchange and distancePermutationInsert (found by rchk)
+	- This update now includes all methods for dealing with indefinite kernels in Kriging, as reported
+	  in Chapter 8 of "Surrogate Models for Discrete Optimization Problems" by Martin Zaefferer (2018). 
+		See ?modelKriging for some more details.
+
 Version 2.2.0 @ 2017-07-12
 	- New functionality: 
 	- CEGO now contains an implementation of a Mixed Integer Evolution Strategy (MIES), see optimMIES.

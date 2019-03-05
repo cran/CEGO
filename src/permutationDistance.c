@@ -160,7 +160,9 @@ SEXP permutationDistanceInterchange(SEXP Rs, SEXP Rt){
 	
 	int *s,*s2,*t,n;
  	SEXP Rval;
+ 	SEXP Rval2;
 	PROTECT(Rval=allocVector(INTSXP,1));
+	PROTECT(Rval2=Rf_lang1(Rs));
 	s = INTEGER(Rs);
 	t = INTEGER(Rt);
 	n = length(Rs);
@@ -174,7 +176,8 @@ SEXP permutationDistanceInterchange(SEXP Rs, SEXP Rt){
 	//x<-y[order(x)]
 	int *idx;
 	idx= (int *) R_alloc(sizeof(int), n);
-	R_orderVector(idx,n,Rf_lang1(Rs),TRUE,FALSE);
+	R_orderVector(idx,n,Rval2,TRUE,FALSE);
+	//R_orderVector(idx,n,Rf_lang1(Rs),TRUE,FALSE);
 	for(i=0;i<n;i++){
 		s2[i]= t[idx[i]];
 	}
@@ -197,7 +200,7 @@ SEXP permutationDistanceInterchange(SEXP Rs, SEXP Rt){
 	}
 	
 	INTEGER(Rval)[0] = res;
-	UNPROTECT(1);
+	UNPROTECT(2);
 	return Rval;
 }
 
@@ -383,6 +386,8 @@ SEXP permutationDistanceInsert(SEXP Rs, SEXP Rt){
 	int *s,*s2,n;
  	SEXP Rval;
 	PROTECT(Rval=allocVector(INTSXP,1));
+ 	SEXP Rval2;
+	PROTECT(Rval2=Rf_lang1(Rt));
 	s = INTEGER(Rs);
 	n = length(Rs);
 
@@ -395,7 +400,8 @@ SEXP permutationDistanceInsert(SEXP Rs, SEXP Rt){
 	//x<-order(y)[x]
 	int *idx;
 	idx= (int *) R_alloc(sizeof(int), n);
-	R_orderVector(idx,n,Rf_lang1(Rt),TRUE,FALSE);
+	R_orderVector(idx,n,Rval2,TRUE,FALSE);
+	//R_orderVector(idx,n,Rf_lang1(Rt),TRUE,FALSE);
 	for(i=0;i<n;i++){
 		s2[i]= idx[s[i]-1]+1;
 	}
@@ -427,7 +433,7 @@ SEXP permutationDistanceInsert(SEXP Rs, SEXP Rt){
 	}		
 	
 	INTEGER(Rval)[0] = L;
-	UNPROTECT(1);
+	UNPROTECT(2);
 	return Rval;
 }
 
