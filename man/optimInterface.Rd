@@ -4,8 +4,7 @@
 \alias{optimInterface}
 \title{Optimization Interface (continuous, bounded)}
 \usage{
-optimInterface(x, fun, lower = -Inf, upper = Inf, control = list(),
-  ...)
+optimInterface(x, fun, lower = -Inf, upper = Inf, control = list(), ...)
 }
 \arguments{
 \item{x}{is a point (vector) in the decision space of \code{fun}}

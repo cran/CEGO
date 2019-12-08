@@ -4,8 +4,14 @@
 \alias{testFunctionGeneratorSim}
 \title{Simulation-based Test Function Generator, Data Interface}
 \usage{
-testFunctionGeneratorSim(x, y, xsim, distanceFunction, controlModel,
-  controlSimulation)
+testFunctionGeneratorSim(
+  x,
+  y,
+  xsim,
+  distanceFunction,
+  controlModel = list(),
+  controlSimulation = list()
+)
 }
 \arguments{
 \item{x}{list of samples in input space, training data}
@@ -32,7 +38,7 @@ it will be passed to the \code{\link{modelKriging}} function.}
 }}
 }
 \value{
-a list with the following elements: \code{fun} is a of functions, where each function is the interpolation of one simulation realization. The length of the list depends on the nsim parameter.
+a list with the following elements: \code{fun} is a list of functions, where each function is the interpolation of one simulation realization. The length of the list depends on the nsim parameter.
 \code{fit} is the result of the modeling procedure, that is, the model fit of class \code{modelKriging}.
 }
 \description{

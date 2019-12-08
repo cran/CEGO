@@ -4,8 +4,7 @@
 \alias{landscapeGeneratorGaussianBuild}
 \title{Gaussian Landscape Core function}
 \usage{
-landscapeGeneratorGaussianBuild(nGaussian = 10, ratio = 0.2,
-  creationFunction)
+landscapeGeneratorGaussianBuild(nGaussian = 10, ratio = 0.2, creationFunction)
 }
 \arguments{
 \item{nGaussian}{number of Gaussian components in the landscape. Default is 10.}

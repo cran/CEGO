@@ -96,7 +96,7 @@
 #' 
 #' @export
 ###################################################################################
-optimMIES <- function(x=NULL,fun,control=list()){ 
+optimMIES <- function(x=NULL,fun,control=list()){ #TODO: providing x seems to be buggy
 	#default controls: #todo: document
 	con<-list(budget = 1000 #default controls:
 			 , popsize = 100 # mu
@@ -273,9 +273,9 @@ optimMIES <- function(x=NULL,fun,control=list()){
 	population <- designRandom(x,creationFunction,popsize)
 	
 	if(vectorized) 
-		fitness <- fun(sapply(population,'[',-(npar+1),simplify=F)) #note: this also first cuts off strategy parameters
+		fitness <- fun(sapply(population,'[',-sigids,simplify=F)) #note: this also first cuts off strategy parameters
 	else
-		fitness <- unlist(lapply(sapply(population,'[',-(npar+1),simplify=F),fun))#note: this also first cuts off strategy parameters
+		fitness <- unlist(lapply(sapply(population,'[',-sigids,simplify=F),fun))#note: this also first cuts off strategy parameters
 		
 	count <- popsize	
 	gen <- 1

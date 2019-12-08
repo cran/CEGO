@@ -4,8 +4,13 @@
 \alias{correctionDistanceMatrix}
 \title{Correction of a Distance Matrix}
 \usage{
-correctionDistanceMatrix(mat, type = "NSD", method = "flip",
-  repair = TRUE, tol = 1e-08)
+correctionDistanceMatrix(
+  mat,
+  type = "NSD",
+  method = "flip",
+  repair = TRUE,
+  tol = 1e-08
+)
 }
 \arguments{
 \item{mat}{symmetric distance matrix}

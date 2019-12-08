@@ -4,10 +4,19 @@
 \alias{modelKrigingLikelihood}
 \title{Calculate negative log-likelihood}
 \usage{
-modelKrigingLikelihood(xt, D, y, useLambda = FALSE, corr = fcorrGauss,
-  indefiniteMethod = "none", indefiniteType = "PSD",
-  indefiniteRepair = FALSE, returnLikelihoodOnly = TRUE,
-  inverter = "chol", ntheta = 1)
+modelKrigingLikelihood(
+  xt,
+  D,
+  y,
+  useLambda = FALSE,
+  corr = fcorrGauss,
+  indefiniteMethod = "none",
+  indefiniteType = "PSD",
+  indefiniteRepair = FALSE,
+  returnLikelihoodOnly = TRUE,
+  inverter = "chol",
+  ntheta = 1
+)
 }
 \arguments{
 \item{xt}{vector, containing parameters like theta, p and lambda.}
@@ -28,11 +37,9 @@ modelKrigingLikelihood(xt, D, y, useLambda = FALSE, corr = fcorrGauss,
 
 \item{returnLikelihoodOnly}{boolean, whether the function should return only the likelihood, or a else a list (see return information below).}
 
-\item{inverter}{string specifying method for inversion of correlation matrix ("chol", cholesky decomposition at default, any other string leads to using the solve function).}
+\item{inverter}{string, defining the inverter to use. default \code{"chol"} is inversion via \code{chol2inv}. A different string will lead to use of \code{solve}.}
 
 \item{ntheta}{number of kernel parameters.}
-
-\item{inverter}{string, defining the inverter to use. default \code{"chol"} is inversion via \code{chol2inv}. A different string will lead to use of \code{solve}.}
 }
 \value{
 the numeric Likelihood value (if \code{returnLikelihoodOnly} is TRUE) or a list with elements:

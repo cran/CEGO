@@ -4,8 +4,13 @@
 \alias{mutationPermutationInterchangeCore}
 \title{Interchange of permutation elements}
 \usage{
-mutationPermutationInterchangeCore(population, popsize, mutations, index1,
-  index2)
+mutationPermutationInterchangeCore(
+  population,
+  popsize,
+  mutations,
+  index1,
+  index2
+)
 }
 \arguments{
 \item{population}{List of permutations}

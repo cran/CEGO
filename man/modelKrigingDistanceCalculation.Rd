@@ -4,9 +4,18 @@
 \alias{modelKrigingDistanceCalculation}
 \title{Kriging: Distance Matrix Calculation}
 \usage{
-modelKrigingDistanceCalculation(x, distanceFunction, parameters = NA,
-  distances, scaling, combineDistances, indefiniteMethod, indefiniteType,
-  indefiniteRepair, lower)
+modelKrigingDistanceCalculation(
+  x,
+  distanceFunction,
+  parameters = NA,
+  distances,
+  scaling,
+  combineDistances,
+  indefiniteMethod,
+  indefiniteType,
+  indefiniteRepair,
+  lower
+)
 }
 \arguments{
 \item{x}{list of samples in input space}

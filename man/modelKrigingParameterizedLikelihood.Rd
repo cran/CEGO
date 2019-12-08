@@ -4,11 +4,23 @@
 \alias{modelKrigingParameterizedLikelihood}
 \title{Calculate negative log-likelihood}
 \usage{
-modelKrigingParameterizedLikelihood(xt, xs, ys, useLambda = FALSE,
-  corr = fcorrGauss, indefiniteMethod = "none",
-  indefiniteType = "PSD", indefiniteRepair = FALSE,
-  returnLikelihoodOnly = TRUE, inverter = "chol", distanceFunction,
-  combineDistances, distanceParametersLower, ntheta, scaling)
+modelKrigingParameterizedLikelihood(
+  xt,
+  xs,
+  ys,
+  useLambda = FALSE,
+  corr = fcorrGauss,
+  indefiniteMethod = "none",
+  indefiniteType = "PSD",
+  indefiniteRepair = FALSE,
+  returnLikelihoodOnly = TRUE,
+  inverter = "chol",
+  distanceFunction,
+  combineDistances,
+  distanceParametersLower,
+  ntheta,
+  scaling
+)
 }
 \arguments{
 \item{xt}{vector, containing parameters like theta, p and lambda.}

@@ -4,8 +4,13 @@
 \alias{createSimulatedTestFunction}
 \title{Simulation-based Test Function Generator, Object Interface}
 \usage{
-createSimulatedTestFunction(xsim, fit, nsim = 10,
-  conditionalSimulation = TRUE, seed = NA)
+createSimulatedTestFunction(
+  xsim,
+  fit,
+  nsim = 10,
+  conditionalSimulation = TRUE,
+  seed = NA
+)
 }
 \arguments{
 \item{xsim}{list of samples in input space, for simulation}

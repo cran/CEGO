@@ -1,5 +1,5 @@
 ################################################################################
-#   Copyright (c) 2014-2016 by Martin Zaefferer, Cologne University of Applied Sciences (TH Koeln)
+#   Copyright (c) 2014-2019 by Martin Zaefferer, Cologne University of Applied Sciences (TH Koeln)
 ################################################################################
 ##	This program is free software: you can redistribute it and/or modify
 ##  it under the terms of the GNU General Public License as published by
@@ -26,8 +26,8 @@
 #' \tabular{ll}{
 #' Package: \tab CEGO\cr
 #' Type: \tab Package\cr
-#' Version: \tab 2.3.0\cr
-#' Date: \tab 2019-03-05\cr
+#' Version: \tab 2.4.0\cr
+#' Date: \tab 2019-12-07\cr
 #' License: \tab GPL (>= 3)\cr
 #' LazyLoad: \tab yes\cr
 #' }

@@ -20,8 +20,10 @@
 distanceMatrix <-function(X,distFun,...){
 	n <- length(X)
 	m <- matrix(0,nrow=n, ncol=n)
-	for(i in seq_len(n - 1))
-		m[seq(i+1, n),i] <- m[i,seq(i+1, n)] <- distanceVector(X[[i]],X[seq(i+1, n)],distFun,...)
+	for(i in seq_len(n - 1)){
+		ids <- (i+1):n
+		m[ids,i] <- m[i,ids] <- distanceVector(X[[i]],X[ids],distFun,...)
+	}
 	m
 }
 

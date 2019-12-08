@@ -326,7 +326,7 @@ modelKriging <- function(x, y, distanceFunction,control=list()){
 		fit$diagUnrepairedPsi <- diag(res$unrepairedPsi)			
 		if(fit$indefiniteRepair==2){# for repair with nystroem only:	
 			unrepairedPsinv <- try(chol2inv(chol(res$unrepairedPsi)), TRUE) 
-			if(class(unrepairedPsinv) == "try-error"){
+			if(class(unrepairedPsinv)[1] == "try-error"){
 				unrepairedPsinv <- ginv(res$unrepairedPsi) 
 			}			
 			fit$unrepairedAPsinvA <- t(A) %*% unrepairedPsinv %*% A 
@@ -337,7 +337,7 @@ modelKriging <- function(x, y, distanceFunction,control=list()){
 		PsiB <- res$Psi-diag(fit$lambda,n)+diag(.Machine$double.eps,n) 
 		fit$SSQReint <- as.numeric((t(res$yMu)%*%res$Psinv%*%PsiB%*%res$Psinv%*%res$yMu)/n) #res is used intentionally, needs to be untransformed Psinv
 		fit$PsinvReint <- try(chol2inv(chol(PsiB)), TRUE) 
-		if(class(fit$PsinvReint) == "try-error"){
+		if(class(fit$PsinvReint)[1] == "try-error"){
 			fit$PsinvReint <- ginv(PsiB) 
 		}	
 		#now apply same transformations as for non-reinterpolating matrices

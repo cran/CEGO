@@ -100,7 +100,7 @@ modelKrigingLikelihood <- function(xt,D,y,useLambda=FALSE,corr=fcorrGauss,
 		cholPsi <- try(chol(Psi), TRUE) 
 
 		## give penalty if fail
-		if(class(cholPsi) == "try-error"){
+		if(class(cholPsi)[1] == "try-error"){
 			#warning("Correlation matrix is not positive semi-definite (in modelKrigingLikelihood). Returning penalty.")
 			penalty <- 1e4 - min(eigen(Psi,symmetric=TRUE,only.values=TRUE)$values) #the minimal eigenvalue should push the search towards positive eigenvalues
 			if(returnLikelihoodOnly){
@@ -114,7 +114,7 @@ modelKrigingLikelihood <- function(xt,D,y,useLambda=FALSE,corr=fcorrGauss,
 		
 		#inverse with cholesky decomposed Psi
 		Psinv <- try(chol2inv(cholPsi),TRUE)
-		if(class(Psinv) == "try-error"){
+		if(class(Psinv)[1] == "try-error"){
 			#warning("Correlation matrix is not positive semi-definite (in modelKrigingLikelihood). Returning penalty.")
 			penalty <- 1e4 - min(eigen(Psi,symmetric=TRUE,only.values=TRUE)$values) #the minimal eigenvalue should push the search towards positive eigenvalues
 			if(returnLikelihoodOnly){
@@ -124,7 +124,7 @@ modelKrigingLikelihood <- function(xt,D,y,useLambda=FALSE,corr=fcorrGauss,
 		}
 	}else{		
 		Psinv <- try(solve(Psi),TRUE) #inverse with LU decomposition
-		if(class(Psinv) == "try-error"){
+		if(class(Psinv)[1] == "try-error"){
 			#warning("Correlation matrix is not positive semi-definite (in modelKrigingLikelihood). Returning penalty.")
 			penalty <- 1e4 - min(eigen(Psi,symmetric=TRUE,only.values=TRUE)$values) #the minimal eigenvalue should push the search towards larger eigenvalues
 			if(returnLikelihoodOnly){

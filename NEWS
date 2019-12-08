@@ -1,5 +1,11 @@
 CEGO Patch Notes 
 
+Version 2.4.0 @ 2019-12-07
+  - Fixed a bug in optimMIES: strategy parameters are now removed correctly, before evaluating a candidate solution
+	  with the objective function. This bug affected evaluations of the initial population.
+	- testFunctionGeneratorSim: now has defaults for the control lists, as well as a fixed documentation
+	- Compliance with changes in R 4.0.0
+
 Version 2.3.0 @ 2019-03-05
 	- Fixed a bug that occured when checking for duplicates (to avoid them) in optimCEGO
 	- A bug in optimMIES was fixed. The wrong sigma variable was used in the self-adpation for real-valued parameters.

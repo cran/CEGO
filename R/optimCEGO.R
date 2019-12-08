@@ -15,7 +15,7 @@
 #' \item{\code{verbosity}}{ Level of text output during run. Defaults to 0, no output.}
 #' \item{\code{plotting}}{ Plot optimization progress during run (TRUE) or not (FALSE). Default is FALSE.}
 #' \item{\code{targetY}}{ optimal value to be found, stopping criterion, default is \code{-Inf}}
-#' \item{\code{evalBudget}}{ maximum number of target function evaluations, default is \code{100}}
+#' \item{\code{budget}}{ maximum number of target function evaluations, default is \code{100}}
 #' \item{\code{creationRetries}}{ When a model does not predict an actually improving solution, a random exploration step is performed. \code{creationRetries} solutions are created randomly. 
 #' 		For each, distance to all known solutions is calculated. The minimum distance is recorded for each random solution. 
 #' 		The random solution with maximal minimum distance is chosen doe be evaluated in the next iteration.}
@@ -308,7 +308,7 @@ buildModel <- function(res,distanceFunction,control){
 	
 	fit<-try(control$model(x,y,distanceFunction,control$modelSettings),TRUE)
 	#fit <- control$model(x,y,distanceFunction,control$modelSettings)
-	if(class(fit) == "try-error"){
+	if(class(fit)[1] == "try-error"){
     #warning("Model building in optimCEGO failed.") #same warning given in optimCEGO function
     return(NA)
   }

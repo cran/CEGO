@@ -4,8 +4,21 @@
 \alias{selfAdapt}
 \title{Self-adaption of EA parameters.}
 \usage{
-selfAdapt(params, inum, icat, iint, nnum, ncat, nint, lower, upper, values,
-  nvalues, tau, p)
+selfAdapt(
+  params,
+  inum,
+  icat,
+  iint,
+  nnum,
+  ncat,
+  nint,
+  lower,
+  upper,
+  values,
+  nvalues,
+  tau,
+  p
+)
 }
 \arguments{
 \item{params}{parameters to be self-adapted}

@@ -4,8 +4,14 @@
 \alias{landscapeGeneratorGaussian}
 \title{Create Gaussian Landscape}
 \usage{
-landscapeGeneratorGaussian(nGaussian = 10, theta = 1, ratio = 0.2,
-  seed = 1, distanceFunction, creationFunction)
+landscapeGeneratorGaussian(
+  nGaussian = 10,
+  theta = 1,
+  ratio = 0.2,
+  seed = 1,
+  distanceFunction,
+  creationFunction
+)
 }
 \arguments{
 \item{nGaussian}{number of Gaussian components in the landscape. Default is 10.}

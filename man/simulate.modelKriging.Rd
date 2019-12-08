@@ -4,8 +4,15 @@
 \alias{simulate.modelKriging}
 \title{Kriging Simulation}
 \usage{
-\method{simulate}{modelKriging}(object, nsim = 1, seed = NA, xsim,
-  conditionalSimulation = TRUE, returnAll = FALSE, ...)
+\method{simulate}{modelKriging}(
+  object,
+  nsim = 1,
+  seed = NA,
+  xsim,
+  conditionalSimulation = TRUE,
+  returnAll = FALSE,
+  ...
+)
 }
 \arguments{
 \item{object}{fit of the Kriging model (settings and parameters), of class \code{modelKriging}.}

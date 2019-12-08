@@ -4,8 +4,13 @@
 \alias{nearCNSD}
 \title{Nearest CNSD matrix}
 \usage{
-nearCNSD(x, eig.tol = 1e-08, conv.tol = 1e-08, maxit = 1000,
-  conv.norm.type = "F")
+nearCNSD(
+  x,
+  eig.tol = 1e-08,
+  conv.tol = 1e-08,
+  maxit = 1000,
+  conv.norm.type = "F"
+)
 }
 \arguments{
 \item{x}{symmetric matrix, to be turned into a CNSD matrix.}

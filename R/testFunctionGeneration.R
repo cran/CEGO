@@ -118,7 +118,7 @@ createSimulatedTestFunction <- function(xsim, fit, nsim=10, conditionalSimulatio
 			PsiB <- fit$Psi-diag(fit$lambda,n)+diag(.Machine$double.eps,n) 
 			fit$SSQReint <- as.numeric((t(fit$yMu)%*%PsinvSaved%*%PsiB%*%PsinvSaved%*%fit$yMu)/n) #PsinvSaved is used intentionally, needs to be untransformed Psinv
 			fit$PsinvReint <- try(chol2inv(chol(PsiB)), TRUE) 
-			if(class(fit$PsinvReint) == "try-error"){
+			if(class(fit$PsinvReint)[1] == "try-error"){
 				fit$PsinvReint <- MASS::ginv(PsiB) 
 			}	
 			#now apply same transformations as for non-reinterpolating matrices
@@ -173,7 +173,7 @@ createSimulatedTestFunction <- function(xsim, fit, nsim=10, conditionalSimulatio
 #' \item{\code{simulationSeed}}{ a random number generator seed. Defaults to NA; which means no seed is set. For sake of reproducibility, set this to some integer value.}
 #' }
 #'
-#' @return a list with the following elements: \code{fun} is a of functions, where each function is the interpolation of one simulation realization. The length of the list depends on the nsim parameter.
+#' @return a list with the following elements: \code{fun} is a list of functions, where each function is the interpolation of one simulation realization. The length of the list depends on the nsim parameter.
 #' \code{fit} is the result of the modeling procedure, that is, the model fit of class \code{modelKriging}.
 #' 
 #' @seealso \code{\link{modelKriging}}, \code{\link{simulate.modelKriging}}, \code{\link{createSimulatedTestFunction}}, 
@@ -247,7 +247,7 @@ createSimulatedTestFunction <- function(xsim, fit, nsim=10, conditionalSimulatio
 #'
 #' @export
 ###################################################################################
-testFunctionGeneratorSim <- function(x,y,xsim,distanceFunction,controlModel,controlSimulation){
+testFunctionGeneratorSim <- function(x,y,xsim,distanceFunction,controlModel=list(),controlSimulation=list()){
 	con<-list(nsim=1,conditionalSimulation=FALSE,simulationSeed=NA)
 	con[names(controlSimulation)] <- controlSimulation
  	controlSimulation<-con
