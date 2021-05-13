@@ -17,6 +17,10 @@ numeric distance value \deqn{d(x,y)}, scaled to values between 0 and 1 (based on
 \description{
 The swap distance is an edit-distance, counting how many edit operation (here: swaps, i.e., transposition of two adjacent elements) have to be
 performed to transform permutation x into permutation y.
+Note: In v2.4.0 of CEGO and earlier, this function actually computed the swap distance on the inverted permutations 
+(i.e., on the rankings, rather than orderin).
+This is now (v2.4.1 and later) corrected by inverting the permutations x and y before computing the distance (ie. computing ordering first).
+The original behavior can be reproduced by \code{\link{distancePermutationSwapInv}}.
 }
 \examples{
 x <- 1:5

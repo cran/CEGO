@@ -15,6 +15,6 @@ bibentry(bibtype="InProceedings",
 		address = "New York, NY, USA",
 		publisher= "ACM",
 		pages = "871--878",
-		url = "http://doi.acm.org/10.1145/2576768.2598282"
+		doi = "10.1145/2576768.2598282"
 )
 

@@ -121,6 +121,10 @@ distancePermutationLevenshtein <- function(x, y){
 #' 
 #' The swap distance is an edit-distance, counting how many edit operation (here: swaps, i.e., transposition of two adjacent elements) have to be
 #' performed to transform permutation x into permutation y.
+#' Note: In v2.4.0 of CEGO and earlier, this function actually computed the swap distance on the inverted permutations 
+#' (i.e., on the rankings, rather than orderin).
+#' This is now (v2.4.1 and later) corrected by inverting the permutations x and y before computing the distance (ie. computing ordering first).
+#' The original behavior can be reproduced by \code{\link{distancePermutationSwapInv}}.
 #'
 #' @param x first permutation (integer vector)
 #' @param y second permutation (integer vector)
@@ -141,8 +145,38 @@ distancePermutationLevenshtein <- function(x, y){
 ###################################################################################
 distancePermutationSwap <- function(x, y){
 	N <- length(x)
+	#x <- order(x)
+	#y <- order(y)
 	if(N!=length(y)|!is.numeric(x)|!is.numeric(y)) stop("Incorrect input to distance function, only permutations of same length are allowed.")
 	result <- .Call(C_permutationDistanceSwap, as.integer(x),as.integer(y))
+	2*result / (N^2 - N)
+}
+
+
+###################################################################################
+#' Inverse-Swap-Distance for Permutations
+#' 
+#' The swap distance on the inverse of permutations x and y.
+#' See \code{\link{distancePermutationSwap}} for non-inversed version.
+#'
+#' @param x first permutation (integer vector)
+#' @param y second permutation (integer vector)
+#'
+#' @return numeric distance value \deqn{d(x,y)}, scaled to values between 0 and 1 (based on the maximum possible distance between two permutations)
+#'
+#' @examples
+#' x <- 1:5
+#' y <- c(1,2,3,5,4)
+#' distancePermutationSwapInv(x,y)
+#' p <- replicate(10,sample(1:5),simplify=FALSE)
+#' distanceMatrix(p,distancePermutationSwapInv)
+#'
+#' @export
+###################################################################################
+distancePermutationSwapInv <- function(x, y){
+	N <- length(x)
+	if(N!=length(y)|!is.numeric(x)|!is.numeric(y)) stop("Incorrect input to distance function, only permutations of same length are allowed.")
+	result <- .Call(C_permutationDistanceSwapInv, as.integer(x),as.integer(y))
 	2*result / (N^2 - N)
 }
 
@@ -456,7 +490,7 @@ distancePermutationLee <- function(x,y){
 #' @return numeric distance value \deqn{d(x,y)}, scaled to values between 0 and 1 (based on the maximum possible distance between two permutations)
 #'
 #' @references Schiavinotto, Tommaso, and Thomas Stuetzle. "A review of metrics on permutations for search landscape analysis." Computers & operations research 34.10 (2007): 3143-3153.
-#' @references Wikipedia contributors, "Longest increasing subsequence", Wikipedia, The Free Encyclopedia, 12 November 2014, 19:38 UTC, <http://en.wikipedia.org/w/index.php?title=Longest_increasing_subsequence&oldid=633565014> [accessed 13 November 2014] 
+#' @references Wikipedia contributors, "Longest increasing subsequence", Wikipedia, The Free Encyclopedia, 12 November 2014, 19:38 UTC, [accessed 13 November 2014] 
 #'
 #' @examples
 #' x <- 1:5

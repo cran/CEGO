@@ -43,13 +43,6 @@ benchmarkGeneratorQAP <- function(a, b) { # Generator function.
 		sum(a*bx) # divide by 2 if exact cost required
 	}
 }
-#other example: http://www.neos-guide.org/content/qap4
-#A <- matrix(c(0,22,53,53,22,0,40,62,53,40,0,55,53,62,55,0),4,4)
-#B <- matrix(c(0,3,0,2,3,0,0,1,0,0,0,4,2,1,4,0),4,4)
-#test <- benchmarkGeneratorQAP(A,B)
-#test(c(2,4,1,3))/2
-#test(c(3,4,1,2))/2
-
 
 ###################################################################################
 #' Create Flow shop Scheduling Problem (FSP) Benchmark
@@ -66,7 +59,7 @@ benchmarkGeneratorQAP <- function(a, b) { # Generator function.
 #' n=10
 #' m=4
 #' #ceate a matrix of processing times
-#' A <- matrix(sample(100,replace=TRUE),n,m) 
+#' A <- matrix(sample(n*m,replace=TRUE),n,m) 
 #' #create FSP objective function 
 #' fun <- benchmarkGeneratorFSP(A,n,m)
 #' #evaluate

@@ -84,7 +84,7 @@
 #'
 #' @seealso \code{\link{modelKriging}}, \code{\link{modelLinear}}, \code{\link{modelRBFN}}, \code{\link{buildModel}}, \code{\link{optimEA}}
 #' 
-#' @references Zaefferer, Martin; Stork, Joerg; Friese, Martina; Fischbach, Andreas; Naujoks, Boris; Bartz-Beielstein, Thomas. (2014). Efficient global optimization for combinatorial problems. In Proceedings of the 2014 conference on Genetic and evolutionary computation (GECCO '14). ACM, New York, NY, USA, 871-878. DOI=10.1145/2576768.2598282 http://doi.acm.org/10.1145/2576768.2598282 
+#' @references Zaefferer, Martin; Stork, Joerg; Friese, Martina; Fischbach, Andreas; Naujoks, Boris; Bartz-Beielstein, Thomas. (2014). Efficient global optimization for combinatorial problems. In Proceedings of the 2014 conference on Genetic and evolutionary computation (GECCO '14). ACM, New York, NY, USA, 871-878. DOI=10.1145/2576768.2598282
 #' @references Zaefferer, Martin; Stork, Joerg; Bartz-Beielstein, Thomas. (2014). Distance Measures for Permutations in Combinatorial Efficient Global Optimization. In Parallel Problem Solving from Nature - PPSN XIII (p. 373-383). Springer International Publishing.
 #'
 #' @export
@@ -354,6 +354,6 @@ optimizeModel <- function(res,creationFunction,model,control){
 	if(is.null(control$optimizerSettings$vectorized))
 		control$optimizerSettings$vectorized <- TRUE		
 	optimres <- control$optimizer(NULL,model$fpred,control$optimizerSettings)
-	optimres$fpredbestKnownY <- model$fpred(res$xbest) 
+	optimres$fpredbestKnownY <- model$fpred(list(res$xbest))
 	optimres
 }

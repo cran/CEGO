@@ -23,7 +23,7 @@ Creates a benchmark function for the Flow shop Scheduling Problem.
 n=10
 m=4
 #ceate a matrix of processing times
-A <- matrix(sample(100,replace=TRUE),n,m) 
+A <- matrix(sample(n*m,replace=TRUE),n,m) 
 #create FSP objective function 
 fun <- benchmarkGeneratorFSP(A,n,m)
 #evaluate

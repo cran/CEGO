@@ -129,7 +129,7 @@ SEXP permutationDistanceLongestCommonSubstring(SEXP Rs, SEXP Rt){
 	return Rval;
 }
 
-SEXP permutationDistanceSwap(SEXP Rs, SEXP Rt){
+SEXP permutationDistanceSwapInv(SEXP Rs, SEXP Rt){
 	int i,j;
   int tau=0;
 	
@@ -149,6 +149,43 @@ SEXP permutationDistanceSwap(SEXP Rs, SEXP Rt){
 
 	INTEGER(Rval)[0] = tau;
 	UNPROTECT(1);
+	return Rval;
+}
+
+SEXP permutationDistanceSwap(SEXP Rs, SEXP Rt){
+	int i,j;
+  int tau=0;
+	
+	int *s,*t,n;	
+	
+ 	SEXP Rval;
+ 	SEXP Rvals;
+ 	SEXP Rvalt;
+	
+	PROTECT(Rval=allocVector(INTSXP,1));
+	
+	PROTECT(Rvals=Rf_lang1(Rs));
+	PROTECT(Rvalt=Rf_lang1(Rt));	
+	
+	//s = INTEGER(Rs);
+	//t = INTEGER(Rt);
+	n = length(Rs);
+	
+	s = (int *) R_alloc(sizeof(int), n);
+	t = (int *) R_alloc(sizeof(int), n);
+	
+	R_orderVector(s,n,Rvals,TRUE,FALSE);
+	R_orderVector(t,n,Rvalt,TRUE,FALSE);
+		
+	for (i = 0; i < n; i++){
+		for (j = 0; j < n; j++){
+			if((s[i]<s[j]) && (t[i]>t[j]))
+				tau++;			
+		}
+	}
+
+	INTEGER(Rval)[0] = tau;
+	UNPROTECT(3);
 	return Rval;
 }
 
@@ -379,7 +416,7 @@ SEXP permutationDistanceLee(SEXP Rs, SEXP Rt){
 }
 
 // ULAM metric
-// Longest increasing subsequence. (2014, December 20). In Wikipedia, The Free Encyclopedia. Retrieved 18:21, December 26, 2014, from http://en.wikipedia.org/w/index.php?title=Longest_increasing_subsequence&oldid=638943901
+// Longest increasing subsequence. (2014, December 20). In Wikipedia, The Free Encyclopedia. Retrieved 18:21, December 26, 2014
 SEXP permutationDistanceInsert(SEXP Rs, SEXP Rt){
 	int i, L, newL, lo, hi, mid;
 	

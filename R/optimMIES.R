@@ -56,7 +56,7 @@
 #'   \item{\code{fitness}}{Fitness of last population.}
 #' }
 #'
-#' @references Rui Li, Michael T. M. Emmerich, Jeroen Eggermont, Thomas Baeck, Martin Schuetz, Jouke Dijkstra, and Johan H. C. Reiber. 2013. Mixed integer evolution strategies for parameter optimization. Evol. Comput. 21, 1 (March 2013), 29-64. DOI=http://dx.doi.org/10.1162/EVCO_a_00059 
+#' @references Rui Li, Michael T. M. Emmerich, Jeroen Eggermont, Thomas Baeck, Martin Schuetz, Jouke Dijkstra, and Johan H. C. Reiber. 2013. Mixed integer evolution strategies for parameter optimization. Evol. Comput. 21, 1 (March 2013), 29-64.
 #'
 #' @examples
 #' set.seed(1)

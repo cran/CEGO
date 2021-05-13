@@ -1,5 +1,11 @@
 CEGO Patch Notes 
 
+Version 2.4.2 @ 2021-05-13
+  - Fixed: distancePermutationSwap now computes the swap distance on the provided permutations rather on the inverse permutations.
+	  distancePermutationSwapInv reproduces the original behavior.
+	- Fixes an issue reported by CRAN / Prof. Ripley. 
+	  Specifically, this patch fixes an example, where the warning "data length differs from size of matrix" was produced.
+	
 Version 2.4.0 @ 2019-12-07
   - Fixed a bug in optimMIES: strategy parameters are now removed correctly, before evaluating a candidate solution
 	  with the objective function. This bug affected evaluations of the initial population.

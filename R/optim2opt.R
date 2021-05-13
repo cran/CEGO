@@ -36,7 +36,7 @@
 #'    vectorized=TRUE)) ##target function is "vectorized", expects list of solutions as input
 #' res
 #'
-#' @references Wikipedia contributors. "2-opt." Wikipedia, The Free Encyclopedia. Wikipedia, The Free Encyclopedia, 13 Jun. 2014. Web. 21 Oct. 2014. (http://en.wikipedia.org/wiki/2-opt)
+#' @references Wikipedia contributors. "2-opt." Wikipedia, The Free Encyclopedia. Wikipedia, The Free Encyclopedia, 13 Jun. 2014. Web. 21 Oct. 2014. 
 #'
 #' @seealso \code{\link{optimCEGO}}, \code{\link{optimEA}}, \code{\link{optimRS}}, \code{\link{optimMaxMinDist}} 
 #' 
