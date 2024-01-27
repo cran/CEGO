@@ -41,7 +41,8 @@
 modelKrigingLikelihood <- function(xt,D,y,useLambda=FALSE,corr=fcorrGauss,
 								indefiniteMethod="none",indefiniteType="PSD",indefiniteRepair=FALSE,
 								returnLikelihoodOnly=TRUE,inverter = "chol",ntheta=1){	
-	n <- dim(y)[1] #number of observations	
+	n <- dim(y)[1] #number of observations
+	defaultPenalty <- n * log(var(y)) + 1e4
 	isIndefinite <- NA
 	
 	if(is.list(D)){ #in case of multiple distance matrices 
@@ -61,7 +62,7 @@ modelKrigingLikelihood <- function(xt,D,y,useLambda=FALSE,corr=fcorrGauss,
 		Psi <- corr(D,theta)
 	}
 	if(any(is.infinite(Psi))){ # this is required especially if distance matrices are forced to be CNSD/NSD and hence have zero distances
-	  penalty <- 1e4
+	  penalty <- defaultPenalty
 		if(returnLikelihoodOnly){
 			return(penalty)
 		}
@@ -82,7 +83,7 @@ modelKrigingLikelihood <- function(xt,D,y,useLambda=FALSE,corr=fcorrGauss,
 		#check whether indef-correction somehow yielded malformed values
 		if(any(is.na(Psi))){
 			#warning("NaN or NA values due to failed indefiniteness-correction in (in modelKrigingLikelihood). Returning penalty.")
-			penalty <- 1e4 
+			penalty <- defaultPenalty 
 			if(returnLikelihoodOnly){
 				return(penalty)
 			}
@@ -102,7 +103,7 @@ modelKrigingLikelihood <- function(xt,D,y,useLambda=FALSE,corr=fcorrGauss,
 		## give penalty if fail
 		if(class(cholPsi)[1] == "try-error"){
 			#warning("Correlation matrix is not positive semi-definite (in modelKrigingLikelihood). Returning penalty.")
-			penalty <- 1e4 - min(eigen(Psi,symmetric=TRUE,only.values=TRUE)$values) #the minimal eigenvalue should push the search towards positive eigenvalues
+			penalty <- defaultPenalty - min(eigen(Psi,symmetric=TRUE,only.values=TRUE)$values) #the minimal eigenvalue should push the search towards positive eigenvalues
 			if(returnLikelihoodOnly){
 				return(penalty)
 			}
@@ -116,7 +117,7 @@ modelKrigingLikelihood <- function(xt,D,y,useLambda=FALSE,corr=fcorrGauss,
 		Psinv <- try(chol2inv(cholPsi),TRUE)
 		if(class(Psinv)[1] == "try-error"){
 			#warning("Correlation matrix is not positive semi-definite (in modelKrigingLikelihood). Returning penalty.")
-			penalty <- 1e4 - min(eigen(Psi,symmetric=TRUE,only.values=TRUE)$values) #the minimal eigenvalue should push the search towards positive eigenvalues
+			penalty <- defaultPenalty - min(eigen(Psi,symmetric=TRUE,only.values=TRUE)$values) #the minimal eigenvalue should push the search towards positive eigenvalues
 			if(returnLikelihoodOnly){
 				return(penalty)
 			}
@@ -126,7 +127,7 @@ modelKrigingLikelihood <- function(xt,D,y,useLambda=FALSE,corr=fcorrGauss,
 		Psinv <- try(solve(Psi),TRUE) #inverse with LU decomposition
 		if(class(Psinv)[1] == "try-error"){
 			#warning("Correlation matrix is not positive semi-definite (in modelKrigingLikelihood). Returning penalty.")
-			penalty <- 1e4 - min(eigen(Psi,symmetric=TRUE,only.values=TRUE)$values) #the minimal eigenvalue should push the search towards larger eigenvalues
+			penalty <- defaultPenalty - min(eigen(Psi,symmetric=TRUE,only.values=TRUE)$values) #the minimal eigenvalue should push the search towards larger eigenvalues
 			if(returnLikelihoodOnly){
 				return(penalty)
 			}
@@ -142,7 +143,7 @@ modelKrigingLikelihood <- function(xt,D,y,useLambda=FALSE,corr=fcorrGauss,
 		kap <- 0
 	if(kap < 1e-10){ 
 		#warning("Correlation matrix is ill-conditioned (in modelKrigingLikelihood). Returning penalty.")
-    penalty <- 1e4 
+    penalty <- defaultPenalty 
 		if(returnLikelihoodOnly){
 			return(penalty)
 		}	
@@ -154,7 +155,7 @@ modelKrigingLikelihood <- function(xt,D,y,useLambda=FALSE,corr=fcorrGauss,
 		psisum <- as.numeric(rep(1,n) %*% Psinv %*% rep(1,n))
 		if(psisum==0){ #if it is still zero, return penalty
 			#warning("Sum of elements in inverse correlation matrix is zero (in modelKrigingLikelihood). Returning penalty.")
-			penalty <- 1e4 
+			penalty <- defaultPenalty 
 			if(returnLikelihoodOnly){
 				return(penalty)
 			}
@@ -164,7 +165,7 @@ modelKrigingLikelihood <- function(xt,D,y,useLambda=FALSE,corr=fcorrGauss,
 	mu <- sum(Psinv%*%y)/psisum
 	if(is.infinite(mu)|is.na(mu)){ 
 		#warning("MLE estimate of mu is infinite or NaN. Returning penalty.")
-		penalty <- 1e4 
+		penalty <- defaultPenalty 
 		if(returnLikelihoodOnly){
 			return(penalty)
 		}		
@@ -175,7 +176,7 @@ modelKrigingLikelihood <- function(xt,D,y,useLambda=FALSE,corr=fcorrGauss,
 	SigmaSqr <- crossprod(yMu,Psinv)%*%yMu/n
 	if(SigmaSqr < 0){ 
 		#warning("Maximum Likelihood Estimate of model parameter sigma^2 is negative (in modelKrigingLikelihood). Returning penalty. ")
-		penalty <- as.numeric(1e4-SigmaSqr)
+		penalty <- as.numeric(defaultPenalty-SigmaSqr)
 		if(returnLikelihoodOnly){
 			return(penalty)
 		}
@@ -183,7 +184,7 @@ modelKrigingLikelihood <- function(xt,D,y,useLambda=FALSE,corr=fcorrGauss,
 	}
 	NegLnLike <- n*log(SigmaSqr) + LnDetPsi
 	if(is.na(NegLnLike)|is.infinite(NegLnLike)){#this may happen eg if all y are 0
-		penalty <- 1e4 
+		penalty <- defaultPenalty 
 		if(returnLikelihoodOnly){
 			return(penalty)
 		}		

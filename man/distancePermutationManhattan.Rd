@@ -16,7 +16,7 @@ numeric distance value \deqn{d(x,y)}, scaled to values between 0 and 1 (based on
 }
 \description{
 Manhattan distance for permutations, scaled to values between 0 and 1:
-\deqn{d(x,y) = frac(1){r} \sum_{i=1}^n |x_i - y_i| }{ d(x,y) = 1/r * \sum_{i=1}^n  |x_i - y_i|}
+\deqn{d(x,y) = \frac{1}{r} \sum_{i=1}^n |x_i - y_i| }{ d(x,y) = 1/r * \sum_{i=1}^n  |x_i - y_i|}
 where n is the length of the permutations x and y, and scaling factor \eqn{r=(n^2-1)/2} (if n is odd)
 or \eqn{r=((n^2)/2} (if n is even).
 }

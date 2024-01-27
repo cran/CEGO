@@ -41,7 +41,7 @@ selfAdapt(
 
 \item{values}{values or levels of the discrete parameters}
 
-\item{nvaleus}{number of values for each discrete parameter}
+\item{nvalues}{number of values for each discrete parameter}
 }
 \description{
 Learning / self-adaption of parameters of the evolutionary algorithm.

@@ -1,9 +1,3 @@
-#   Copyright (c) 2014-2015 by Martin Zaefferer, Cologne University of Applied Sciences
-
-#TODO:
-# insert/shift mutation
-# reversal mutation
-
 ###################################################################################
 #' Permutation Generator Function
 #' 

@@ -1,5 +1,3 @@
-#   Copyright (c) 2014-2015 by Martin Zaefferer, Cologne University of Applied Sciences
-
 ##############################################################
 #' Negative Logarithm of Expected Improvement
 #'

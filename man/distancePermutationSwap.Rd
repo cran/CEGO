@@ -19,8 +19,9 @@ The swap distance is an edit-distance, counting how many edit operation (here: s
 performed to transform permutation x into permutation y.
 Note: In v2.4.0 of CEGO and earlier, this function actually computed the swap distance on the inverted permutations 
 (i.e., on the rankings, rather than orderin).
-This is now (v2.4.1 and later) corrected by inverting the permutations x and y before computing the distance (ie. computing ordering first).
+This is now (v2.4.2 and later) corrected by inverting the permutations x and y before computing the distance (ie. computing ordering first).
 The original behavior can be reproduced by \code{\link{distancePermutationSwapInv}}.
+This issue was kindly reported by Manuel Lopez-Ibanez and the difference in terms of behavior is discussed by Ekhine Irurozki and him (2021).
 }
 \examples{
 x <- 1:5
@@ -32,4 +33,6 @@ distanceMatrix(p,distancePermutationSwap)
 }
 \references{
 Schiavinotto, Tommaso, and Thomas Stuetzle. "A review of metrics on permutations for search landscape analysis." Computers & operations research 34.10 (2007): 3143-3153.
+
+Irurozki, Ekhine and Ibanez-Lopez Unbalanced Mallows Models for Optimizing Expensive Black-Box Permutation Problems. In Proceedings of the Genetic and Evolutionary Computation Conference, GECCO 2021. ACM Press, New York, NY, 2021. doi: 10.1145/3449639.3459366
 }

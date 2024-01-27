@@ -1,5 +1,3 @@
-#   Copyright (c) 2014-2015 by Martin Zaefferer, Cologne University of Applied Sciences
-
 ###################################################################################
 #' Combinatorial Efficient Global Optimization
 #' 
@@ -267,10 +265,10 @@ optimCEGO <- function(x=NULL,fun,control=list()){
 #' 
 #' Model building support function for optimCEGO. Should not be called directly.
 #' 
-#' @param x list of samples in input space
-#' @param y  matrix, column vector of observations for each sample
+#' @param res list with elements: (x) list of samples in input space and (y)  
+#'    matrix, column vector of observations for each sample
 #' @param distanceFunction a suitable distance function of type f(x1,x2), returning a scalar distance value, preferably between 0 and 1.
-#'      Maximum distances larger 1 are no problem, but may yield scaling bias when different measures are compared.
+#'    Maximum distances larger 1 are no problem, but may yield scaling bias when different measures are compared.
 #' 		Should be non-negative and symmetric.  In case Kriging is chosen, it can also be a list of several distance functions. In this case, MLE is used 
 #'		to determine the most suited distance measure (see the last reference).
 #' @param control list with options:

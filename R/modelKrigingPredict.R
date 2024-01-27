@@ -121,7 +121,6 @@ simulate.modelKriging <- function(object,nsim=1,seed=NA,xsim,conditionalSimulati
 #'
 #' @param object fit of the Kriging model (settings and parameters), of class \code{modelKriging}.
 #' @param x list of samples to be predicted
-#' @param ... further arguments, not used
 #'
 #' @return returns a list with:
 #' \describe{

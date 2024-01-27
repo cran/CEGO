@@ -1,14 +1,33 @@
 CEGO Patch Notes 
 
+Version 2.4.3 @ 
+	- New function: distanceSequenceLevenshtein for computing Levenshtein distances
+	  between numeric vectors or integer vectors.
+  - Fixed: bug that prevented optimCEGO from successfully dealing with multiple
+    distance functions simultaneously.
+	- Fixed: computing a more appropriate penalty in the likelihood function. 
+    Thus, a rare issues with larger numbers of samples in modelKriging should be avoided.
+	- Updates to function documentation 
+    (including a fixed error in the documentation of distancePermutationEuclidean, 
+    regarding scaling factor)
+    (including missing/superfluous/mistyped arguments)
+
 Version 2.4.2 @ 2021-05-13
-  - Fixed: distancePermutationSwap now computes the swap distance on the provided permutations rather on the inverse permutations.
-	  distancePermutationSwapInv reproduces the original behavior.
+  - Fixed: distancePermutationSwap now computes the swap distance on the provided 
+    permutations rather on the inverse permutations.
+    distancePermutationSwapInv reproduces the original behavior.
+    Manuel L?pez-Ib??ez kindly reported this issue. The difference in behavior 
+    between the two versions of the swap distance are discussed in the publication:
+    Ekhine Irurozki and Manuel L?pez-Ib??ez. 
+    Unbalanced Mallows Models for Optimizing Expensive Black-Box Permutation Problems. 
+    In Proceedings of the Genetic and Evolutionary Computation Conference, GECCO 2021. 
+    ACM Press, New York, NY, 2021. doi: 10.1145/3449639.3459366 
 	- Fixes an issue reported by CRAN / Prof. Ripley. 
-	  Specifically, this patch fixes an example, where the warning "data length differs from size of matrix" was produced.
+    Specifically, this patch fixes an example, where the warning "data length differs from size of matrix" was produced.
 	
 Version 2.4.0 @ 2019-12-07
   - Fixed a bug in optimMIES: strategy parameters are now removed correctly, before evaluating a candidate solution
-	  with the objective function. This bug affected evaluations of the initial population.
+    with the objective function. This bug affected evaluations of the initial population.
 	- testFunctionGeneratorSim: now has defaults for the control lists, as well as a fixed documentation
 	- Compliance with changes in R 4.0.0
 

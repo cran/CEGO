@@ -1,5 +1,3 @@
-#   Copyright (c) 2014-2016 by Martin Zaefferer, Cologne University of Applied Sciences
-
 ###################################################################################
 #' Hamming Distance for Strings
 #' 

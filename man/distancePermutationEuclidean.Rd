@@ -16,9 +16,9 @@ numeric distance value \deqn{d(x,y)}, scaled to values between 0 and 1 (based on
 }
 \description{
 Euclidean distance for permutations, scaled to values between 0 and 1:
-\deqn{d(x,y) = frac(1){r} sqrt(\sum_{i=1}^n (x_i - y_i)^2) }{ d(x,y) = 1/r * sqrt(\sum_{i=1}^n  (x_i - y_i)^2)}
-where n is the length of the permutations x and y, and scaling factor \eqn{r=sqrt(2*4*n*(n+1)*(2*n+1)/6)} (if n is odd)
-or \eqn{r=sqrt(2*n*(2*n-1)*(2*n+1)/3)} (if n is even).
+\deqn{d(x,y) = \frac{1}{r} \sqrt(\sum_{i=1}^n (x_i - y_i)^2) }{ d(x,y) = 1/r * sqrt(\sum_{i=1}^n  (x_i - y_i)^2)}
+where n is the length of the permutations x and y, and scaling factor \eqn{r=sqrt(2*4*c*(c+1)*(2*c+1)/6)} with \eqn{c=(n-1)/2} (if n is odd)
+or \eqn{r=sqrt(2*c*(2*c-1)*(2*c+1)/3)} with \eqn{c=n/2}  (if n is even).
 }
 \examples{
 x <- 1:5

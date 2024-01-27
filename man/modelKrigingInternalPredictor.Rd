@@ -10,8 +10,6 @@ modelKrigingInternalPredictor(object, x)
 \item{object}{fit of the Kriging model (settings and parameters), of class \code{modelKriging}.}
 
 \item{x}{list of samples to be predicted}
-
-\item{...}{further arguments, not used}
 }
 \value{
 returns a list with:

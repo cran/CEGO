@@ -527,9 +527,15 @@ modelKrigingDistanceCalculation <- function(x,distanceFunction,parameters=NA,
 	distances,scaling,combineDistances,indefiniteMethod,indefiniteType,indefiniteRepair,lower){
 	nd <- length(distanceFunction) # number of distance functions
 	
+	if(!is.null(distances)){
+	  nodistances <- is.na(distances[1])
+	}else{
+	  nodistances <- TRUE
+	}
+	
 	#calculate distance matrix
 	if(nd==1){ #one distance function
-		if(is.null(distances)){
+		if(nodistances){
 			if(any(is.na(parameters))) #no parameters given
 				D <-distanceMatrix(x,distanceFunction) 
 			else #parameters are given
@@ -542,7 +548,7 @@ modelKrigingDistanceCalculation <- function(x,distanceFunction,parameters=NA,
 			D <- D/maxD
     }    
 	}else{ #multiple distance functions
-		if(is.null(distances)){
+		if(nodistances){
 			D <- list()
 			maxD <- list()
 			indices <- rep(1:nd,sapply(lower,length)) #indices assigning each parameter to a distances function

@@ -1,5 +1,3 @@
-#   Copyright (c) 2014-2015 by Martin Zaefferer, Cologne University of Applied Sciences
-
 ###################################################################################
 #' Interchange Distance for Permutations
 #' 
@@ -123,8 +121,9 @@ distancePermutationLevenshtein <- function(x, y){
 #' performed to transform permutation x into permutation y.
 #' Note: In v2.4.0 of CEGO and earlier, this function actually computed the swap distance on the inverted permutations 
 #' (i.e., on the rankings, rather than orderin).
-#' This is now (v2.4.1 and later) corrected by inverting the permutations x and y before computing the distance (ie. computing ordering first).
+#' This is now (v2.4.2 and later) corrected by inverting the permutations x and y before computing the distance (ie. computing ordering first).
 #' The original behavior can be reproduced by \code{\link{distancePermutationSwapInv}}.
+#' This issue was kindly reported by Manuel Lopez-Ibanez and the difference in terms of behavior is discussed by Ekhine Irurozki and him (2021).
 #'
 #' @param x first permutation (integer vector)
 #' @param y second permutation (integer vector)
@@ -132,6 +131,7 @@ distancePermutationLevenshtein <- function(x, y){
 #' @return numeric distance value \deqn{d(x,y)}, scaled to values between 0 and 1 (based on the maximum possible distance between two permutations)
 #'
 #' @references Schiavinotto, Tommaso, and Thomas Stuetzle. "A review of metrics on permutations for search landscape analysis." Computers & operations research 34.10 (2007): 3143-3153.
+#' @references Irurozki, Ekhine and Ibanez-Lopez Unbalanced Mallows Models for Optimizing Expensive Black-Box Permutation Problems. In Proceedings of the Genetic and Evolutionary Computation Conference, GECCO 2021. ACM Press, New York, NY, 2021. doi: 10.1145/3449639.3459366 
 #'
 #' @examples
 #' x <- 1:5
@@ -343,9 +343,9 @@ distancePermutationHamming <- function(x, y){
 #' Euclidean Distance for Permutations
 #' 
 #' Euclidean distance for permutations, scaled to values between 0 and 1:
-#' \deqn{d(x,y) = frac(1){r} sqrt(\sum_{i=1}^n (x_i - y_i)^2) }{ d(x,y) = 1/r * sqrt(\sum_{i=1}^n  (x_i - y_i)^2)}
-#' where n is the length of the permutations x and y, and scaling factor \eqn{r=sqrt(2*4*n*(n+1)*(2*n+1)/6)} (if n is odd)
-#' or \eqn{r=sqrt(2*n*(2*n-1)*(2*n+1)/3)} (if n is even).
+#' \deqn{d(x,y) = \frac{1}{r} \sqrt(\sum_{i=1}^n (x_i - y_i)^2) }{ d(x,y) = 1/r * sqrt(\sum_{i=1}^n  (x_i - y_i)^2)}
+#' where n is the length of the permutations x and y, and scaling factor \eqn{r=sqrt(2*4*c*(c+1)*(2*c+1)/6)} with \eqn{c=(n-1)/2} (if n is odd)
+#' or \eqn{r=sqrt(2*c*(2*c-1)*(2*c+1)/3)} with \eqn{c=n/2}  (if n is even).
 #'
 #' @param x first permutation (integer vector)
 #' @param y second permutation (integer vector)
@@ -382,7 +382,7 @@ distancePermutationEuclidean <- function(x, y){
 #' Manhattan Distance for Permutations
 #' 
 #' Manhattan distance for permutations, scaled to values between 0 and 1:
-#' \deqn{d(x,y) = frac(1){r} \sum_{i=1}^n |x_i - y_i| }{ d(x,y) = 1/r * \sum_{i=1}^n  |x_i - y_i|}
+#' \deqn{d(x,y) = \frac{1}{r} \sum_{i=1}^n |x_i - y_i| }{ d(x,y) = 1/r * \sum_{i=1}^n  |x_i - y_i|}
 #' where n is the length of the permutations x and y, and scaling factor \eqn{r=(n^2-1)/2} (if n is odd)
 #' or \eqn{r=((n^2)/2} (if n is even).
 #'

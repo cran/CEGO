@@ -1,6 +1,4 @@
 ################################################################################
-#   Copyright (c) 2014-2019 by Martin Zaefferer, Cologne University of Applied Sciences (TH Koeln)
-################################################################################
 ##	This program is free software: you can redistribute it and/or modify
 ##  it under the terms of the GNU General Public License as published by
 ##  the Free Software Foundation, either version 3 of the License, or
@@ -26,15 +24,15 @@
 #' \tabular{ll}{
 #' Package: \tab CEGO\cr
 #' Type: \tab Package\cr
-#' Version: \tab 2.4.2\cr
-#' Date: \tab 2021-05-13\cr
+#' Version: \tab 2.4.3\cr
+#' Date: \tab 2024-01-27\cr
 #' License: \tab GPL (>= 3)\cr
 #' LazyLoad: \tab yes\cr
 #' }
 #'
-#' @name CEGO-package
-#' @aliases CEGO
-#' @docType package
+# @name CEGO-package
+# @aliases CEGO
+# @docType package
 #' @title Combinatorial Efficient Global Optimization in R
 #' @author Martin Zaefferer \email{mzaefferer@@gmail.com} 
 #' @references Zaefferer, Martin; Stork, Joerg; Friese, Martina; Fischbach, Andreas; Naujoks, Boris; Bartz-Beielstein, Thomas. (2014). Efficient global optimization for combinatorial problems. In Proceedings of the 2014 conference on Genetic and evolutionary computation (GECCO '14). ACM, New York, NY, USA, 871-878. DOI=10.1145/2576768.2598282
@@ -49,6 +47,7 @@
 #' @importFrom quadprog solve.QP
 #' @importFrom Matrix nearPD
 #' @importFrom methods formalArgs
+#' @importFrom anticlust balanced_clustering
 #' @useDynLib CEGO, .registration = TRUE, .fixes = "C_"
 #' 
 #' @section Acknowledgments:
@@ -56,5 +55,5 @@
 #' and Research (BMBF) under the grants CIMO (FKZ 17002X11) and
 #' MCIOP (FKZ 17N0311).
 #'
-NA #ends description
+"_PACKAGE" #ends description
 ################################################################################

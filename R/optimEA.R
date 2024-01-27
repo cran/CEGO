@@ -370,7 +370,7 @@ optimEA <- function(x=NULL,fun,control=list()){
 #' @param lower lower bounds (numeric, integer parameters only)
 #' @param upper upper bounds (numeric, integer parameters only)
 #' @param values values or levels of the discrete parameters
-#' @param nvaleus number of values for each discrete parameter
+#' @param nvalues number of values for each discrete parameter
 #'
 #' @seealso \code{\link{optimEA}}
 #' 

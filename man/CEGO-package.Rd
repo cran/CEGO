@@ -2,8 +2,8 @@
 % Please edit documentation in R/cegoPackage.R
 \docType{package}
 \name{CEGO-package}
-\alias{CEGO-package}
 \alias{CEGO}
+\alias{CEGO-package}
 \title{Combinatorial Efficient Global Optimization in R}
 \description{
 Combinatorial Efficient Global Optimization
@@ -17,8 +17,8 @@ modeling and handling of indefinite kernels/distances.
 \tabular{ll}{
 Package: \tab CEGO\cr
 Type: \tab Package\cr
-Version: \tab 2.4.2\cr
-Date: \tab 2021-05-13\cr
+Version: \tab 2.4.3\cr
+Date: \tab 2024-01-27\cr
 License: \tab GPL (>= 3)\cr
 LazyLoad: \tab yes\cr
 }

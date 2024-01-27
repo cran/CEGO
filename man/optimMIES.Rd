@@ -59,7 +59,7 @@ Mutation: Self-adaptive, step sizes sigma are optimized alongside the solution p
 Real-valued parameters are subject to variation based on independent normal distributed random variables. 
 Ordinal integers are subject to variation based on the difference of geometric distributions. 
 Categorical parameters are changed at random, with a self-adapted probability.
-Note, that a more simple bound constraint method is used. Instead of the Transformation T_{a,b}(x) 
+Note, that a more simple bound constraint method is used. Instead of the Transformation Ta,b(x) 
 described by Li et al., optimMIES simply replaces any value that exceeds the bounds by respective boundary value.
 }
 \details{

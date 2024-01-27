@@ -7,10 +7,13 @@
 buildModel(res, distanceFunction, control)
 }
 \arguments{
+\item{res}{list with elements: (x) list of samples in input space and (y)
+matrix, column vector of observations for each sample}
+
 \item{distanceFunction}{a suitable distance function of type f(x1,x2), returning a scalar distance value, preferably between 0 and 1.
- Maximum distances larger 1 are no problem, but may yield scaling bias when different measures are compared.
-    Should be non-negative and symmetric.  In case Kriging is chosen, it can also be a list of several distance functions. In this case, MLE is used 
-to determine the most suited distance measure (see the last reference).}
+Maximum distances larger 1 are no problem, but may yield scaling bias when different measures are compared.
+     Should be non-negative and symmetric.  In case Kriging is chosen, it can also be a list of several distance functions. In this case, MLE is used 
+ to determine the most suited distance measure (see the last reference).}
 
 \item{control}{list with options:
 \describe{
@@ -20,10 +23,6 @@ to determine the most suited distance measure (see the last reference).}
 \item{\code{infill}}{ This parameter specifies a function to be used for the infill criterion (e.g., the default is expected improvement \code{infillExpectedImprovement}).
 To use no specific infill criterion this has to be set to \code{NA}. Infill criteria are only used with models that may provide some error estimate with predictions.}
 }}
-
-\item{x}{list of samples in input space}
-
-\item{y}{matrix, column vector of observations for each sample}
 }
 \value{
 a list:
