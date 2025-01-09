@@ -1,10 +1,10 @@
-3905c502421f464d7f0b4d4e63701fc3 *DESCRIPTION
-000c8cef19117292e433904a74d45f8a *NAMESPACE
-fdb148c6cea08391de74017f1fd03d9f *NEWS
+2e5642c62285c618a3f6e3683979388d *DESCRIPTION
+15ba5ab0b2c23c2c2b0504599ff46fdf *NAMESPACE
+28459449b79b9b60c303e54c78daa675 *NEWS
 c357adedeb727a45e6a21aaab6f3daff *R/DoE.R
 0312b03abe1d132997fb74e2ba1231fa *R/binaryBenchmarkFunctions.R
 86b9fa95261550597ff28d89a81dd95e *R/binaryOperators.R
-7adf6eed0721cd42f48f5d91a4282381 *R/cegoPackage.R
+8d7f3f01ac1be58f4f43b292d0b9ebb5 *R/cegoPackage.R
 facd339c35d48d03f610e20bb31be58c *R/clusterKriging.R
 0d304c892c05b8c43998a343a5bd8114 *R/distanceBasedLandscapeGenerators.R
 dd898f20205cdb551597edd6156de4dd *R/distanceCalculation.R
@@ -22,7 +22,7 @@ e8ccf311b9029279bf54b7d2bdfc34cd *R/modelLm.R
 19bffd9c75fbd4e6f4b110e8bc36e92f *R/numericDistances.R
 df6b2f140a909fa481b1513baf7cdde7 *R/optim2opt.R
 8d75744a748a95dba297d661b1d3e3fb *R/optimCEGO.R
-e5b28a6896af3f7aeb7006dc3acab174 *R/optimEA.R
+98f0f9741a8ac3305b9e1485369cd76b *R/optimEA.R
 fede51a6e3f951b00c7c66ea08668e4c *R/optimInterface.R
 9129877e3b799c5ef3f9610c844c3f7a *R/optimMIES.R
 31ab8947f357a47f36f2282d5106850d *R/optimMaxMinDist.R
@@ -118,12 +118,12 @@ eb4fe7274cb41b695d1a9a87bf96c63d *man/mutationPermutationInterchange.Rd
 827ac23b09a8a96b348d6b06c64baae9 *man/mutationPermutationInterchangeCore.Rd
 ab9c40ac3cc9d287a6db8360a8abbee4 *man/mutationPermutationReversal.Rd
 52ed2d5325765398cacd4355193bdabe *man/mutationPermutationSwap.Rd
-aec5b3cb8bf4caa1093948a8375af458 *man/mutationSelfAdapt.Rd
+dee547446e19b99741a634eeb9b9431a *man/mutationSelfAdapt.Rd
 6ad7c3b69a55becc5b32d7e83350eeb3 *man/mutationStringRandomChange.Rd
 2d669c7c4ba5830779fb248db19bce85 *man/nearCNSD.Rd
 f7d9902c7f701e5d273e889411e06d9c *man/optim2Opt.Rd
 473f1c2fc7c5e05075cb82f262201b18 *man/optimCEGO.Rd
-3367baf025d49b556d74b43cc40666c6 *man/optimEA.Rd
+b716d6d7e96539986dde981573beef45 *man/optimEA.Rd
 be1739933ed23510dd3d9dae1470eef7 *man/optimInterface.Rd
 6aab01e6d5bb0e7d8bb0d78a53e0411b *man/optimMIES.Rd
 db02749abea5ca91b4934bb8c696833e *man/optimMaxMinDist.Rd
@@ -148,7 +148,7 @@ cdadd6b5e2ca43cf4824980232108f7a *man/recombinationStringSinglePointCrossover.Rd
 5a179403c9356330cbb5658f635cb64c *man/removeDuplicatesOffspring.Rd
 70a20a7d0e0537a417608a50bf28ce9b *man/repairConditionsCorrelationMatrix.Rd
 423241bdd2af9e59ef03c704219d95d9 *man/repairConditionsDistanceMatrix.Rd
-740892650c15cf96531e6ba8a8fb0dca *man/selfAdapt.Rd
+dde119d52425070a6e8689ad3571b4e4 *man/selfAdapt.Rd
 42762358ae801a20a997c812ca0e3cf4 *man/simulate.modelKriging.Rd
 fd7eca54e111fe79a5fc0ed4e154b591 *man/solutionFunctionGeneratorBinary.Rd
 6da6c8674f430f5d4f06a7426321685f *man/solutionFunctionGeneratorPermutation.Rd

@@ -19,7 +19,6 @@ based on self-adaptive parameters chosen for each individual separately.
 \examples{
 seed=0
 N=5
-require(ParamHelpers)
 #distance
 dF <- distancePermutationHamming
 #mutation
@@ -28,11 +27,11 @@ mutationPermutationInsert,mutationPermutationReversal)
 rFs <- c(recombinationPermutationCycleCrossover,recombinationPermutationOrderCrossover1,
 recombinationPermutationPositionBased,recombinationPermutationAlternatingPosition)
 mF <- mutationSelfAdapt
-selfAdaptiveParameters <- makeParamSet(
-	makeNumericParam("mutationRate", lower=1/N,upper=1, default=1/N),
-	makeDiscreteParam("mutationOperator", values=1:4, default=expression(sample(4,1))), 
+selfAdaptiveParameters <- list(
+	mutationRate = list(type="numeric", lower=1/N,upper=1, default=1/N),
+	mutationOperator = list(type="discrete", values=1:4, default=expression(sample(4,1))), 
 #1: swap, 2: interchange, 3: insert, 4: reversal mutation
-makeDiscreteParam("recombinationOperator", values=1:4, default=expression(sample(4,1))) 
+recombinationOperator = list(type="discrete", values=1:4, default=expression(sample(4,1))) 
 #1: CycleX, 2: OrderX, 3: PositionX, 4: AlternatingPosition
 )
 #recombination

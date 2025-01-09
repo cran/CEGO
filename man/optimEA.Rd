@@ -35,7 +35,7 @@ If \code{x} has less individuals than the population size, creationFunction will
   \item{\code{stoppingCriterionFunction}}{Custom additional stopping criterion. Function evaluated on the population, receiving all individuals (list) and their fitness (vector). If the result is FALSE, the algorithm stops.}
   \item{\code{verbosity}}{>0 for text output.}
   \item{\code{creationFunction}}{Function to create individuals/solutions in search space. Default is a function that creates random permutations of length 6.}
-  \item{\code{selfAdaption}}{An optional ParamHelpers object, that describes parameters of the optimization (see \code{parameters}) which are subject to self-adaption. An example is given in \link{mutationSelfAdapt}.}
+  \item{\code{selfAdaption}}{An optional list object, that describes parameters of the optimization (see \code{parameters}) which are subject to self-adaption. An example is given in \link{mutationSelfAdapt}. Types of the parameters can be integer, discrete, or numeric.}
   \item{\code{selfAdaptTau}}{Positive numeric value, that controls the learning rate of numerical/integer self-adaptive parameters.}
   \item{\code{selfAdaptP}}{Value in [0,1]. A probability of mutation for all categorical, self-adaptive parameters.}
 }}

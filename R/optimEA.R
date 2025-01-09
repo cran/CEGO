@@ -31,7 +31,7 @@
 #'   \item{\code{stoppingCriterionFunction}}{Custom additional stopping criterion. Function evaluated on the population, receiving all individuals (list) and their fitness (vector). If the result is FALSE, the algorithm stops.}
 #'   \item{\code{verbosity}}{>0 for text output.}
 #'   \item{\code{creationFunction}}{Function to create individuals/solutions in search space. Default is a function that creates random permutations of length 6.}
-#'   \item{\code{selfAdaption}}{An optional ParamHelpers object, that describes parameters of the optimization (see \code{parameters}) which are subject to self-adaption. An example is given in \link{mutationSelfAdapt}.}
+#'   \item{\code{selfAdaption}}{An optional list object, that describes parameters of the optimization (see \code{parameters}) which are subject to self-adaption. An example is given in \link{mutationSelfAdapt}. Types of the parameters can be integer, discrete, or numeric.}
 #'   \item{\code{selfAdaptTau}}{Positive numeric value, that controls the learning rate of numerical/integer self-adaptive parameters.}
 #'   \item{\code{selfAdaptP}}{Value in [0,1]. A probability of mutation for all categorical, self-adaptive parameters.}
 #' }
@@ -100,7 +100,6 @@
 #' 
 #' @export
 #'
-#' @import ParamHelpers
 #' @import fastmatch
 ###################################################################################
 optimEA <- function(x=NULL,fun,control=list()){ 
@@ -169,18 +168,21 @@ optimEA <- function(x=NULL,fun,control=list()){
 	## Create initial parameters (if self-adaptive)
 	populationSelfAdapt <- NA
 	if(!is.null(selfAdaption)){
-		populationSelfAdapt <- t(replicate(popsize,getDefaults(selfAdaption)))
-		types <- getParamTypes(selfAdaption)
-		lower <- getLower(selfAdaption)
-		upper <- getUpper(selfAdaption)
-		values <- sapply(getValues(selfAdaption,dict=list()),unlist,simplify=FALSE)
+		populationSelfAdapt <- t(replicate(popsize,lapply(lapply(selfAdaption,'[[',"default"),eval))) 
+		#t(replicate(popsize,getDefaults(old)))
+		types <- sapply(selfAdaption,'[[',"type") #getParamTypes(selfAdaption)
+		lower <- unlist(sapply(selfAdaption,'[[',"lower")) #getLower(selfAdaption)
+		upper <- unlist(sapply(selfAdaption,'[[',"upper")) #getUpper(selfAdaption)
+		values <- lapply(selfAdaption,'[[',"values") 
+		valnotnull <- !sapply(values,is.null)
+		values <- values[valnotnull]
+		  #values <- sapply(getValues(selfAdaption,dict=list()),unlist,simplify=FALSE)
 		inum <- types=="numeric"
 		icat <- types=="discrete"
 		iint <- types=="integer"
 		nnum <- sum(inum)
 		ncat <- sum(icat)
 		nint <- sum(iint)			
-		nvalues <- sapply(values,length)
 	}	
 	
 	if(vectorized) 
@@ -211,7 +213,7 @@ optimEA <- function(x=NULL,fun,control=list()){
 		parents <- sample(parents)
 		##  self-adapt parameters (recombine, apply learning)
 		if(!is.null(selfAdaption)){
-			offspringSelfAdapt <- selfAdapt(populationSelfAdapt[parents,],inum,icat,iint,nnum,ncat,nint,lower,upper,values,nvalues,selfAdaptTau,selfAdaptP) #adapt parameters (learn)
+			offspringSelfAdapt <- selfAdapt(populationSelfAdapt[parents,],inum,icat,iint,nnum,ncat,nint,lower,upper,values,selfAdaptTau,selfAdaptP) #adapt parameters (learn)
 			parameters$selfAdapt <- offspringSelfAdapt #get parameters of the offspring individuals
 		}				
 		## recombine parents
@@ -370,14 +372,13 @@ optimEA <- function(x=NULL,fun,control=list()){
 #' @param lower lower bounds (numeric, integer parameters only)
 #' @param upper upper bounds (numeric, integer parameters only)
 #' @param values values or levels of the discrete parameters
-#' @param nvalues number of values for each discrete parameter
 #'
 #' @seealso \code{\link{optimEA}}
 #' 
 #' @export
 #' @keywords internal
 ###################################################################################
-selfAdapt <- function(params,inum,icat,iint,nnum,ncat,nint,lower,upper,values,nvalues,tau,p){
+selfAdapt <- function(params,inum,icat,iint,nnum,ncat,nint,lower,upper,values,tau,p){
 	noff <- nrow(params)/2 #number of offspring, assumes 2 parents for each offspring
 	#tau <- 1/sqrt(2) # global parameter for this. mutation rate of the numeric/integer paremters
 	#p <- 0.5# global parameter for this. mutationr ate of the categorical parameters.
@@ -434,7 +435,6 @@ selfAdapt <- function(params,inum,icat,iint,nnum,ncat,nint,lower,upper,values,nv
 #' @examples
 #' seed=0
 #' N=5
-#' require(ParamHelpers)
 #' #distance
 #' dF <- distancePermutationHamming
 #' #mutation
@@ -443,13 +443,13 @@ selfAdapt <- function(params,inum,icat,iint,nnum,ncat,nint,lower,upper,values,nv
 #' rFs <- c(recombinationPermutationCycleCrossover,recombinationPermutationOrderCrossover1,
 #'	recombinationPermutationPositionBased,recombinationPermutationAlternatingPosition)
 #' mF <- mutationSelfAdapt
-#' selfAdaptiveParameters <- makeParamSet(
-#' 	makeNumericParam("mutationRate", lower=1/N,upper=1, default=1/N),
-#' 	makeDiscreteParam("mutationOperator", values=1:4, default=expression(sample(4,1))), 
+#' selfAdaptiveParameters <- list(
+#' 	mutationRate = list(type="numeric", lower=1/N,upper=1, default=1/N),
+#' 	mutationOperator = list(type="discrete", values=1:4, default=expression(sample(4,1))), 
 #'	#1: swap, 2: interchange, 3: insert, 4: reversal mutation
-#'	makeDiscreteParam("recombinationOperator", values=1:4, default=expression(sample(4,1))) 
+#'	recombinationOperator = list(type="discrete", values=1:4, default=expression(sample(4,1))) 
 #'	#1: CycleX, 2: OrderX, 3: PositionX, 4: AlternatingPosition
-#' )
+#')
 #' #recombination
 #' rF <-  recombinationSelfAdapt	 
 #' #creation

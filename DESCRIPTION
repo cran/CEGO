@@ -1,8 +1,10 @@
 Package: CEGO
-Version: 2.4.3
+Version: 2.4.4
 Title: Combinatorial Efficient Global Optimization
-Author: Martin Zaefferer <mzaefferer@gmail.com>
-Maintainer: Martin Zaefferer <mzaefferer@gmail.com>
+Authors@R: person(given = "Martin",
+					family = "Zaefferer",
+					role = c("aut", "cre"),
+                    email = "mzaefferer@gmail.com")
 Description: Model building, surrogate model
     based optimization and Efficient Global Optimization in combinatorial
     or mixed search spaces.
@@ -11,13 +13,15 @@ Type: Package
 LazyLoad: yes
 Depends: R (>= 3.0.0)
 Imports: MASS, stats, DEoptim, graphics, quadprog, Matrix, methods,
-        ParamHelpers, fastmatch, anticlust
+        fastmatch, anticlust
 Suggests: nloptr
 ByteCompile: TRUE
-Date: 2024-01-27
-RoxygenNote: 7.3.1
+Date: 2025-01-09
+RoxygenNote: 7.3.2
 Encoding: UTF-8
 NeedsCompilation: yes
-Packaged: 2024-01-27 18:51:45 UTC; Martin
+Packaged: 2025-01-09 20:31:05 UTC; Martin
+Author: Martin Zaefferer [aut, cre]
+Maintainer: Martin Zaefferer <mzaefferer@gmail.com>
 Repository: CRAN
-Date/Publication: 2024-01-27 21:30:03 UTC
+Date/Publication: 2025-01-09 21:10:05 UTC

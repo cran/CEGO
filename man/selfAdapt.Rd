@@ -15,7 +15,6 @@ selfAdapt(
   lower,
   upper,
   values,
-  nvalues,
   tau,
   p
 )
@@ -40,8 +39,6 @@ selfAdapt(
 \item{upper}{upper bounds (numeric, integer parameters only)}
 
 \item{values}{values or levels of the discrete parameters}
-
-\item{nvalues}{number of values for each discrete parameter}
 }
 \description{
 Learning / self-adaption of parameters of the evolutionary algorithm.
